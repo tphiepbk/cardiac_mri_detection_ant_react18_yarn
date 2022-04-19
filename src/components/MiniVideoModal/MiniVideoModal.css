@@ -1,0 +1,11 @@
+.mini-video-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+}
+
+.mini-video-modal__video {
+  width: 32vw;
+  height: 47vh;
+}

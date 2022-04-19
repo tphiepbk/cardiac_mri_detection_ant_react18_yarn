@@ -1,0 +1,394 @@
+import React from "react";
+import "./MultiVideoDiagnosis.css";
+import {
+  Button,
+  Descriptions,
+  Empty,
+  notification,
+  Skeleton,
+  List,
+  Modal,
+} from "antd";
+import {
+  UploadOutlined,
+  FundViewOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  MinusCircleOutlined,
+} from "@ant-design/icons";
+
+import VideoItem from "../../components/VideoItem/VideoItem";
+import SliceCard from "../../components/SliceCard/SliceCard";
+import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
+import MiniVideoModal from "../../components/MiniVideoModal/MiniVideoModal";
+
+export default function MultiVideoDiagnosis(props) {
+  const {
+    listInputVideo,
+    setListInputVideo,
+
+    setInteractive,
+
+    listPredictionResult,
+    setListPredictionResult,
+
+    increaseProgressBar,
+    clearProgressBar,
+    completeProgressBar,
+
+    processRunning,
+    setProcessRunning,
+
+    disabledButton,
+    setDisabledButton,
+
+    multiDiagnosis_listSlices,
+    setMultiDiagnosis_listSlices,
+
+    toggleErrorWarning,
+    toggleSuccessNotification,
+    toggleProcessRunningNotification,
+  } = props;
+
+  const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
+  const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
+
+  const showSliceModal = () => {
+    setIsSliceModalVisible(true);
+  };
+
+  const selectSlice = (sliceNumber) => {
+    console.log(`Selected slice ${sliceNumber}`);
+    setCurrentSliceSelected(sliceNumber);
+    showSliceModal();
+  };
+
+  const closeSliceModal = () => {
+    setIsSliceModalVisible(false);
+  };
+
+  const [isVideoModalVisible, setIsVideoModalVisible] = React.useState(false);
+  const [currentVideoSelected, setCurrentVideoSelected] = React.useState(0);
+
+  const showVideoModal = (event) => {
+    //event.stopPropagation()
+    setIsVideoModalVisible(true);
+  };
+
+  const closeVideoModal = () => {
+    setIsVideoModalVisible(false);
+  };
+
+  const selectVideo = (videoIndex) => {
+    console.log(`Selected video ${videoIndex}`);
+    setCurrentVideoSelected(videoIndex);
+  };
+
+  const toggleUploadFilesFailedNotification = () => {
+    notification["error"]({
+      message: "Upload failed",
+      description: "Cannot upload videos. Please try again later",
+    });
+  };
+
+  const uploadMultiVideos = async () => {
+    const filesOpenResponse = await window.electronAPI.openMultiFilesDialog();
+    console.log(filesOpenResponse);
+
+    if (filesOpenResponse.result === "SUCCESS") {
+      setListInputVideo(() =>
+        filesOpenResponse.videoObjectList.map((videoObject) => ({
+          index: videoObject.index,
+          name: videoObject.name,
+          path: videoObject.path,
+          convertedPath: videoObject.convertedPath,
+        }))
+      );
+    } else {
+      toggleUploadFilesFailedNotification();
+    }
+    setInteractive((prevInteractive) => !prevInteractive);
+  };
+
+  const uploadButtonClickHandler = () => {
+    clearProgressBar();
+    //setDiagnosisResult(0)
+    setInteractive((prevInteractive) => !prevInteractive);
+    uploadMultiVideos();
+    setCurrentVideoSelected(0);
+    setListInputVideo([]);
+    setListPredictionResult([]);
+  };
+
+  const toggleNoVideoWarning = () => {
+    notification["warning"]({
+      message: "No Video Found",
+      description: "Please upload video first",
+    });
+  };
+
+  const diagnose = async () => {
+    if (processRunning) {
+      toggleProcessRunningNotification();
+    } else {
+      clearProgressBar();
+      setDisabledButton(true);
+      if (listInputVideo.length === 0) {
+        toggleNoVideoWarning();
+      } else {
+        setProcessRunning(true);
+        const progressBarRunning = setInterval(
+          increaseProgressBar,
+          listInputVideo.length * 150
+        );
+
+        const predictionResponse =
+          await window.electronAPI.makeMultiplePrediction(listInputVideo);
+        console.log(predictionResponse);
+
+        clearInterval(progressBarRunning);
+        completeProgressBar();
+        setDisabledButton(false);
+
+        setMultiDiagnosis_listSlices(() => {
+          const returnValue = [];
+          for (let i = 0; i <= 10; i++) {
+            returnValue.push({
+              sliceNumber: i,
+              sliceImageUrl:
+                "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
+              sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+            });
+          }
+          return returnValue;
+        });
+
+        setProcessRunning(false);
+
+        if (predictionResponse.result === "SUCCESS") {
+          toggleSuccessNotification();
+          setListPredictionResult([
+            ...predictionResponse.returnedVideoObjectList,
+          ]);
+        } else {
+          toggleErrorWarning();
+        }
+      }
+    }
+  };
+
+  const changeDiagnosisResultHandler = () => {};
+
+  let today = new Date();
+  const dd = String(today.getDate()).padStart(2, "0");
+  const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  const yyyy = today.getFullYear();
+  today = dd + "/" + mm + "/" + yyyy;
+
+  return (
+    <div className="multi-video-diagnosis">
+      <div className="multi-video-diagnosis__upload-container">
+        <div className="multi-video-diagnosis__upload-container__upload-button">
+          {disabledButton ? (
+            <Button
+              type="primary"
+              shape="round"
+              icon={<UploadOutlined />}
+              size={10}
+              disabled
+            >
+              Upload file
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              shape="round"
+              icon={<UploadOutlined />}
+              size={10}
+              onClick={uploadButtonClickHandler}
+            >
+              Upload file
+            </Button>
+          )}
+        </div>
+
+        {listInputVideo.length === 0 ? (
+          <Empty
+            className="multi-video-diagnosis__upload-container__video-list--empty"
+            description="No video uploaded"
+          />
+        ) : (
+          <div className="multi-video-diagnosis__upload-container__video-list">
+            {listInputVideo.map((video, index) => (
+              <VideoItem
+                key={index}
+                videoName={video.name}
+                inspectClickHandler={showVideoModal}
+                clickHandler={() => selectVideo(video.index)}
+              />
+            ))}
+          </div>
+        )}
+
+        {isVideoModalVisible && (
+          <MiniVideoModal
+            closeVideoModalHandler={closeVideoModal}
+            videoIndex={listInputVideo[currentVideoSelected].index}
+            videoName={listInputVideo[currentVideoSelected].name}
+            videoPath={listInputVideo[currentVideoSelected].path}
+            videoConvertedPath={
+              listInputVideo[currentVideoSelected].convertedPath
+            }
+          />
+        )}
+
+        <div className="multi-video-diagnosis__upload-container__diagnose-button">
+          {disabledButton ? (
+            <Button
+              type="primary"
+              shape="round"
+              icon={<FundViewOutlined />}
+              size={10}
+              disabled
+            >
+              Diagnose
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              shape="round"
+              icon={<FundViewOutlined />}
+              size={10}
+              onClick={diagnose}
+            >
+              Diagnose
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="multi-video-diagnosis__diagnosis-result">
+        <div className="multi-video-diagnosis__diagnosis-result__result-panel">
+          <div className="multi--video-diagnosis__diagnosis-result__result-panel__result">
+            <h2>Result</h2>
+            <span>
+              {listPredictionResult.length === 0 ? (
+                <Button
+                  icon={<MinusCircleOutlined />}
+                  className="button-as-none-tag"
+                  size="large"
+                >
+                  NONE
+                </Button>
+              ) : parseFloat(
+                  listPredictionResult[currentVideoSelected].predictedValue
+                ) < 0.5 ? (
+                <Button
+                  icon={<CheckCircleOutlined />}
+                  className="button-as-success-tag"
+                  size="large"
+                >
+                  Normal
+                </Button>
+              ) : (
+                <Button
+                  icon={<CloseCircleOutlined />}
+                  className="button-as-danger-tag"
+                  size="large"
+                >
+                  Abnormal
+                </Button>
+              )}
+            </span>
+            {listPredictionResult.length === 0 ? (
+              <Button
+                type="primary"
+                shape="round"
+                style={{ marginLeft: "20px" }}
+                disabled
+              >
+                Change
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                shape="round"
+                style={{ marginLeft: "20px" }}
+                onClick={changeDiagnosisResultHandler}
+              >
+                Change
+              </Button>
+            )}
+          </div>
+
+          <div className="multi-video-diagnosis__diagnosis-result__result-panel__date-modified">
+            <h2>Date Modified</h2>
+            {listPredictionResult.length === 0 ? (
+              <Skeleton paragraph={{ rows: 0 }} />
+            ) : (
+              <h1>{today}</h1>
+            )}
+          </div>
+
+          <div className="multi-video-diagnosis__diagnosis-result__result-panel__save-record">
+            <h2>Save record</h2>
+            {listPredictionResult.length === 0 ? (
+              <Button
+                type="primary"
+                shape="round"
+                style={{ marginTop: "5px" }}
+                icon={<FundViewOutlined />}
+                size={10}
+                disabled
+              >
+                Proceed
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                shape="round"
+                style={{ marginTop: "5px" }}
+                icon={<FundViewOutlined />}
+                size={10}
+              >
+                Proceed
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {listPredictionResult.length === 0 ? (
+          <div className="multi-video-diagnosis__diagnosis-result__slices-panel--empty">
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          </div>
+        ) : (
+          <div className="multi-video-diagnosis__diagnosis-result__slices-panel">
+            {multiDiagnosis_listSlices.map((slice) => (
+              <SliceCard
+                key={slice.sliceNumber}
+                sliceNumber={slice.sliceNumber}
+                sliceImageUrl={slice.sliceImageUrl}
+                clickHandler={() => {
+                  selectSlice(slice.sliceNumber);
+                }}
+              />
+            ))}
+
+            {isSliceModalVisible && (
+              <SliceCardModal
+                closeModalHandler={closeSliceModal}
+                sliceNumber={currentSliceSelected}
+                sliceImageUrl={
+                  multiDiagnosis_listSlices[currentSliceSelected].sliceImageUrl
+                }
+                sliceVideoPath={
+                  multiDiagnosis_listSlices[currentSliceSelected].sliceVideoPath
+                }
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

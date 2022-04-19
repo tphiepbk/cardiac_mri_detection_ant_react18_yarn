@@ -1,0 +1,137 @@
+.multi-video-diagnosis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: 100%;
+}
+
+.multi-video-diagnosis__upload-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 60vw;
+  height: 100%;
+  gap: 25px;
+}
+
+.multi-video-diagnosis__upload-container__upload-button > button {
+  background-color: green;
+  border-color: green;
+  border-radius: 5px;
+}
+
+.multi-video-diagnosis__upload-container__video-list {
+  padding: 0.5em;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  border-radius: 10px;
+  align-self: center;
+  overflow: auto;
+
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.multi-video-diagnosis__upload-container__video-list--empty {
+  padding: 0.5em;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  border-radius: 10px;
+  align-self: center;
+
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.multi-video-diagnosis__upload-container__diagnose-button {
+  margin-top: 10px;
+  align-self: flex-end;
+}
+
+.multi-video-diagnosis__upload-container__diagnose-button > button {
+  background-color: orange;
+  border-color: orange;
+  border-radius: 5px;
+}
+
+.multi-video-diagnosis__diagnosis-result {
+  display: flex;
+  flex-direction: column;
+  width: 45vw;
+  height: 100%;
+}
+
+.multi-video-diagnosis__diagnosis-result__result-panel {
+  display: flex;
+  justify-content: space-between;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  padding: 15px 20px;
+  border-radius: 10px;
+}
+
+.multi-video-diagnosis__diagnosis-result__result-panel > * > h2 {
+  font-weight: bold;
+}
+
+.multi-video-diagnosis__diagnosis-result__slices-panel {
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  padding: 15px 20px;
+  border-radius: 10px;
+  overflow: auto;
+  height: 63vh;
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 49% 49%;
+  gap: 10px;
+}
+
+.multi-video-diagnosis__diagnosis-result__slices-panel--empty {
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  padding: 15px 20px;
+  border-radius: 10px;
+  overflow: auto;
+  height: 63vh;
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-as-success-tag {
+  color: #52c41a;
+  background: #f6ffed;
+  border-color: #b7eb8f;
+  font-size: large;
+  pointer-events: none;
+  margin-bottom: 15px;
+}
+
+.button-as-danger-tag {
+  color: #d4380d;
+  background: #fff2e8;
+  border-color: #ffbb96;
+  font-size: large;
+  pointer-events: none;
+  margin-bottom: 15px;
+}
+
+.button-as-none-tag {
+  color: #531dab;
+  background: #f9f0ff;
+  border-color: #d3adf7;
+  font-size: large;
+  pointer-events: none;
+  margin-bottom: 15px;
+}
+
+.ant-descriptions-header {
+  margin-bottom: 10px;
+}
