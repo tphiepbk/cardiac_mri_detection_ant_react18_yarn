@@ -1,21 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  appInteractive: true
+  interactive: true,
+  processRunning: false,
+  currentSelectedPage: "1",
 };
 
 const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
-    increaseProgressBar: (state, _action) => {
-      if (state.progressBar + 1 > 100) {
-        state.progressBar = 100;
-      } else {
-        state.progressBar += 1;
-      }
+    enableAppInteractive: (state, _action) => {
+      state.interactive = true;
+    },
+    disableAppInteractive: (state, _action) => {
+      state.interactive = false;
+    },
+    setProcessRunning: (state, action) => {
+      state.processRunning = action.payload;
+    },
+    setCurrentSelectedPage: (state, action) => {
+      state.currentSelectedPage = action.payload;
     },
   },
 });
 
-export default appSlice
+export default appSlice;

@@ -26,10 +26,10 @@ import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
 import "./VideoDiagnosis.css";
 import alertsSlice from "../../components/Alerts/alertsSlice";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
+import appSlice from "../../appSlice";
+import { appProcessRunningSelector } from "../../appSelector";
 
-export default function VideoDiagnosis(props) {
-  const { setInteractive, processRunning, setProcessRunning } = props;
-
+export default function VideoDiagnosis() {
   const dispatch = useDispatch();
 
   const videoPath = useSelector(videoPathSelector);
@@ -37,6 +37,8 @@ export default function VideoDiagnosis(props) {
   const disabledButton = useSelector(disabledButtonSelector);
   const diagnosisResult = useSelector(diagnosisResultSelector);
   const listSlices = useSelector(listSlicesSelector);
+
+  const processRunning = useSelector(appProcessRunningSelector);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
@@ -94,7 +96,7 @@ export default function VideoDiagnosis(props) {
       dispatch(alertsSlice.actions.openUploadFailedAlert());
     }
 
-    setInteractive((prevInteractive) => !prevInteractive);
+    dispatch(appSlice.actions.enableAppInteractive())
   };
 
   const uploadButtonClickHandler = () => {
@@ -119,7 +121,8 @@ export default function VideoDiagnosis(props) {
 
     dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(0));
 
-    setInteractive((prevInteractive) => !prevInteractive);
+    dispatch(appSlice.actions.disableAppInteractive())
+
     uploadVideo();
   };
 
@@ -134,7 +137,8 @@ export default function VideoDiagnosis(props) {
       if (videoPathSelector.avi === "") {
         dispatch(alertsSlice.actions.openNoVideoAlert());
       } else {
-        setProcessRunning(true);
+        dispatch(appSlice.actions.setProcessRunning(true))
+
         const progressBarRunning = setInterval(() => {
           dispatch(progressBarSlice.actions.increaseProgressBar());
         }, 250);
@@ -157,7 +161,7 @@ export default function VideoDiagnosis(props) {
         }
         dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
-        setProcessRunning(false);
+        dispatch(appSlice.actions.setProcessRunning(false))
 
         if (predictionResponse.result === "SUCCESS") {
           dispatch(alertsSlice.actions.openTaskSucceededAlert());

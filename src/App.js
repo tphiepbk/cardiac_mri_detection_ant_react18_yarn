@@ -1,8 +1,13 @@
 import React from "react";
 import "./App.css";
 import hcmutLogo from "./images/hcmut.png";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { progressBarSelector } from "./components/ProgressBar/progressBarSelector";
+import {
+  appInteractiveSelector,
+  appProcessRunningSelector,
+  appCurrentSelectedPageSelector,
+} from "./appSelector";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import VideoDiagnosis from "./pages/VideoDiagnosis/VideoDiagnosis";
@@ -22,18 +27,25 @@ import {
   PoweroffOutlined,
 } from "@ant-design/icons";
 import Alerts from "./components/Alerts/Alerts";
+import appSlice from "./appSlice";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 export default function App() {
+  const dispatch = useDispatch();
   const progressBarPercent = useSelector(progressBarSelector);
+
+  const currentSelectedPage = useSelector(appCurrentSelectedPageSelector);
+  const appInteractive = useSelector(appInteractiveSelector);
 
   // **************************************************** Used for all pages *********************************************************
 
-  const [currentPage, setCurrentPage] = React.useState("2");
+  // const [currentPage, setCurrentPage] = React.useState("2");
 
   const changePage = (pageKey) => {
-    if (!pageKey.includes("sub")) setCurrentPage(pageKey);
+    if (!pageKey.includes("sub")) {
+      dispatch(appSlice.actions.setCurrentSelectedPage(pageKey));
+    }
   };
 
   const [interactive, setInteractive] = React.useState(true);
@@ -68,18 +80,12 @@ export default function App() {
   // ********************************************************** Render Page **********************************************************
 
   let renderedPage;
-  switch (currentPage) {
+  switch (currentSelectedPage) {
     case "1":
       renderedPage = <Dashboard />;
       break;
     case "2":
-      renderedPage = (
-        <VideoDiagnosis
-          setInteractive={setInteractive}
-          processRunning={processRunning}
-          setProcessRunning={setProcessRunning}
-        />
-      );
+      renderedPage = <VideoDiagnosis />;
       break;
     case "3":
       renderedPage = <NPYDiagnosis />;
@@ -116,7 +122,9 @@ export default function App() {
 
   return (
     <div
-      className={"app-with-title-bar" + (interactive ? "" : " non-interactive")}
+      className={
+        "app-with-title-bar" + (appInteractive ? "" : " non-interactive")
+      }
     >
       <TitleBar />
       <div className="app-container">
@@ -133,7 +141,7 @@ export default function App() {
 
             <Menu
               theme="dark"
-              defaultSelectedKeys={["2"]}
+              defaultSelectedKeys={[currentSelectedPage]}
               mode="inline"
               onSelect={(key) => changePage(key.key)}
             >
