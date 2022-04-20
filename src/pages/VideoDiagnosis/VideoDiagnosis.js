@@ -1,6 +1,14 @@
 import React from "react";
 import ReactPlayer from "react-player";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import videoDiagnosisSlice from "./videoDiagnosisSlice";
+import {
+  videoPathSelector,
+  videoMetadataSelector,
+  diagnosisResultSelector,
+  disabledButtonSelector,
+  listSlicesSelector,
+} from "./videoDiagnosisSelector";
 
 import { Button, Descriptions, Empty, Skeleton } from "antd";
 
@@ -20,23 +28,15 @@ import alertsSlice from "../../components/Alerts/alertsSlice";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 
 export default function VideoDiagnosis(props) {
-  const {
-    videoPath,
-    setVideoPath,
-    videoMetadata,
-    setVideoMetadata,
-    setInteractive,
-    diagnosisResult,
-    setDiagnosisResult,
-    processRunning,
-    setProcessRunning,
-    disabledButton,
-    setDisabledButton,
-    listSlices,
-    setListSlices,
-  } = props;
+  const { setInteractive, processRunning, setProcessRunning } = props;
 
   const dispatch = useDispatch();
+
+  const videoPath = useSelector(videoPathSelector);
+  const videoMetadata = useSelector(videoMetadataSelector);
+  const disabledButton = useSelector(disabledButtonSelector);
+  const diagnosisResult = useSelector(diagnosisResultSelector);
+  const listSlices = useSelector(listSlicesSelector);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
@@ -63,13 +63,15 @@ export default function VideoDiagnosis(props) {
       const { format_long_name, duration } = response.target.format;
       const { height, width } = response.target.streams[0];
 
-      setVideoMetadata({
-        name: videoName,
-        format: format_long_name,
-        duration: duration,
-        height: height,
-        width: width,
-      });
+      dispatch(
+        videoDiagnosisSlice.actions.setVideoMetadata({
+          name: videoName,
+          format: format_long_name,
+          duration: duration,
+          height: height,
+          width: width,
+        })
+      );
     }
   };
 
@@ -79,10 +81,14 @@ export default function VideoDiagnosis(props) {
 
     if (response.result === "SUCCESS") {
       const { videoName, videoInputPath, videoOutputPath } = response;
-      setVideoPath({
-        avi: videoInputPath,
-        mp4: videoOutputPath,
-      });
+
+      dispatch(
+        videoDiagnosisSlice.actions.setVideoPath({
+          avi: videoInputPath,
+          mp4: videoOutputPath,
+        })
+      );
+
       getVideoMetadata(videoName, videoInputPath);
     } else {
       dispatch(alertsSlice.actions.openUploadFailedAlert());
@@ -92,14 +98,27 @@ export default function VideoDiagnosis(props) {
   };
 
   const uploadButtonClickHandler = () => {
+    dispatch(
+      videoDiagnosisSlice.actions.setVideoPath({
+        avi: "",
+        mp4: "",
+      })
+    );
 
-    setVideoPath({
-      avi: "",
-      mp4: "",
-    });
+    dispatch(
+      videoDiagnosisSlice.actions.setVideoMetadata({
+        name: "",
+        format: "",
+        duration: "",
+        height: "",
+        width: "",
+      })
+    );
 
     dispatch(progressBarSlice.actions.clearProgressBar());
-    setDiagnosisResult(0);
+
+    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(0));
+
     setInteractive((prevInteractive) => !prevInteractive);
     uploadVideo();
   };
@@ -109,8 +128,10 @@ export default function VideoDiagnosis(props) {
       dispatch(alertsSlice.actions.openTaskRunningAlert());
     } else {
       dispatch(progressBarSlice.actions.clearProgressBar());
-      setDisabledButton(true);
-      if (videoPath.avi === "") {
+
+      dispatch(videoDiagnosisSlice.actions.setDisabledButton(true));
+
+      if (videoPathSelector.avi === "") {
         dispatch(alertsSlice.actions.openNoVideoAlert());
       } else {
         setProcessRunning(true);
@@ -125,47 +146,49 @@ export default function VideoDiagnosis(props) {
         clearInterval(progressBarRunning);
         dispatch(progressBarSlice.actions.completeProgressBar());
 
-        setListSlices(() => {
-          const returnValue = [];
-          for (let i = 0; i <= 10; i++) {
-            returnValue.push({
-              sliceNumber: i,
-              sliceImageUrl:
-                "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
-              sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-            });
-          }
-          return returnValue;
-        });
+        const crawledListSlices = [];
+        for (let i = 0; i <= 10; i++) {
+          crawledListSlices.push({
+            sliceNumber: i,
+            sliceImageUrl:
+              "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
+            sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+          });
+        }
+        dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
         setProcessRunning(false);
 
         if (predictionResponse.result === "SUCCESS") {
           dispatch(alertsSlice.actions.openTaskSucceededAlert());
           if (parseFloat(predictionResponse.value) >= 0.5) {
-            setDiagnosisResult(1);
+            dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
           } else {
-            setDiagnosisResult(2);
+            dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(2));
           }
         } else {
           dispatch(alertsSlice.actions.openTaskFailedAlert());
         }
       }
-      setDisabledButton(false);
+      dispatch(videoDiagnosisSlice.actions.setDisabledButton(false));
     }
   };
 
   const changeDiagnosisResultHandler = () => {
-    setDiagnosisResult((prevState) => {
-      if (prevState === 0) return 0;
-      else if (prevState === 1) return 2;
-      else return 1;
-    });
+    switch (diagnosisResult) {
+      case 1:
+        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(2));
+        break;
+      case 2:
+        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
+        break;
+      default:
+    }
   };
 
   let today = new Date();
   const dd = String(today.getDate()).padStart(2, "0");
-  const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
   const yyyy = today.getFullYear();
   today = dd + "/" + mm + "/" + yyyy;
 
@@ -225,8 +248,14 @@ export default function VideoDiagnosis(props) {
           <Descriptions.Item label="Format">
             {videoMetadata.format}
           </Descriptions.Item>
-          <Descriptions.Item label="Duration">{`${videoMetadata.duration} s`}</Descriptions.Item>
-          <Descriptions.Item label="Size">{`${videoMetadata.width} x ${videoMetadata.height}`}</Descriptions.Item>
+          <Descriptions.Item label="Duration">
+            {videoMetadata.duration ? `${videoMetadata.duration} s` : ""}
+          </Descriptions.Item>
+          <Descriptions.Item label="Size">
+            {videoMetadata.width && videoMetadata.height
+              ? `${videoMetadata.width} x ${videoMetadata.height}`
+              : ""}
+          </Descriptions.Item>
         </Descriptions>
 
         <div className="video-diagnosis__upload-container__diagnose-button">

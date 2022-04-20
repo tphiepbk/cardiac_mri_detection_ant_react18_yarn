@@ -1,14 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  progressBar: 0,
-  currentSelectedPage: 4,
-  alertVisible: {
-    taskSucceeded: false,
-    taskFailed: false,
-    noVideo: false,
-    
-  }
+  appInteractive: true
 };
 
 const appSlice = createSlice({

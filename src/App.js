@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 import hcmutLogo from "./images/hcmut.png";
 import { useSelector } from "react-redux";
-import { progressBarPercentSelector } from "./redux/selector";
+import { progressBarSelector } from "./components/ProgressBar/progressBarSelector";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import VideoDiagnosis from "./pages/VideoDiagnosis/VideoDiagnosis";
@@ -26,10 +26,11 @@ import Alerts from "./components/Alerts/Alerts";
 const { Header, Content, Footer, Sider } = Layout;
 
 export default function App() {
-  const progressBarPercent = useSelector(progressBarPercentSelector);
+  const progressBarPercent = useSelector(progressBarSelector);
+
   // **************************************************** Used for all pages *********************************************************
 
-  const [currentPage, setCurrentPage] = React.useState("4");
+  const [currentPage, setCurrentPage] = React.useState("2");
 
   const changePage = (pageKey) => {
     if (!pageKey.includes("sub")) setCurrentPage(pageKey);
@@ -57,8 +58,6 @@ export default function App() {
 
   const [disabledButton, setDisabledButton] = React.useState(false);
 
-  const [listSlices, setListSlices] = React.useState([]);
-
   // ************************************************* Multi Video Diagnosis Page ****************************************************
 
   const [listInputVideo, setListInputVideo] = React.useState([]);
@@ -76,19 +75,9 @@ export default function App() {
     case "2":
       renderedPage = (
         <VideoDiagnosis
-          videoPath={videoPath}
-          setVideoPath={setVideoPath}
-          videoMetadata={videoMetadata}
-          setVideoMetadata={setVideoMetadata}
           setInteractive={setInteractive}
-          diagnosisResult={diagnosisResult}
-          setDiagnosisResult={setDiagnosisResult}
           processRunning={processRunning}
           setProcessRunning={setProcessRunning}
-          disabledButton={disabledButton}
-          setDisabledButton={setDisabledButton}
-          listSlices={listSlices}
-          setListSlices={setListSlices}
         />
       );
       break;
@@ -144,7 +133,7 @@ export default function App() {
 
             <Menu
               theme="dark"
-              defaultSelectedKeys={["4"]}
+              defaultSelectedKeys={["2"]}
               mode="inline"
               onSelect={(key) => changePage(key.key)}
             >

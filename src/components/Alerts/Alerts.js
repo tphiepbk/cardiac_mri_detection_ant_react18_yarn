@@ -3,11 +3,21 @@ import "./Alerts.css";
 import { Alert } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
-import { alertSelector } from "../../redux/selector";
+import {
+  taskSucceededAlertSelector,
+  taskFailedAlertSelector,
+  noVideoAlertSelector,
+  taskRunningAlertSelector,
+  uploadFailedAlertSelector,
+} from "./alertsSelector";
 import alertsSlice from "./alertsSlice";
 
 export default function Alerts() {
-  const alerts = useSelector(alertSelector);
+  const taskSucceededAlert = useSelector(taskSucceededAlertSelector)
+  const taskFailedAlert = useSelector(taskFailedAlertSelector)
+  const noVideoAlert = useSelector(noVideoAlertSelector)
+  const taskRunningAlert = useSelector(taskRunningAlertSelector)
+  const uploadFailedAlert = useSelector(uploadFailedAlertSelector)
 
   const dispatch = useDispatch();
 
@@ -32,7 +42,7 @@ export default function Alerts() {
   };
   return (
     <div className="alerts-container">
-      {alerts.taskSucceededAlert && (
+      {taskSucceededAlert && (
         <Alert
           style={{ marginBottom: "15px" }}
           message="Success"
@@ -44,7 +54,7 @@ export default function Alerts() {
           afterClose={closeTaskSucceededAlertHandler}
         />
       )}
-      {alerts.taskFailedAlert && (
+      {taskFailedAlert && (
         <Alert
           style={{ marginBottom: "15px" }}
           message="Something went wrong"
@@ -56,7 +66,7 @@ export default function Alerts() {
           afterClose={closeTaskFailedAlertHandler}
         />
       )}
-      {alerts.taskRunningAlert && (
+      {taskRunningAlert && (
         <Alert
           style={{ marginBottom: "15px" }}
           message="A task is running"
@@ -68,7 +78,7 @@ export default function Alerts() {
           afterClose={closeTaskRunningAlertHandler}
         />
       )}
-      {alerts.noVideoAlert && (
+      {noVideoAlert && (
         <Alert
           style={{ marginBottom: "15px" }}
           message="No video uploaded"
@@ -80,7 +90,7 @@ export default function Alerts() {
           afterClose={closeNoVideoAlertHandler}
         />
       )}
-      {alerts.uploadFailedAlert && (
+      {uploadFailedAlert && (
         <Alert
           style={{ marginBottom: "15px" }}
           message="Upload failed"
