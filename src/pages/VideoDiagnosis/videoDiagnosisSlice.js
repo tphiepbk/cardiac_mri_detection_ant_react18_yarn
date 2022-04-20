@@ -35,8 +35,11 @@ const videoDiagnosisSlice = createSlice({
     setDiagnosisResult: (state, action) => {
       state.diagnosisResult = action.payload;
     },
-    setDisabledButton: (state, action) => {
-      state.disabledButton = action.payload;
+    enableButton: (state, _action) => {
+      state.disabledButton = false; 
+    },
+    disableButton: (state, _action) => {
+      state.disabledButton = true; 
     },
     setListSlices: (state, action) => {
       state.listSlices = action.payload;

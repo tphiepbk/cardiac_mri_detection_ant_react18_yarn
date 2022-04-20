@@ -13,11 +13,16 @@ import VideoItem from "../../components/VideoItem/VideoItem";
 import SliceCard from "../../components/SliceCard/SliceCard";
 import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
 import MiniVideoModal from "../../components/MiniVideoModal/MiniVideoModal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import alertsSlice from "../../components/Alerts/alertsSlice";
+import appSlice from "../../appSlice";
+import multiVideoDiagnosisSlice from "./multiVideoDiagnosisSlice";
+import { appProcessRunningSelector } from "../../appSelector";
+import { disabledButtonSelector, listInputVideoSelector, listPredictionResultSelector, multiVideoListSlicesSelector } from "./multiVideoDiagnosisSelector";
 
 export default function MultiVideoDiagnosis(props) {
+  /*
   const {
     listInputVideo,
     setListInputVideo,
@@ -36,8 +41,15 @@ export default function MultiVideoDiagnosis(props) {
     multiDiagnosis_listSlices,
     setMultiDiagnosis_listSlices,
   } = props;
+    */
 
   const dispatch = useDispatch();
+
+  const processRunning = useSelector(appProcessRunningSelector);
+  const listInputVideo = useSelector(listInputVideoSelector);
+  const listPredictionResult = useSelector(listPredictionResultSelector);
+  const disabledButton = useSelector(disabledButtonSelector)
+  const multiVideoListSlices = useSelector(multiVideoListSlicesSelector)
 
   const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
@@ -77,6 +89,7 @@ export default function MultiVideoDiagnosis(props) {
     console.log(filesOpenResponse);
 
     if (filesOpenResponse.result === "SUCCESS") {
+      /*
       setListInputVideo(() =>
         filesOpenResponse.videoObjectList.map((videoObject) => ({
           index: videoObject.index,
@@ -85,22 +98,45 @@ export default function MultiVideoDiagnosis(props) {
           convertedPath: videoObject.convertedPath,
         }))
       );
+      */
+
+      dispatch(
+        multiVideoDiagnosisSlice.actions.setListInputVideo(
+          filesOpenResponse.videoObjectList.map((videoObject) => ({
+            index: videoObject.index,
+            name: videoObject.name,
+            path: videoObject.path,
+            convertedPath: videoObject.convertedPath,
+          }))
+        )
+      );
     } else {
       dispatch(alertsSlice.actions.openUploadFailedAlert());
     }
-    setInteractive((prevInteractive) => !prevInteractive);
+
+    //setInteractive((prevInteractive) => !prevInteractive);
+    dispatch(appSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
-    setListInputVideo([]);
+    //setListInputVideo([]);
+    dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
 
     dispatch(progressBarSlice.actions.clearProgressBar());
+
     //setDiagnosisResult(0)
-    setInteractive((prevInteractive) => !prevInteractive);
+
+    //setInteractive((prevInteractive) => !prevInteractive);
+    dispatch(appSlice.actions.disableAppInteractive());
+
     uploadMultiVideos();
     setCurrentVideoSelected(0);
-    setListInputVideo([]);
-    setListPredictionResult([]);
+
+    //setListInputVideo([]);
+    dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
+
+    //setListPredictionResult([]);
+    dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
   };
 
   const diagnose = async () => {
@@ -108,11 +144,17 @@ export default function MultiVideoDiagnosis(props) {
       dispatch(alertsSlice.actions.openTaskRunningAlert());
     } else {
       dispatch(progressBarSlice.actions.clearProgressBar());
-      setDisabledButton(true);
+
+      //setDisabledButton(true);
+      dispatch(multiVideoDiagnosisSlice.actions.disableButton())
+
       if (listInputVideo.length === 0) {
         dispatch(alertsSlice.actions.openNoVideoAlert());
       } else {
-        setProcessRunning(true);
+
+        //setProcessRunning(true);
+        dispatch(appSlice.actions.setProcessRunning(true))
+
         const progressBarRunning = setInterval(() => {
           dispatch(progressBarSlice.actions.increaseProgressBar());
         }, listInputVideo.length * 150);
@@ -123,8 +165,11 @@ export default function MultiVideoDiagnosis(props) {
 
         clearInterval(progressBarRunning);
         dispatch(progressBarSlice.actions.completeProgressBar());
-        setDisabledButton(false);
 
+        //setDisabledButton(false);
+        dispatch(multiVideoDiagnosisSlice.actions.enableButton());
+
+        /*
         setMultiDiagnosis_listSlices(() => {
           const returnValue = [];
           for (let i = 0; i <= 10; i++) {
@@ -137,14 +182,34 @@ export default function MultiVideoDiagnosis(props) {
           }
           return returnValue;
         });
+        */
 
-        setProcessRunning(false);
+        const crawledMultiVideoListSlices = [];
+        for (let i = 0; i <= 10; i++) {
+          crawledMultiVideoListSlices.push({
+            sliceNumber: i,
+            sliceImageUrl:
+              "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
+            sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+          });
+        }
+        dispatch(multiVideoDiagnosisSlice.actions.setMultiVideoListSlices(crawledMultiVideoListSlices))
+
+        //setProcessRunning(false);
+        dispatch(appSlice.actions.setProcessRunning(false))
 
         if (predictionResponse.result === "SUCCESS") {
           dispatch(alertsSlice.actions.openTaskSucceededAlert());
+
+          /*
           setListPredictionResult([
             ...predictionResponse.returnedVideoObjectList,
           ]);
+          */
+          dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult(
+            [...predictionResponse.returnedVideoObjectList]
+          ))
+
         } else {
           dispatch(alertsSlice.actions.openTaskFailedAlert());
         }
@@ -338,7 +403,7 @@ export default function MultiVideoDiagnosis(props) {
           </div>
         ) : (
           <div className="multi-video-diagnosis__diagnosis-result__slices-panel">
-            {multiDiagnosis_listSlices.map((slice) => (
+            {multiVideoListSlices.map((slice) => (
               <SliceCard
                 key={slice.sliceNumber}
                 sliceNumber={slice.sliceNumber}
@@ -354,10 +419,10 @@ export default function MultiVideoDiagnosis(props) {
                 closeModalHandler={closeSliceModal}
                 sliceNumber={currentSliceSelected}
                 sliceImageUrl={
-                  multiDiagnosis_listSlices[currentSliceSelected].sliceImageUrl
+                  multiVideoListSlices[currentSliceSelected].sliceImageUrl
                 }
                 sliceVideoPath={
-                  multiDiagnosis_listSlices[currentSliceSelected].sliceVideoPath
+                  multiVideoListSlices[currentSliceSelected].sliceVideoPath
                 }
               />
             )}

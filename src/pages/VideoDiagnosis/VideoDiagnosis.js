@@ -132,7 +132,7 @@ export default function VideoDiagnosis() {
     } else {
       dispatch(progressBarSlice.actions.clearProgressBar());
 
-      dispatch(videoDiagnosisSlice.actions.setDisabledButton(true));
+      dispatch(videoDiagnosisSlice.actions.disableButton());
 
       if (videoPathSelector.avi === "") {
         dispatch(alertsSlice.actions.openNoVideoAlert());
@@ -174,7 +174,7 @@ export default function VideoDiagnosis() {
           dispatch(alertsSlice.actions.openTaskFailedAlert());
         }
       }
-      dispatch(videoDiagnosisSlice.actions.setDisabledButton(false));
+      dispatch(videoDiagnosisSlice.actions.enableButton());
     }
   };
 

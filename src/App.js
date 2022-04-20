@@ -38,46 +38,11 @@ export default function App() {
   const currentSelectedPage = useSelector(appCurrentSelectedPageSelector);
   const appInteractive = useSelector(appInteractiveSelector);
 
-  // **************************************************** Used for all pages *********************************************************
-
-  // const [currentPage, setCurrentPage] = React.useState("2");
-
   const changePage = (pageKey) => {
     if (!pageKey.includes("sub")) {
       dispatch(appSlice.actions.setCurrentSelectedPage(pageKey));
     }
   };
-
-  const [interactive, setInteractive] = React.useState(true);
-
-  const [processRunning, setProcessRunning] = React.useState(false);
-
-  // **************************************************** Video Diagnosis Page *******************************************************
-
-  const [videoPath, setVideoPath] = React.useState({
-    avi: "",
-    mp4: "",
-  });
-  const [videoMetadata, setVideoMetadata] = React.useState({
-    name: "",
-    format: "",
-    duration: 0,
-    height: 0,
-    width: 0,
-  });
-
-  const [diagnosisResult, setDiagnosisResult] = React.useState(0);
-
-  const [disabledButton, setDisabledButton] = React.useState(false);
-
-  // ************************************************* Multi Video Diagnosis Page ****************************************************
-
-  const [listInputVideo, setListInputVideo] = React.useState([]);
-  const [listPredictionResult, setListPredictionResult] = React.useState([]);
-  const [multiDiagnosis_listSlices, setMultiDiagnosis_listSlices] =
-    React.useState([]);
-
-  // ********************************************************** Render Page **********************************************************
 
   let renderedPage;
   switch (currentSelectedPage) {
@@ -91,27 +56,7 @@ export default function App() {
       renderedPage = <NPYDiagnosis />;
       break;
     case "4":
-      renderedPage = (
-        <MultiVideoDiagnosis
-          videoPath={videoPath}
-          setVideoPath={setVideoPath}
-          videoMetadata={videoMetadata}
-          setVideoMetadata={setVideoMetadata}
-          listInputVideo={listInputVideo}
-          setListInputVideo={setListInputVideo}
-          listPredictionResult={listPredictionResult}
-          setListPredictionResult={setListPredictionResult}
-          setInteractive={setInteractive}
-          diagnosisResult={diagnosisResult}
-          setDiagnosisResult={setDiagnosisResult}
-          processRunning={processRunning}
-          setProcessRunning={setProcessRunning}
-          disabledButton={disabledButton}
-          setDisabledButton={setDisabledButton}
-          multiDiagnosis_listSlices={multiDiagnosis_listSlices}
-          setMultiDiagnosis_listSlices={setMultiDiagnosis_listSlices}
-        />
-      );
+      renderedPage = <MultiVideoDiagnosis />;
       break;
     case "5":
       renderedPage = <MultiNPYDiagnosis />;
@@ -172,14 +117,7 @@ export default function App() {
               <ProgressBar percent={progressBarPercent} />
               {/*
               <Space size={15}>
-                <Progress
-                  className="progress-bar"
-                  strokeColor={{
-                    from: "#108ee9",
-                    to: "#87d068",
-                  }}
-                  percent={progressBarState}
-                />
+                <ProgressBar percent={progressBarPercent} />
                 <Button
                   type="primary"
                   shape="circle"
@@ -188,7 +126,7 @@ export default function App() {
                   danger
                 />
               </Space>
-                 */}
+              */}
 
               <Space size={15}>
                 <Avatar src="https://joeschmoe.io/api/v1/random" />
