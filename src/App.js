@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./App.css";
 import hcmutLogo from "./images/hcmut.png";
+import { useSelector } from "react-redux";
+import { progressBarPercentSelector } from "./redux/selector";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import VideoDiagnosis from "./pages/VideoDiagnosis/VideoDiagnosis";
@@ -9,7 +11,9 @@ import MultiVideoDiagnosis from "./pages/MultiVideoDiagnosis/MultiVideoDiagnosis
 import MultiNPYDiagnosis from "./pages/MultiNPYDiagnosis/MultiNPYDiagnosis";
 import TitleBar from "./components/TitleBar/TitleBar";
 
-import { Layout, Menu, Avatar, Button, Space, Progress, Alert } from "antd";
+import { Layout, Menu, Avatar, Button, Space, Alert } from "antd";
+
+import ProgressBar from "./components/ProgressBar/ProgressBar";
 
 import {
   DesktopOutlined,
@@ -18,10 +22,12 @@ import {
   PoweroffOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
+import Alerts from "./components/Alerts/Alerts";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 export default function App() {
+  const progressBarPercent = useSelector(progressBarPercentSelector)
   // **************************************************** Used for all pages *********************************************************
 
   const [currentPage, setCurrentPage] = React.useState("4");
@@ -30,7 +36,8 @@ export default function App() {
     if (!pageKey.includes("sub")) setCurrentPage(pageKey);
   };
 
-  const [progressBarState, setProgressBarState] = React.useState(90);
+  /*
+  const [progressBarState, setProgressBarState] = React.useState(0);
 
   const increaseProgressBar = () => {
     setProgressBarState((prevPercent) => {
@@ -49,7 +56,9 @@ export default function App() {
   const clearProgressBar = () => {
     setProgressBarState(0);
   };
+  */
 
+  /*
   const [alertVisible, setAlertVisible] = useState({
     success: false,
     warning: false,
@@ -95,6 +104,7 @@ export default function App() {
       error: false,
     }));
   };
+  */
 
   const [interactive, setInteractive] = React.useState(true);
 
@@ -146,16 +156,20 @@ export default function App() {
           setDiagnosisResult={setDiagnosisResult}
           processRunning={processRunning}
           setProcessRunning={setProcessRunning}
+          /*
           increaseProgressBar={increaseProgressBar}
           clearProgressBar={clearProgressBar}
           completeProgressBar={completeProgressBar}
+          */
           disabledButton={disabledButton}
           setDisabledButton={setDisabledButton}
           listSlices={listSlices}
           setListSlices={setListSlices}
+          /*
           toggleErrorWarning={toggleErrorWarning}
           toggleSuccessNotification={toggleSuccessNotification}
           toggleProcessRunningNotification={toggleProcessRunningNotification}
+          */
         />
       );
       break;
@@ -178,16 +192,20 @@ export default function App() {
           setDiagnosisResult={setDiagnosisResult}
           processRunning={processRunning}
           setProcessRunning={setProcessRunning}
+          /*
           increaseProgressBar={increaseProgressBar}
           clearProgressBar={clearProgressBar}
           completeProgressBar={completeProgressBar}
+          */
           disabledButton={disabledButton}
           setDisabledButton={setDisabledButton}
           multiDiagnosis_listSlices={multiDiagnosis_listSlices}
           setMultiDiagnosis_listSlices={setMultiDiagnosis_listSlices}
+          /*
           toggleErrorWarning={toggleErrorWarning}
           toggleSuccessNotification={toggleSuccessNotification}
           toggleProcessRunningNotification={toggleProcessRunningNotification}
+          */
         />
       );
       break;
@@ -204,46 +222,9 @@ export default function App() {
     >
       <TitleBar />
       <div className="app-container">
-        <div className="alerts-container">
-          {alertVisible.success && (
-            <Alert
-              style={{ marginBottom: "15px" }}
-              message="Success"
-              description="Task ran successfully."
-              type="success"
-              showIcon
-              closable
-              banner
-              afterClose={closeSuccessAlert}
-            />
-          )}
-          {alertVisible.error && (
-            <Alert
-              style={{ marginBottom: "15px" }}
-              message="Something went wrong"
-              description="Please try again later."
-              type="error"
-              showIcon
-              closable
-              banner
-              afterClose={closeErrorAlert}
-            />
-          )}
-          {alertVisible.warning && (
-            <Alert
-              style={{ marginBottom: "15px" }}
-              message="A task is running"
-              description="Please try again later"
-              type="warning"
-              showIcon
-              closable
-              banner
-              afterClose={closeWarningAlert}
-            />
-          )}
-        </div>
 
         <Layout style={{ minHeight: "96.9vh" }}>
+          <Alerts />
           <Sider>
             <div className="sidebar__logo-container">
               <img
@@ -283,14 +264,7 @@ export default function App() {
 
           <Layout className="site-layout">
             <Header className="header">
-              <Progress
-                className="progress-bar"
-                strokeColor={{
-                  from: "#108ee9",
-                  to: "#87d068",
-                }}
-                percent={progressBarState}
-              />
+              <ProgressBar percent={progressBarPercent}/>
               {/*
               <Space size={15}>
                 <Progress

@@ -1,0 +1,17 @@
+.progress-bar {
+  width: 50vw;
+}
+
+.progress-bar > .ant-progress-outer > .ant-progress-inner{
+  height: 15px;
+  background-color: 	#E0E0E0;
+}
+
+.progress-bar > .ant-progress-outer > .ant-progress-inner > .ant-progress-bg{
+  height: 100% !important;
+}
+
+.progress-bar > .ant-progress-text {
+  font-weight: bold;
+  font-size: 14px;
+}

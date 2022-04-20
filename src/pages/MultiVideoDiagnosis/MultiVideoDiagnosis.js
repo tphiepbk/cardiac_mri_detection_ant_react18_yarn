@@ -21,6 +21,9 @@ import VideoItem from "../../components/VideoItem/VideoItem";
 import SliceCard from "../../components/SliceCard/SliceCard";
 import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
 import MiniVideoModal from "../../components/MiniVideoModal/MiniVideoModal";
+import { useDispatch } from "react-redux";
+import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
+import alertsSlice from "../../components/Alerts/alertsSlice";
 
 export default function MultiVideoDiagnosis(props) {
   const {
@@ -32,9 +35,11 @@ export default function MultiVideoDiagnosis(props) {
     listPredictionResult,
     setListPredictionResult,
 
+    /*
     increaseProgressBar,
     clearProgressBar,
     completeProgressBar,
+    */
 
     processRunning,
     setProcessRunning,
@@ -45,10 +50,14 @@ export default function MultiVideoDiagnosis(props) {
     multiDiagnosis_listSlices,
     setMultiDiagnosis_listSlices,
 
+    /*
     toggleErrorWarning,
     toggleSuccessNotification,
     toggleProcessRunningNotification,
+    */
   } = props;
+
+  const dispatch = useDispatch();
 
   const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
@@ -111,7 +120,8 @@ export default function MultiVideoDiagnosis(props) {
   };
 
   const uploadButtonClickHandler = () => {
-    clearProgressBar();
+    //clearProgressBar();
+    dispatch(progressBarSlice.actions.clearProgressBar())
     //setDiagnosisResult(0)
     setInteractive((prevInteractive) => !prevInteractive);
     uploadMultiVideos();
@@ -129,16 +139,20 @@ export default function MultiVideoDiagnosis(props) {
 
   const diagnose = async () => {
     if (processRunning) {
-      toggleProcessRunningNotification();
+      //toggleProcessRunningNotification();
+      dispatch(alertsSlice.actions.openTaskRunningAlert())
     } else {
-      clearProgressBar();
+      //clearProgressBar();
+      dispatch(progressBarSlice.actions.clearProgressBar())
       setDisabledButton(true);
       if (listInputVideo.length === 0) {
         toggleNoVideoWarning();
       } else {
         setProcessRunning(true);
         const progressBarRunning = setInterval(
-          increaseProgressBar,
+          () => {
+            dispatch(progressBarSlice.actions.increaseProgressBar())
+          },
           listInputVideo.length * 150
         );
 
@@ -147,7 +161,8 @@ export default function MultiVideoDiagnosis(props) {
         console.log(predictionResponse);
 
         clearInterval(progressBarRunning);
-        completeProgressBar();
+        //completeProgressBar();
+        dispatch(progressBarSlice.actions.completeProgressBar())
         setDisabledButton(false);
 
         setMultiDiagnosis_listSlices(() => {
@@ -166,12 +181,14 @@ export default function MultiVideoDiagnosis(props) {
         setProcessRunning(false);
 
         if (predictionResponse.result === "SUCCESS") {
-          toggleSuccessNotification();
+          //toggleSuccessNotification();
+          dispatch(alertsSlice.actions.openTaskSucceededAlert())
           setListPredictionResult([
             ...predictionResponse.returnedVideoObjectList,
           ]);
         } else {
-          toggleErrorWarning();
+          //toggleErrorWarning();
+          dispatch(alertsSlice.actions.openTaskFailedAlert())
         }
       }
     }

@@ -1,7 +1,8 @@
 import React from "react";
 import ReactPlayer from "react-player";
+import { useDispatch } from "react-redux";
 
-import { Button, Descriptions, Empty, notification, Skeleton } from "antd";
+import { Button, Descriptions, Empty, Skeleton } from "antd";
 
 import {
   UploadOutlined,
@@ -15,6 +16,8 @@ import SliceCard from "../../components/SliceCard/SliceCard";
 import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
 
 import "./VideoDiagnosis.css";
+import alertsSlice from "../../components/Alerts/alertsSlice";
+import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 
 export default function VideoDiagnosis(props) {
   const {
@@ -25,19 +28,25 @@ export default function VideoDiagnosis(props) {
     setInteractive,
     diagnosisResult,
     setDiagnosisResult,
+    /*
     increaseProgressBar,
     clearProgressBar,
     completeProgressBar,
+    */
     processRunning,
     setProcessRunning,
     disabledButton,
     setDisabledButton,
     listSlices,
     setListSlices,
+    /*
     toggleErrorWarning,
     toggleSuccessNotification,
     toggleProcessRunningNotification,
+    */
   } = props;
+
+  const dispatch = useDispatch();
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
@@ -75,7 +84,11 @@ export default function VideoDiagnosis(props) {
   };
 
   const uploadVideo = async () => {
-    notification.destroy();
+    setVideoPath({
+      avi: "",
+      mp4: "",
+    });
+
     const response = await window.electronAPI.openFileDialog();
     console.log(response);
 
@@ -87,45 +100,54 @@ export default function VideoDiagnosis(props) {
       });
       getVideoMetadata(videoName, videoInputPath);
     } else {
-      toggleErrorWarning();
+      //toggleErrorWarning();
+      dispatch(alertsSlice.actions.openCanceledUploadVideoAlert());
     }
 
     setInteractive((prevInteractive) => !prevInteractive);
   };
 
   const uploadButtonClickHandler = () => {
-    clearProgressBar();
+    //clearProgressBar();
+    dispatch(progressBarSlice.actions.clearProgressBar());
     setDiagnosisResult(0);
     setInteractive((prevInteractive) => !prevInteractive);
     uploadVideo();
   };
 
   const toggleNoVideoWarning = () => {
+    /*
     notification["warning"]({
       message: "No Video Found",
       description: "Please upload video first",
     });
+    */
   };
 
   const diagnose = async () => {
     if (processRunning) {
-      toggleProcessRunningNotification();
+      //toggleProcessRunningNotification();
+      dispatch(alertsSlice.actions.openTaskRunningAlert());
     } else {
-      clearProgressBar();
+      //clearProgressBar();
+      dispatch(progressBarSlice.actions.clearProgressBar());
       setDisabledButton(true);
       if (videoPath.avi === "") {
-        toggleNoVideoWarning();
+        //toggleNoVideoWarning();
+        dispatch(alertsSlice.actions.openNoVideoAlert());
       } else {
         setProcessRunning(true);
-        const progressBarRunning = setInterval(increaseProgressBar, 250);
+        const progressBarRunning = setInterval(() => {
+          dispatch(progressBarSlice.actions.increaseProgressBar());
+        }, 250);
 
         const predictionResponse =
           await window.electronAPI.makeSinglePrediction(videoPath.avi);
         console.log(predictionResponse);
 
         clearInterval(progressBarRunning);
-        completeProgressBar();
-        setDisabledButton(false);
+        //completeProgressBar();
+        dispatch(progressBarSlice.actions.completeProgressBar());
 
         setListSlices(() => {
           const returnValue = [];
@@ -143,16 +165,19 @@ export default function VideoDiagnosis(props) {
         setProcessRunning(false);
 
         if (predictionResponse.result === "SUCCESS") {
-          toggleSuccessNotification();
+          //toggleSuccessNotification();
+          dispatch(alertsSlice.actions.openTaskSucceededAlert());
           if (parseFloat(predictionResponse.value) >= 0.5) {
             setDiagnosisResult(1);
           } else {
             setDiagnosisResult(2);
           }
         } else {
-          toggleErrorWarning();
+          //toggleErrorWarning();
+          dispatch(alertsSlice.actions.openTaskFailedAlert());
         }
       }
+      setDisabledButton(false);
     }
   };
 
