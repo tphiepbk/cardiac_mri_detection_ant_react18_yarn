@@ -1,14 +1,6 @@
 import React from "react";
 import "./MultiVideoDiagnosis.css";
-import {
-  Button,
-  Descriptions,
-  Empty,
-  notification,
-  Skeleton,
-  List,
-  Modal,
-} from "antd";
+import { Button, Empty, Skeleton } from "antd";
 import {
   UploadOutlined,
   FundViewOutlined,
@@ -35,12 +27,6 @@ export default function MultiVideoDiagnosis(props) {
     listPredictionResult,
     setListPredictionResult,
 
-    /*
-    increaseProgressBar,
-    clearProgressBar,
-    completeProgressBar,
-    */
-
     processRunning,
     setProcessRunning,
 
@@ -49,12 +35,6 @@ export default function MultiVideoDiagnosis(props) {
 
     multiDiagnosis_listSlices,
     setMultiDiagnosis_listSlices,
-
-    /*
-    toggleErrorWarning,
-    toggleSuccessNotification,
-    toggleProcessRunningNotification,
-    */
   } = props;
 
   const dispatch = useDispatch();
@@ -80,7 +60,6 @@ export default function MultiVideoDiagnosis(props) {
   const [currentVideoSelected, setCurrentVideoSelected] = React.useState(0);
 
   const showVideoModal = (event) => {
-    //event.stopPropagation()
     setIsVideoModalVisible(true);
   };
 
@@ -91,13 +70,6 @@ export default function MultiVideoDiagnosis(props) {
   const selectVideo = (videoIndex) => {
     console.log(`Selected video ${videoIndex}`);
     setCurrentVideoSelected(videoIndex);
-  };
-
-  const toggleUploadFilesFailedNotification = () => {
-    notification["error"]({
-      message: "Upload failed",
-      description: "Cannot upload videos. Please try again later",
-    });
   };
 
   const uploadMultiVideos = async () => {
@@ -114,14 +86,15 @@ export default function MultiVideoDiagnosis(props) {
         }))
       );
     } else {
-      toggleUploadFilesFailedNotification();
+      dispatch(alertsSlice.actions.openUploadFailedAlert());
     }
     setInteractive((prevInteractive) => !prevInteractive);
   };
 
   const uploadButtonClickHandler = () => {
-    //clearProgressBar();
-    dispatch(progressBarSlice.actions.clearProgressBar())
+    setListInputVideo([]);
+
+    dispatch(progressBarSlice.actions.clearProgressBar());
     //setDiagnosisResult(0)
     setInteractive((prevInteractive) => !prevInteractive);
     uploadMultiVideos();
@@ -130,39 +103,26 @@ export default function MultiVideoDiagnosis(props) {
     setListPredictionResult([]);
   };
 
-  const toggleNoVideoWarning = () => {
-    notification["warning"]({
-      message: "No Video Found",
-      description: "Please upload video first",
-    });
-  };
-
   const diagnose = async () => {
     if (processRunning) {
-      //toggleProcessRunningNotification();
-      dispatch(alertsSlice.actions.openTaskRunningAlert())
+      dispatch(alertsSlice.actions.openTaskRunningAlert());
     } else {
-      //clearProgressBar();
-      dispatch(progressBarSlice.actions.clearProgressBar())
+      dispatch(progressBarSlice.actions.clearProgressBar());
       setDisabledButton(true);
       if (listInputVideo.length === 0) {
-        toggleNoVideoWarning();
+        dispatch(alertsSlice.actions.openNoVideoAlert());
       } else {
         setProcessRunning(true);
-        const progressBarRunning = setInterval(
-          () => {
-            dispatch(progressBarSlice.actions.increaseProgressBar())
-          },
-          listInputVideo.length * 150
-        );
+        const progressBarRunning = setInterval(() => {
+          dispatch(progressBarSlice.actions.increaseProgressBar());
+        }, listInputVideo.length * 150);
 
         const predictionResponse =
           await window.electronAPI.makeMultiplePrediction(listInputVideo);
         console.log(predictionResponse);
 
         clearInterval(progressBarRunning);
-        //completeProgressBar();
-        dispatch(progressBarSlice.actions.completeProgressBar())
+        dispatch(progressBarSlice.actions.completeProgressBar());
         setDisabledButton(false);
 
         setMultiDiagnosis_listSlices(() => {
@@ -181,14 +141,12 @@ export default function MultiVideoDiagnosis(props) {
         setProcessRunning(false);
 
         if (predictionResponse.result === "SUCCESS") {
-          //toggleSuccessNotification();
-          dispatch(alertsSlice.actions.openTaskSucceededAlert())
+          dispatch(alertsSlice.actions.openTaskSucceededAlert());
           setListPredictionResult([
             ...predictionResponse.returnedVideoObjectList,
           ]);
         } else {
-          //toggleErrorWarning();
-          dispatch(alertsSlice.actions.openTaskFailedAlert())
+          dispatch(alertsSlice.actions.openTaskFailedAlert());
         }
       }
     }

@@ -1,5 +1,5 @@
 import React from "react";
-import './Alerts.css'
+import "./Alerts.css";
 import { Alert } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -7,30 +7,29 @@ import { alertSelector } from "../../redux/selector";
 import alertsSlice from "./alertsSlice";
 
 export default function Alerts() {
+  const alerts = useSelector(alertSelector);
 
-  const alerts = useSelector(alertSelector)
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const closeTaskSucceededAlertHandler = () => {
-    dispatch(alertsSlice.actions.closeTaskSucceededAlert())
-  }
+    dispatch(alertsSlice.actions.closeTaskSucceededAlert());
+  };
 
   const closeTaskFailedAlertHandler = () => {
-    dispatch(alertsSlice.actions.closeTaskFailedAlert())
-  }
+    dispatch(alertsSlice.actions.closeTaskFailedAlert());
+  };
 
   const closeNoVideoAlertHandler = () => {
-    dispatch(alertsSlice.actions.closeNoVideoAlert())
-  }
+    dispatch(alertsSlice.actions.closeNoVideoAlert());
+  };
 
-  const closeCancelUploadVideoAlertHandler = () => {
-    dispatch(alertsSlice.actions.closeCancelUploadVideoAlert())
-  }
+  const closeUploadFailedAlertHandler = () => {
+    dispatch(alertsSlice.actions.closeUploadFailedAlert());
+  };
 
   const closeTaskRunningAlertHandler = () => {
-    dispatch(alertsSlice.actions.closeTaskRunningAlert())
-  }
+    dispatch(alertsSlice.actions.closeTaskRunningAlert());
+  };
   return (
     <div className="alerts-container">
       {alerts.taskSucceededAlert && (
@@ -81,18 +80,18 @@ export default function Alerts() {
           afterClose={closeNoVideoAlertHandler}
         />
       )}
-      {alerts.canceledUploadVideoAlert && (
+      {alerts.uploadFailedAlert && (
         <Alert
           style={{ marginBottom: "15px" }}
-          message="Canceled Upload Video"
+          message="Upload failed"
           description="Please try again"
-          type="warning"
+          type="error"
           showIcon
           closable
           banner
-          afterClose={closeCancelUploadVideoAlertHandler}
+          afterClose={closeUploadFailedAlertHandler}
         />
       )}
     </div>
-  )
+  );
 }

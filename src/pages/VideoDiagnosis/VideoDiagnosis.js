@@ -28,22 +28,12 @@ export default function VideoDiagnosis(props) {
     setInteractive,
     diagnosisResult,
     setDiagnosisResult,
-    /*
-    increaseProgressBar,
-    clearProgressBar,
-    completeProgressBar,
-    */
     processRunning,
     setProcessRunning,
     disabledButton,
     setDisabledButton,
     listSlices,
     setListSlices,
-    /*
-    toggleErrorWarning,
-    toggleSuccessNotification,
-    toggleProcessRunningNotification,
-    */
   } = props;
 
   const dispatch = useDispatch();
@@ -84,11 +74,6 @@ export default function VideoDiagnosis(props) {
   };
 
   const uploadVideo = async () => {
-    setVideoPath({
-      avi: "",
-      mp4: "",
-    });
-
     const response = await window.electronAPI.openFileDialog();
     console.log(response);
 
@@ -100,40 +85,32 @@ export default function VideoDiagnosis(props) {
       });
       getVideoMetadata(videoName, videoInputPath);
     } else {
-      //toggleErrorWarning();
-      dispatch(alertsSlice.actions.openCanceledUploadVideoAlert());
+      dispatch(alertsSlice.actions.openUploadFailedAlert());
     }
 
     setInteractive((prevInteractive) => !prevInteractive);
   };
 
   const uploadButtonClickHandler = () => {
-    //clearProgressBar();
+
+    setVideoPath({
+      avi: "",
+      mp4: "",
+    });
+
     dispatch(progressBarSlice.actions.clearProgressBar());
     setDiagnosisResult(0);
     setInteractive((prevInteractive) => !prevInteractive);
     uploadVideo();
   };
 
-  const toggleNoVideoWarning = () => {
-    /*
-    notification["warning"]({
-      message: "No Video Found",
-      description: "Please upload video first",
-    });
-    */
-  };
-
   const diagnose = async () => {
     if (processRunning) {
-      //toggleProcessRunningNotification();
       dispatch(alertsSlice.actions.openTaskRunningAlert());
     } else {
-      //clearProgressBar();
       dispatch(progressBarSlice.actions.clearProgressBar());
       setDisabledButton(true);
       if (videoPath.avi === "") {
-        //toggleNoVideoWarning();
         dispatch(alertsSlice.actions.openNoVideoAlert());
       } else {
         setProcessRunning(true);
@@ -146,7 +123,6 @@ export default function VideoDiagnosis(props) {
         console.log(predictionResponse);
 
         clearInterval(progressBarRunning);
-        //completeProgressBar();
         dispatch(progressBarSlice.actions.completeProgressBar());
 
         setListSlices(() => {
@@ -165,7 +141,6 @@ export default function VideoDiagnosis(props) {
         setProcessRunning(false);
 
         if (predictionResponse.result === "SUCCESS") {
-          //toggleSuccessNotification();
           dispatch(alertsSlice.actions.openTaskSucceededAlert());
           if (parseFloat(predictionResponse.value) >= 0.5) {
             setDiagnosisResult(1);
@@ -173,7 +148,6 @@ export default function VideoDiagnosis(props) {
             setDiagnosisResult(2);
           }
         } else {
-          //toggleErrorWarning();
           dispatch(alertsSlice.actions.openTaskFailedAlert());
         }
       }

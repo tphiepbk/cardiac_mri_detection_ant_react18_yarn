@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import hcmutLogo from "./images/hcmut.png";
 import { useSelector } from "react-redux";
@@ -11,7 +11,7 @@ import MultiVideoDiagnosis from "./pages/MultiVideoDiagnosis/MultiVideoDiagnosis
 import MultiNPYDiagnosis from "./pages/MultiNPYDiagnosis/MultiNPYDiagnosis";
 import TitleBar from "./components/TitleBar/TitleBar";
 
-import { Layout, Menu, Avatar, Button, Space, Alert } from "antd";
+import { Layout, Menu, Avatar, Button, Space } from "antd";
 
 import ProgressBar from "./components/ProgressBar/ProgressBar";
 
@@ -20,14 +20,13 @@ import {
   PieChartOutlined,
   FileOutlined,
   PoweroffOutlined,
-  CloseOutlined,
 } from "@ant-design/icons";
 import Alerts from "./components/Alerts/Alerts";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 export default function App() {
-  const progressBarPercent = useSelector(progressBarPercentSelector)
+  const progressBarPercent = useSelector(progressBarPercentSelector);
   // **************************************************** Used for all pages *********************************************************
 
   const [currentPage, setCurrentPage] = React.useState("4");
@@ -35,76 +34,6 @@ export default function App() {
   const changePage = (pageKey) => {
     if (!pageKey.includes("sub")) setCurrentPage(pageKey);
   };
-
-  /*
-  const [progressBarState, setProgressBarState] = React.useState(0);
-
-  const increaseProgressBar = () => {
-    setProgressBarState((prevPercent) => {
-      if (prevPercent + 1 > 100) {
-        return prevPercent;
-      } else {
-        return prevPercent + 1;
-      }
-    });
-  };
-
-  const completeProgressBar = () => {
-    setProgressBarState(100);
-  };
-
-  const clearProgressBar = () => {
-    setProgressBarState(0);
-  };
-  */
-
-  /*
-  const [alertVisible, setAlertVisible] = useState({
-    success: false,
-    warning: false,
-    error: false,
-  });
-
-  const toggleErrorWarning = () => {
-    setAlertVisible((prevState) => ({
-      ...prevState,
-      error: true,
-    }));
-  };
-
-  const toggleSuccessNotification = () => {
-    setAlertVisible((prevState) => ({
-      ...prevState,
-      success: true,
-    }));
-  };
-
-  const toggleProcessRunningNotification = () => {
-    setAlertVisible((prevState) => ({
-      ...prevState,
-      warning: true,
-    }));
-  };
-
-  const closeSuccessAlert = () => {
-    setAlertVisible((prevState) => ({
-      ...prevState,
-      success: false,
-    }));
-  };
-  const closeWarningAlert = () => {
-    setAlertVisible((prevState) => ({
-      ...prevState,
-      warning: false,
-    }));
-  };
-  const closeErrorAlert = () => {
-    setAlertVisible((prevState) => ({
-      ...prevState,
-      error: false,
-    }));
-  };
-  */
 
   const [interactive, setInteractive] = React.useState(true);
 
@@ -156,20 +85,10 @@ export default function App() {
           setDiagnosisResult={setDiagnosisResult}
           processRunning={processRunning}
           setProcessRunning={setProcessRunning}
-          /*
-          increaseProgressBar={increaseProgressBar}
-          clearProgressBar={clearProgressBar}
-          completeProgressBar={completeProgressBar}
-          */
           disabledButton={disabledButton}
           setDisabledButton={setDisabledButton}
           listSlices={listSlices}
           setListSlices={setListSlices}
-          /*
-          toggleErrorWarning={toggleErrorWarning}
-          toggleSuccessNotification={toggleSuccessNotification}
-          toggleProcessRunningNotification={toggleProcessRunningNotification}
-          */
         />
       );
       break;
@@ -192,20 +111,10 @@ export default function App() {
           setDiagnosisResult={setDiagnosisResult}
           processRunning={processRunning}
           setProcessRunning={setProcessRunning}
-          /*
-          increaseProgressBar={increaseProgressBar}
-          clearProgressBar={clearProgressBar}
-          completeProgressBar={completeProgressBar}
-          */
           disabledButton={disabledButton}
           setDisabledButton={setDisabledButton}
           multiDiagnosis_listSlices={multiDiagnosis_listSlices}
           setMultiDiagnosis_listSlices={setMultiDiagnosis_listSlices}
-          /*
-          toggleErrorWarning={toggleErrorWarning}
-          toggleSuccessNotification={toggleSuccessNotification}
-          toggleProcessRunningNotification={toggleProcessRunningNotification}
-          */
         />
       );
       break;
@@ -222,7 +131,6 @@ export default function App() {
     >
       <TitleBar />
       <div className="app-container">
-
         <Layout style={{ minHeight: "96.9vh" }}>
           <Alerts />
           <Sider>
@@ -264,7 +172,7 @@ export default function App() {
 
           <Layout className="site-layout">
             <Header className="header">
-              <ProgressBar percent={progressBarPercent}/>
+              <ProgressBar percent={progressBarPercent} />
               {/*
               <Space size={15}>
                 <Progress
