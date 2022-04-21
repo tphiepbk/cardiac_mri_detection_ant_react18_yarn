@@ -126,57 +126,62 @@ export default function VideoDiagnosis() {
     uploadVideo();
   };
 
-  const diagnose = async () => {
+  const diagnoseVideo = async () => {
+    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(0));
+
+    dispatch(progressBarSlice.actions.clearProgressBar());
+
+    dispatch(videoDiagnosisSlice.actions.disableButton());
+
+    dispatch(appSlice.actions.setProcessRunning(true))
+
+    const progressBarRunning = setInterval(() => {
+      dispatch(progressBarSlice.actions.increaseProgressBar());
+    }, 250);
+
+    const predictionResponse =
+      await window.electronAPI.makeSinglePrediction(videoPath.avi);
+    console.log(predictionResponse);
+
+    clearInterval(progressBarRunning);
+    dispatch(progressBarSlice.actions.completeProgressBar());
+
+    const crawledListSlices = [];
+    for (let i = 0; i <= 10; i++) {
+      crawledListSlices.push({
+        sliceNumber: i,
+        sliceImageUrl:
+          "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
+        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+      });
+    }
+    dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
+
+    dispatch(appSlice.actions.setProcessRunning(false))
+
+    if (predictionResponse.result === "SUCCESS") {
+      dispatch(alertsSlice.actions.openTaskSucceededAlert());
+      if (parseFloat(predictionResponse.value) >= 0.5) {
+        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
+      } else {
+        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(2));
+      }
+    } else {
+      dispatch(alertsSlice.actions.openTaskFailedAlert());
+    }
+
+    dispatch(videoDiagnosisSlice.actions.enableButton());
+  };
+
+  const diagnoseButtonClickHandler = () => {
     if (processRunning) {
       dispatch(alertsSlice.actions.openTaskRunningAlert());
+    } else if (videoPath.avi === "") {
+      dispatch(alertsSlice.actions.openNoVideoAlert());
     } else {
-      dispatch(progressBarSlice.actions.clearProgressBar());
-
-      dispatch(videoDiagnosisSlice.actions.disableButton());
-
-      if (videoPathSelector.avi === "") {
-        dispatch(alertsSlice.actions.openNoVideoAlert());
-      } else {
-        dispatch(appSlice.actions.setProcessRunning(true))
-
-        const progressBarRunning = setInterval(() => {
-          dispatch(progressBarSlice.actions.increaseProgressBar());
-        }, 250);
-
-        const predictionResponse =
-          await window.electronAPI.makeSinglePrediction(videoPath.avi);
-        console.log(predictionResponse);
-
-        clearInterval(progressBarRunning);
-        dispatch(progressBarSlice.actions.completeProgressBar());
-
-        const crawledListSlices = [];
-        for (let i = 0; i <= 10; i++) {
-          crawledListSlices.push({
-            sliceNumber: i,
-            sliceImageUrl:
-              "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
-            sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-          });
-        }
-        dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
-
-        dispatch(appSlice.actions.setProcessRunning(false))
-
-        if (predictionResponse.result === "SUCCESS") {
-          dispatch(alertsSlice.actions.openTaskSucceededAlert());
-          if (parseFloat(predictionResponse.value) >= 0.5) {
-            dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
-          } else {
-            dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(2));
-          }
-        } else {
-          dispatch(alertsSlice.actions.openTaskFailedAlert());
-        }
-      }
-      dispatch(videoDiagnosisSlice.actions.enableButton());
+      diagnoseVideo();
     }
-  };
+  }
 
   const changeDiagnosisResultHandler = () => {
     switch (diagnosisResult) {
@@ -279,7 +284,7 @@ export default function VideoDiagnosis() {
               shape="round"
               icon={<FundViewOutlined />}
               size={10}
-              onClick={diagnose}
+              onClick={diagnoseButtonClickHandler}
             >
               Diagnose
             </Button>

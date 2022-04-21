@@ -19,7 +19,12 @@ import alertsSlice from "../../components/Alerts/alertsSlice";
 import appSlice from "../../appSlice";
 import multiVideoDiagnosisSlice from "./multiVideoDiagnosisSlice";
 import { appProcessRunningSelector } from "../../appSelector";
-import { disabledButtonSelector, listInputVideoSelector, listPredictionResultSelector, multiVideoListSlicesSelector } from "./multiVideoDiagnosisSelector";
+import {
+  disabledButtonSelector,
+  listInputVideoSelector,
+  listPredictionResultSelector,
+  multiVideoListSlicesSelector,
+} from "./multiVideoDiagnosisSelector";
 
 export default function MultiVideoDiagnosis() {
   const dispatch = useDispatch();
@@ -27,8 +32,8 @@ export default function MultiVideoDiagnosis() {
   const processRunning = useSelector(appProcessRunningSelector);
   const listInputVideo = useSelector(listInputVideoSelector);
   const listPredictionResult = useSelector(listPredictionResultSelector);
-  const disabledButton = useSelector(disabledButtonSelector)
-  const multiVideoListSlices = useSelector(multiVideoListSlicesSelector)
+  const disabledButton = useSelector(disabledButtonSelector);
+  const multiVideoListSlices = useSelector(multiVideoListSlicesSelector);
 
   const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
@@ -98,101 +103,81 @@ export default function MultiVideoDiagnosis() {
   };
 
   const uploadButtonClickHandler = () => {
-    //setListInputVideo([]);
     dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
 
     dispatch(progressBarSlice.actions.clearProgressBar());
 
-    //setDiagnosisResult(0)
-
-    //setInteractive((prevInteractive) => !prevInteractive);
     dispatch(appSlice.actions.disableAppInteractive());
 
     uploadMultiVideos();
     setCurrentVideoSelected(0);
 
-    //setListInputVideo([]);
-    dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
+    //dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
 
-    //setListPredictionResult([]);
-    dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
+    //dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
   };
 
-  const diagnose = async () => {
+  const diagnoseVideos = async () => {
+    dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
+
+    dispatch(progressBarSlice.actions.clearProgressBar());
+
+    dispatch(multiVideoDiagnosisSlice.actions.disableButton());
+
+    dispatch(appSlice.actions.setProcessRunning(true));
+
+    const progressBarRunning = setInterval(() => {
+      dispatch(progressBarSlice.actions.increaseProgressBar());
+    }, listInputVideo.length * 150);
+
+    const predictionResponse = await window.electronAPI.makeMultiplePrediction(
+      listInputVideo
+    );
+    console.log(predictionResponse);
+
+    clearInterval(progressBarRunning);
+
+    dispatch(progressBarSlice.actions.completeProgressBar());
+
+    dispatch(multiVideoDiagnosisSlice.actions.enableButton());
+
+    const crawledMultiVideoListSlices = [];
+    for (let i = 0; i <= 10; i++) {
+      crawledMultiVideoListSlices.push({
+        sliceNumber: i,
+        sliceImageUrl:
+          "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
+        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+      });
+    }
+    dispatch(
+      multiVideoDiagnosisSlice.actions.setMultiVideoListSlices(
+        crawledMultiVideoListSlices
+      )
+    );
+
+    dispatch(appSlice.actions.setProcessRunning(false));
+
+    if (predictionResponse.result === "SUCCESS") {
+      dispatch(alertsSlice.actions.openTaskSucceededAlert());
+
+      dispatch(
+        multiVideoDiagnosisSlice.actions.setListPredictionResult([
+          ...predictionResponse.returnedVideoObjectList,
+        ])
+      );
+    } else {
+      dispatch(alertsSlice.actions.openTaskFailedAlert());
+    }
+  };
+
+  const diagnoseButtonClickHandler = () => {
     if (processRunning) {
       dispatch(alertsSlice.actions.openTaskRunningAlert());
+    } else if (listInputVideo.length === 0) {
+      dispatch(alertsSlice.actions.openNoVideoAlert());
     } else {
-      dispatch(progressBarSlice.actions.clearProgressBar());
-
-      //setDisabledButton(true);
-      dispatch(multiVideoDiagnosisSlice.actions.disableButton())
-
-      if (listInputVideo.length === 0) {
-        dispatch(alertsSlice.actions.openNoVideoAlert());
-      } else {
-
-        //setProcessRunning(true);
-        dispatch(appSlice.actions.setProcessRunning(true))
-
-        const progressBarRunning = setInterval(() => {
-          dispatch(progressBarSlice.actions.increaseProgressBar());
-        }, listInputVideo.length * 150);
-
-        const predictionResponse =
-          await window.electronAPI.makeMultiplePrediction(listInputVideo);
-        console.log(predictionResponse);
-
-        clearInterval(progressBarRunning);
-        dispatch(progressBarSlice.actions.completeProgressBar());
-
-        //setDisabledButton(false);
-        dispatch(multiVideoDiagnosisSlice.actions.enableButton());
-
-        /*
-        setMultiDiagnosis_listSlices(() => {
-          const returnValue = [];
-          for (let i = 0; i <= 10; i++) {
-            returnValue.push({
-              sliceNumber: i,
-              sliceImageUrl:
-                "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
-              sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-            });
-          }
-          return returnValue;
-        });
-        */
-
-        const crawledMultiVideoListSlices = [];
-        for (let i = 0; i <= 10; i++) {
-          crawledMultiVideoListSlices.push({
-            sliceNumber: i,
-            sliceImageUrl:
-              "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
-            sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-          });
-        }
-        dispatch(multiVideoDiagnosisSlice.actions.setMultiVideoListSlices(crawledMultiVideoListSlices))
-
-        //setProcessRunning(false);
-        dispatch(appSlice.actions.setProcessRunning(false))
-
-        if (predictionResponse.result === "SUCCESS") {
-          dispatch(alertsSlice.actions.openTaskSucceededAlert());
-
-          /*
-          setListPredictionResult([
-            ...predictionResponse.returnedVideoObjectList,
-          ]);
-          */
-          dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult(
-            [...predictionResponse.returnedVideoObjectList]
-          ))
-
-        } else {
-          dispatch(alertsSlice.actions.openTaskFailedAlert());
-        }
-      }
+      diagnoseVideos();
     }
   };
 
@@ -279,7 +264,7 @@ export default function MultiVideoDiagnosis() {
               shape="round"
               icon={<FundViewOutlined />}
               size={10}
-              onClick={diagnose}
+              onClick={diagnoseButtonClickHandler}
             >
               Diagnose
             </Button>

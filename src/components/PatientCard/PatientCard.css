@@ -1,12 +1,24 @@
 .patient-card {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   justify-content: space-between;
 }
 
-.patient-card__info__avatar {
+.patient-card__info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ant-image-img {
   border-radius: 20px;
+}
+
+.ant-descriptions {
+  width: 40vw;
+}
+
+.ant-descriptions-view {
+  overflow: auto;
 }
 
 .patient-card__divider {

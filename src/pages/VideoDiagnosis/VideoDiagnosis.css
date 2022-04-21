@@ -25,9 +25,9 @@
 }
 
 .video-diagnosis__upload-container__upload-button > button {
-  background-color: green;
-  border-color: green;
-  border-radius: 5px;
+  background: green !important;
+  border-color: green !important;
+  border-radius: 5px !important;
 }
 
 .video-diagnosis__upload-container__video {
@@ -78,9 +78,9 @@
 }
 
 .video-diagnosis__upload-container__diagnose-button > button {
-  background-color: orange;
-  border-color: orange;
-  border-radius: 5px;
+  background-color: orange !important;
+  border-color: orange !important;
+  border-radius: 5px !important;
 }
 
 .video-diagnosis__diagnosis-result {

@@ -1,50 +1,53 @@
 import React from "react";
-import "./PatientCard.css"
+import "./PatientCard.css";
 
-import { Space, Image, Button, Descriptions, Divider, Tag } from "antd";
+import { Image, Button, Descriptions, Tag, Tooltip } from "antd";
 
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined
-} from "@ant-design/icons"
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 export default function PatientCard() {
-
   const [random, setRandom] = React.useState();
+
+  const addressText =
+    "F4/27C, to 4, ap 6, xa Le Minh Xuan, huyen Binh Chanh, Thanh pho Ho Chi Minh, Viet Nam";
 
   return (
     <div className="patient-card">
-      <Space size={20} className="patient-card__info">
-        <Image
-          className="patient-card__info__avatar"
-          width={150}
-          preview={false}
-          src={`https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?${random}`}
-          placeholder={
-            <Image
-              preview={false}
-              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
-              width={200}
-            />
-          }
-        />
-        <Descriptions title="Patient's Information" bordered>
-          <Descriptions.Item label="ID">1812227</Descriptions.Item>
-          <Descriptions.Item label="Name">Thai Phuc Hiep</Descriptions.Item>
-          <Descriptions.Item label="Age">20</Descriptions.Item>
-          <Descriptions.Item label="Gender">Male</Descriptions.Item>
-          <Descriptions.Item label="Address">
-            No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China
-          </Descriptions.Item>
-        </Descriptions>
-      </Space>
+      <Image
+        width={150}
+        preview={false}
+        src={`https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?${random}`}
+        placeholder={
+          <Image
+            preview={false}
+            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
+            width={200}
+          />
+        }
+      />
 
-        {/**
-      <Divider className="patient-card__divider" type="vertical"/>
-         */}
+      <Descriptions
+        title="Patient's Information"
+        bordered
+        column={4}
+        size={"default"}
+      >
+        <Descriptions.Item label="ID">1812227</Descriptions.Item>
+        <Descriptions.Item label="Name">Thai Phuc Hiep</Descriptions.Item>
+        <Descriptions.Item label="Age">20</Descriptions.Item>
+        <Descriptions.Item label="Gender">Male</Descriptions.Item>
+        <Descriptions.Item label="Address" className="address-cell">
+          {addressText.length > 86 ? (
+            <Tooltip title={addressText}>
+              <span>{addressText.substring(0, 86) + " ..."}</span>
+            </Tooltip>
+          ) : (
+            addressText
+          )}
+        </Descriptions.Item>
+      </Descriptions>
 
       <div className="patient-card__diagnosis-result">
-
         <div className="patient-card__diagnosis-result__result">
           <h3>Result</h3>
           <div>
@@ -85,9 +88,7 @@ export default function PatientCard() {
           <h3>Date Modified</h3>
           <h2>29/03/2022</h2>
         </div>
-
       </div>
-
     </div>
-  )
+  );
 }

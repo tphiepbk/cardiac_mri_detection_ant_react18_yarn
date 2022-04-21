@@ -26,7 +26,7 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1850,
+    width: 1880,
     height: 970,
     webPreferences: {
       webSecurity: false,
@@ -338,7 +338,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
             description: "MAKE SINGLE PREDICTION",
             result: "FAILED",
           };
-          reject(returnValue);
+          resolve(returnValue);
         } else {
           console.log(dataPrediction.toString());
           const returnValue = {
