@@ -21,28 +21,7 @@ import multiVideoDiagnosisSlice from "./multiVideoDiagnosisSlice";
 import { appProcessRunningSelector } from "../../appSelector";
 import { disabledButtonSelector, listInputVideoSelector, listPredictionResultSelector, multiVideoListSlicesSelector } from "./multiVideoDiagnosisSelector";
 
-export default function MultiVideoDiagnosis(props) {
-  /*
-  const {
-    listInputVideo,
-    setListInputVideo,
-
-    setInteractive,
-
-    listPredictionResult,
-    setListPredictionResult,
-
-    processRunning,
-    setProcessRunning,
-
-    disabledButton,
-    setDisabledButton,
-
-    multiDiagnosis_listSlices,
-    setMultiDiagnosis_listSlices,
-  } = props;
-    */
-
+export default function MultiVideoDiagnosis() {
   const dispatch = useDispatch();
 
   const processRunning = useSelector(appProcessRunningSelector);
@@ -262,6 +241,7 @@ export default function MultiVideoDiagnosis(props) {
             {listInputVideo.map((video, index) => (
               <VideoItem
                 key={index}
+                selected={index === currentVideoSelected ? true : false}
                 videoName={video.name}
                 inspectClickHandler={showVideoModal}
                 clickHandler={() => selectVideo(video.index)}
