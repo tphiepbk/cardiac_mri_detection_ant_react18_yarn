@@ -19,4 +19,7 @@ contextBridge.exposeInMainWorld('electronAPI',{
 
   // * Make multiple prediction
   makeMultiplePrediction : (videoObjectList) => ipcRenderer.invoke('make-multiple-prediction', videoObjectList),
+
+  // * Save patient's record
+  savePatientDiagnosisResult : (patientObject) => ipcRenderer.invoke('save-patient-record', patientObject),
 })

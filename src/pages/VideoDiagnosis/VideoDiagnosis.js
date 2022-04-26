@@ -22,6 +22,7 @@ import {
 
 import SliceCard from "../../components/SliceCard/SliceCard";
 import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
+import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
 
 import "./VideoDiagnosis.css";
 import alertsSlice from "../../components/Alerts/alertsSlice";
@@ -41,6 +42,8 @@ export default function VideoDiagnosis() {
   const processRunning = useSelector(appProcessRunningSelector);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [isSavePatientRecordModalVisible, setIsSavePatientRecordModalVisible] =
+    React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
   const showModal = () => {
@@ -55,6 +58,22 @@ export default function VideoDiagnosis() {
 
   const closeModal = () => {
     setIsModalVisible(false);
+  };
+
+  const showSavePatientRecordModal = () => {
+    setIsSavePatientRecordModalVisible(true);
+  };
+
+  const closeSavePatientRecordModalHandler = () => {
+    setIsSavePatientRecordModalVisible(false);
+  };
+
+  const savePatientRecord = async (patientRecord) => {
+    console.log("Saving record...")
+    const response = await window.electronAPI.savePatientDiagnosisResult(
+      patientRecord
+    );
+    console.log(response);
   };
 
   const getVideoMetadata = async (videoName, videoPath) => {
@@ -96,7 +115,7 @@ export default function VideoDiagnosis() {
       dispatch(alertsSlice.actions.openUploadFailedAlert());
     }
 
-    dispatch(appSlice.actions.enableAppInteractive())
+    dispatch(appSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
@@ -121,7 +140,7 @@ export default function VideoDiagnosis() {
 
     dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(0));
 
-    dispatch(appSlice.actions.disableAppInteractive())
+    dispatch(appSlice.actions.disableAppInteractive());
 
     uploadVideo();
   };
@@ -133,14 +152,15 @@ export default function VideoDiagnosis() {
 
     dispatch(videoDiagnosisSlice.actions.disableButton());
 
-    dispatch(appSlice.actions.setProcessRunning(true))
+    dispatch(appSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
     }, 250);
 
-    const predictionResponse =
-      await window.electronAPI.makeSinglePrediction(videoPath.avi);
+    const predictionResponse = await window.electronAPI.makeSinglePrediction(
+      videoPath.avi
+    );
     console.log(predictionResponse);
 
     clearInterval(progressBarRunning);
@@ -157,7 +177,7 @@ export default function VideoDiagnosis() {
     }
     dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
-    dispatch(appSlice.actions.setProcessRunning(false))
+    dispatch(appSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
       dispatch(alertsSlice.actions.openTaskSucceededAlert());
@@ -181,7 +201,7 @@ export default function VideoDiagnosis() {
     } else {
       diagnoseVideo();
     }
-  }
+  };
 
   const changeDiagnosisResultHandler = () => {
     switch (diagnosisResult) {
@@ -323,6 +343,8 @@ export default function VideoDiagnosis() {
                 </Button>
               )}
             </span>
+
+            {/*
             {diagnosisResult === 0 ? (
               <Button
                 type="primary"
@@ -342,6 +364,7 @@ export default function VideoDiagnosis() {
                 Change
               </Button>
             )}
+             */}
           </div>
 
           <div className="video-diagnosis__diagnosis-result__result-panel__date-modified">
@@ -373,9 +396,20 @@ export default function VideoDiagnosis() {
                 style={{ marginTop: "5px" }}
                 icon={<FundViewOutlined />}
                 size={10}
+                onClick={showSavePatientRecordModal}
               >
                 Proceed
               </Button>
+            )}
+
+            {isSavePatientRecordModalVisible && (
+              <SavePatientRecordModal
+                diagnosisResult={diagnosisResult}
+                closeSavePatientRecordModalHandler={
+                  closeSavePatientRecordModalHandler
+                }
+                savePatientRecord={savePatientRecord}
+              />
             )}
           </div>
         </div>

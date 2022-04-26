@@ -6,8 +6,6 @@ import { Image, Button, Descriptions, Tag, Tooltip } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 export default function PatientCard() {
-  const [random, setRandom] = React.useState();
-
   const addressText =
     "F4/27C, to 4, ap 6, xa Le Minh Xuan, huyen Binh Chanh, Thanh pho Ho Chi Minh, Viet Nam";
 
@@ -16,7 +14,8 @@ export default function PatientCard() {
       <Image
         width={150}
         preview={false}
-        src={`https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?${random}`}
+        src={`https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?`}
+        /*
         placeholder={
           <Image
             preview={false}
@@ -24,6 +23,7 @@ export default function PatientCard() {
             width={200}
           />
         }
+        */
       />
 
       <Descriptions

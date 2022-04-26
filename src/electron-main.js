@@ -1,15 +1,15 @@
-const electron = require("electron");
 const isDev = require("electron-is-dev");
 
-const { app, BrowserWindow, ipcMain, dialog } = electron;
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 
 const path = require("path");
 
 const fs = require("fs");
-const axios = require("axios");
-const extractZip = require("extract-zip");
+
 const ffmpeg = require("fluent-ffmpeg");
 const { PythonShell } = require("python-shell");
+
+const database = require("./database/mongoDB");
 
 const userDataPath = app.getPath("userData");
 const userDataPath_temp = `${userDataPath}/temp/`;
@@ -18,7 +18,7 @@ if (!fs.existsSync(userDataPath_temp)) {
   fs.mkdirSync(userDataPath_temp);
 }
 
-const ffmpegDir = path.resolve(__dirname + "/../extra/ffmpeg/bin");
+const ffmpegDir = path.resolve(__dirname + "/extra/ffmpeg/bin");
 ffmpeg.setFfmpegPath(path.resolve(`${ffmpegDir}/ffmpeg.exe`));
 ffmpeg.setFfprobePath(path.resolve(`${ffmpegDir}/ffprobe.exe`));
 
@@ -304,13 +304,13 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
   console.log(`filePath : ${filepath}`);
 
   const unetPretrainPath = path.resolve(
-    __dirname + "/../extra/prediction_module/unet3.h5"
+    __dirname + "/extra/prediction_module/unet3.h5"
   );
   const checkColNumPretrainPath = path.resolve(
-    __dirname + "/../extra/prediction_module/check_col_num.h5"
+    __dirname + "/extra/prediction_module/check_col_num.h5"
   );
   const classifyPretrainPath = path.resolve(
-    __dirname + "/../extra/prediction_module/classify5.h5"
+    __dirname + "/extra/prediction_module/classify5.h5"
   );
   const options = {
     mode: "text",
@@ -324,7 +324,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
   };
 
   const predictionModulePath = path.resolve(
-    __dirname + "/../extra/prediction_module/model.py"
+    __dirname + "/extra/prediction_module/model.py"
   );
 
   const pythonPromise = new Promise((resolve, reject) => {
@@ -365,16 +365,16 @@ ipcMain.handle("make-multiple-prediction", async (event, videoObjectList) => {
   console.log("=================== Making prediction =====================");
 
   const unetPretrainPath = path.resolve(
-    __dirname + "/../extra/prediction_module/unet3.h5"
+    __dirname + "/extra/prediction_module/unet3.h5"
   );
   const checkColNumPretrainPath = path.resolve(
-    __dirname + "/../extra/prediction_module/check_col_num.h5"
+    __dirname + "/extra/prediction_module/check_col_num.h5"
   );
   const classifyPretrainPath = path.resolve(
-    __dirname + "/../extra/prediction_module/classify5.h5"
+    __dirname + "/extra/prediction_module/classify5.h5"
   );
   const predictionModulePath = path.resolve(
-    __dirname + "/../extra/prediction_module/model_for_multiple.py"
+    __dirname + "/extra/prediction_module/model_for_multiple.py"
   );
 
   const listVideoPath = videoObjectList.map((videoObject) => videoObject.path);
@@ -412,7 +412,9 @@ ipcMain.handle("make-multiple-prediction", async (event, videoObjectList) => {
     description: "MAKE MULTIPLE PREDICTION",
   };
 
-  const predictionResults = JSON.parse(rawPredictionResults.replaceAll("'", '"'));
+  const predictionResults = JSON.parse(
+    rawPredictionResults.replaceAll("'", '"')
+  );
 
   if (predictionResults.length === videoObjectList.length) {
     if (predictionResults.includes("FAILED")) {
@@ -523,171 +525,14 @@ ipcMain.on("clear-temp-folder", (event, data) => {
   event.reply("response-clear-temp-folder");
 });
 
-/*
-async function extractZipFile(source, target, folderName, eventToReply) {
-  try {
-    await extractZip(source, { dir: path.resolve(target) });
-    console.log('Extraction complete');
-    console.log(`Folder name : ${folderName}`);
-    console.log('Listing files...');
-
-    const arrFileNames = [];
-    fs.readdirSync(target).forEach((file) => {
-      console.log(file);
-      arrFileNames.push(file);
-    });
-
-    const res = {
-      result: 'SUCCESS',
-      folderName,
-      fileNames: arrFileNames,
-    };
-    eventToReply.reply('response-open-zip-file', JSON.stringify(res));
-    console.log('================ Finished opening zip file ================');
-  } catch (err) {
-    console.log('Oops: extractZip failed', err);
-  }
-}
-
-ipcMain.on('open-zip-file-dialog', (event) => {
-  console.log('===================== Opening zip file ====================');
-
-  global.filepath = undefined;
-
-  if (process.platform !== 'darwin') {
-    // Resolves to a Promise<Object>
-    dialog.showOpenDialog({
-      title: 'Select the File to be uploaded',
-      defaultPath: path.join(__dirname, '../assets/'),
-      buttonLabel: 'Open',
-      filters: [
-        { name: 'Zipped MRI Videos', extensions: ['zip'] },
-      ],
-      properties: ['openFile'],
-    }).then((file) => {
-      console.log('Canceled file upload : ', file.canceled);
-      if (!file.canceled) {
-        const randomFolderName = Math.random().toString(36).substring(2, 7);
-
-        global.filepath = file.filePaths[0].toString();
-
-        const fileNameWithExt = path.basename(global.filepath);
-        const fileExt = path.extname(global.filepath);
-        const filename = path.basename(fileNameWithExt, fileExt);
-
-        console.log(global.filepath);
-        console.log(filename);
-
-        fs.copyFile(global.filepath, `./temp/${filename}.zip`, (err) => {
-          if (err) throw err;
-          extractZipFile(`./temp/${filename}.zip`, `./temp/${randomFolderName}/`, randomFolderName, event);
-        });
-      }
-    }).catch((err) => {
-      console.log(err);
-      const res = {
-        result: 'FAIL',
-      };
-      event.reply('response-open-zip-file', JSON.stringify(res));
-    });
-  } else {
-    // Resolves to a Promise<Object>
-    dialog.showOpenDialog({
-      title: 'Select the File to be uploaded',
-      defaultPath: path.join(__dirname, '../assets/'),
-      buttonLabel: 'Open',
-      filters: [
-        { name: 'Zipped MRI Videos', extensions: ['zip'] },
-      ],
-      properties: ['openFile', 'openDirectory'],
-    }).then((file) => {
-      console.log('Canceled file upload : ', file.canceled);
-      if (!file.canceled) {
-        const randomFolderName = Math.random().toString(36).substring(2, 7);
-
-        global.filepath = file.filePaths[0].toString();
-
-        const fileNameWithExt = path.basename(global.filepath);
-        const fileExt = path.extname(global.filepath);
-        const filename = path.basename(fileNameWithExt, fileExt);
-
-        console.log(global.filepath);
-        console.log(filename);
-
-        fs.copyFile(global.filepath, `./temp/${filename}.zip`, (err) => {
-          if (err) throw err;
-          extractZipFile(`./temp/${filename}.zip`, `./temp/${randomFolderName}/`, randomFolderName, event);
-        });
-      }
-    }).catch((err) => {
-      console.log(err);
-      const res = {
-        result: 'FAIL',
-      };
-      event.reply('response-open-zip-file', JSON.stringify(res));
-    });
-  }
+ipcMain.handle("save-patient-record", async (_event, patientObject) => {
+  const result = await database.savePatientRecord(patientObject);
+  console.log(result);
+  const returnValue = {
+    description: "SAVE PATIENT RECORD",
+    result: result,
+  };
+  return returnValue;
 });
-*/
-
-function makePrediction(fileDir) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      mode: "text",
-      pythonOptions: ["-u"], // get print results in real-time
-      args: [fileDir],
-    };
-
-    PythonShell.run("./prediction_module/model.py", options, (err, data) => {
-      if (err) {
-        console.log(err);
-        reject(new Error("Promise rejected"));
-      }
-      // console.log(data.toString())
-      console.log(`File directory : ${fileDir}
-      Result : ${data}`);
-
-      resolve(data);
-    });
-  });
-}
-
-async function makeMultiPrediction(subfolderDir, eventForReplying) {
-  const fileNames = [];
-
-  fs.readdirSync(subfolderDir).forEach((file) => {
-    fileNames.push(file);
-  });
-
-  const returnObj = {};
-
-  /*
-  for (const fileName of fileNames) {
-    const result = await makePrediction(`${subfolderDir}/${fileName}`);
-    returnObj[fileName] = result;
-  }
-  */
-
-  fileNames.forEach(async (fileName) => {
-    const result = await makePrediction(`${subfolderDir}/${fileName}`);
-    returnObj[fileName] = result;
-  });
-
-  eventForReplying.reply(
-    "response-get-multiple-prediction-result",
-    JSON.stringify(returnObj)
-  );
-  console.log("=========== Finished making multiple prediction ===========");
-}
-
-ipcMain.on("get-multiple-prediction-result", (event, data) => {
-  console.log("=============== Making multiple prediction ================");
-  const folderName = data;
-  console.log(`Folder name : ${folderName}`);
-
-  const subfolderDir = `./temp/${folderName}`;
-  makeMultiPrediction(subfolderDir, event);
-});
-
 // Disable security warning
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = "true";

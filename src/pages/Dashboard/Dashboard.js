@@ -4,6 +4,7 @@ import "./Dashboard.css"
 import { Table, Tag } from 'antd';
 
 import PatientCard from '../../components/PatientCard/PatientCard'
+import { nanoid } from "nanoid";
 
 export default function Dashboard() {
   const columns = [
@@ -93,7 +94,7 @@ export default function Dashboard() {
     data.push({
       ...dataSample,
       key: `${i}`,
-      id: i,
+      id: nanoid(),
       date_modified: today
     })
   }
