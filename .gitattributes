@@ -1,2 +1,4 @@
 *.h5 filter=lfs diff=lfs merge=lfs -text
 *.exe filter=lfs diff=lfs merge=lfs -text
+src/extra/ffmpeg_linux/ffmpeg filter=lfs diff=lfs merge=lfs -text
+src/extra/ffmpeg_linux/ffprobe filter=lfs diff=lfs merge=lfs -text
