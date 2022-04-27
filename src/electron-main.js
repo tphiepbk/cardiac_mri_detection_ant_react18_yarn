@@ -11,16 +11,30 @@ const { PythonShell } = require("python-shell");
 
 const database = require("./database/mongoDB");
 
+let userDataPath_temp;
 const userDataPath = app.getPath("userData");
-const userDataPath_temp = `${userDataPath}/temp/`;
+if (process.platform === 'win32') {
+  userDataPath_temp = `${userDataPath}/temp/`;
+} else if (process.platform === 'linux') {
+  const homedir = require('os').homedir();
+  userDataPath_temp = path.resolve(homedir + '/cardiac_mri_detection_ant_react18_yarn/')
+}
 
 if (!fs.existsSync(userDataPath_temp)) {
   fs.mkdirSync(userDataPath_temp);
 }
 
-const ffmpegDir = path.resolve(__dirname + "/extra/ffmpeg/bin");
-ffmpeg.setFfmpegPath(path.resolve(`${ffmpegDir}/ffmpeg.exe`));
-ffmpeg.setFfprobePath(path.resolve(`${ffmpegDir}/ffprobe.exe`));
+console.log(userDataPath_temp)
+
+if (process.platform === "win32") {
+  const ffmpegDir = path.resolve(__dirname + "/extra/ffmpeg_windows/bin");
+  ffmpeg.setFfmpegPath(path.resolve(`${ffmpegDir}/ffmpeg.exe`));
+  ffmpeg.setFfprobePath(path.resolve(`${ffmpegDir}/ffprobe.exe`));
+} else if (process.platform === "linux") {
+  const ffmpegDir = path.resolve(__dirname + "/extra/ffmpeg_linux");
+  ffmpeg.setFfmpegPath(path.resolve(`${ffmpegDir}/ffmpeg`));
+  ffmpeg.setFfprobePath(path.resolve(`${ffmpegDir}/ffprobe`));
+}
 
 let mainWindow;
 
@@ -90,9 +104,9 @@ ipcMain.handle("open-file-dialog", async (event, _arg) => {
   global.filepath = undefined;
 
   const properties =
-    process.platform !== "darwin"
-      ? ["openFile"]
-      : ["openFile", "openDirectory"];
+    process.platform === "darwin"
+      ? ["openFile", "openDirectory"]
+      : ["openFile"];
 
   const file = await dialog.showOpenDialog({
     title: "Select files to be uploaded",
