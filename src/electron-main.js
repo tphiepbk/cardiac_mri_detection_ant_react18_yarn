@@ -153,7 +153,7 @@ ipcMain.handle("open-file-dialog", async (event, _arg) => {
               result: "SUCCESS",
               videoName: filename,
               videoInputPath: inputDir,
-              videoOutputPath: outputDir,
+              videoOutputPath: process.platform === 'linux' ? 'file:///' + outputDir : outputDir,
             };
 
             resolve(returnValue);
@@ -264,7 +264,7 @@ ipcMain.handle("open-multi-files-dialog", async (_event, _arg) => {
             index: i,
             name: fileNames[i],
             path: files.filePaths[i].toString(),
-            convertedPath: values[i],
+            convertedPath: process.platform === 'linux' ? 'file:///' + values[i] : values[i],
           });
         }
         returnValue.result = "SUCCESS";
