@@ -24,14 +24,12 @@ if (!fs.existsSync(userDataPath_temp)) {
   fs.mkdirSync(userDataPath_temp);
 }
 
-console.log(userDataPath_temp)
-
 if (process.platform === "win32") {
-  const ffmpegDir = path.resolve(__dirname + "/extra/ffmpeg_windows/bin");
+  const ffmpegDir = path.resolve(__dirname + "/resources/ffmpeg_windows");
   ffmpeg.setFfmpegPath(path.resolve(`${ffmpegDir}/ffmpeg.exe`));
   ffmpeg.setFfprobePath(path.resolve(`${ffmpegDir}/ffprobe.exe`));
 } else if (process.platform === "linux") {
-  const ffmpegDir = path.resolve(__dirname + "/extra/ffmpeg_linux");
+  const ffmpegDir = path.resolve(__dirname + "/resources/ffmpeg_linux");
   ffmpeg.setFfmpegPath(path.resolve(`${ffmpegDir}/ffmpeg`));
   ffmpeg.setFfprobePath(path.resolve(`${ffmpegDir}/ffprobe`));
 }
@@ -318,13 +316,16 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
   console.log(`filePath : ${filepath}`);
 
   const unetPretrainPath = path.resolve(
-    __dirname + "/extra/prediction_module/unet3.h5"
+    __dirname + "/resources/prediction_models/unet3.h5"
   );
+
+  console.log(unetPretrainPath)
+
   const checkColNumPretrainPath = path.resolve(
-    __dirname + "/extra/prediction_module/check_col_num.h5"
+    __dirname + "/resources/prediction_models/check_col_num.h5"
   );
   const classifyPretrainPath = path.resolve(
-    __dirname + "/extra/prediction_module/classify5.h5"
+    __dirname + "/resources/prediction_models/classify5.h5"
   );
   const options = {
     mode: "text",
@@ -379,13 +380,14 @@ ipcMain.handle("make-multiple-prediction", async (event, videoObjectList) => {
   console.log("=================== Making prediction =====================");
 
   const unetPretrainPath = path.resolve(
-    __dirname + "/extra/prediction_module/unet3.h5"
+    __dirname + "/resources/prediction_models/unet3.h5"
   );
+
   const checkColNumPretrainPath = path.resolve(
-    __dirname + "/extra/prediction_module/check_col_num.h5"
+    __dirname + "/resources/prediction_models/check_col_num.h5"
   );
   const classifyPretrainPath = path.resolve(
-    __dirname + "/extra/prediction_module/classify5.h5"
+    __dirname + "/resources/prediction_models/classify5.h5"
   );
   const predictionModulePath = path.resolve(
     __dirname + "/extra/prediction_module/model_for_multiple.py"
