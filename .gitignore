@@ -21,3 +21,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+/src/extra/ffmpeg_windows
+
+/src/extra/ffmpeg_linux
+
+/src/extra/prediction_module/*.h5
