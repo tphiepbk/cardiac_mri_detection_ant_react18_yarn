@@ -12,14 +12,6 @@ const closeConnection = async () => {
   return result;
 };
 
-const connect = () => {
-  return startConnection();
-};
-
-const disconnect = () => {
-  return closeConnection();
-};
-
 const patientSchema = new mongoose.Schema(
   {
     fullName: String,
@@ -41,7 +33,8 @@ const patientModel = mongoose.model("Patient", patientSchema);
 
 const savePatientRecord = async (patientObject) => {
   console.log('============================= Saving patient record ================================')
-  connect();
+
+  await startConnection();
 
   const patientInstance = new patientModel({
     fullName: patientObject.fullName,
@@ -62,6 +55,7 @@ const savePatientRecord = async (patientObject) => {
   const savePatientPromise = new Promise((resolve, reject) => {
     patientInstance.save((err, data) => {
       if (err) {
+        console.log(err)
         resolve("FAILED")
       } else {
         resolve("SUCCESS");
@@ -71,7 +65,7 @@ const savePatientRecord = async (patientObject) => {
 
   const returnValue = await savePatientPromise;
 
-  disconnect();
+  await closeConnection();
 
   console.log('============================= Finished saving patient record ================================')
 

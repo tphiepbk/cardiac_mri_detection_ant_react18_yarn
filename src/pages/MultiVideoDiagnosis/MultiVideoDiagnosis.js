@@ -18,6 +18,7 @@ import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import alertsSlice from "../../components/Alerts/alertsSlice";
 import appSlice from "../../appSlice";
 import multiVideoDiagnosisSlice from "./multiVideoDiagnosisSlice";
+import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
 import { appProcessRunningSelector } from "../../appSelector";
 import {
   disabledButtonSelector,
@@ -37,6 +38,9 @@ export default function MultiVideoDiagnosis() {
 
   const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
+
+  const [isSavePatientRecordModalVisible, setIsSavePatientRecordModalVisible] =
+    React.useState(false);
 
   const alertTimeout = 2000;
 
@@ -87,6 +91,26 @@ export default function MultiVideoDiagnosis() {
     setTimeout(() => {
       dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
     }, alertTimeout);
+  };
+
+  const showSavePatientRecordModal = () => {
+    setIsSavePatientRecordModalVisible(true);
+  };
+
+  const closeSavePatientRecordModalHandler = () => {
+    setIsSavePatientRecordModalVisible(false);
+  };
+
+  const savePatientRecord = async (patientRecord) => {
+    console.log("Saving record...");
+    const response = await window.electronAPI.savePatientDiagnosisResult(
+      patientRecord
+    );
+    if (response.result === "SUCCESS") {
+      triggerSavePatientRecordSucceededAlert();
+    } else {
+      triggerSavePatientRecordFailedAlert();
+    }
   };
 
   const showSliceModal = () => {
@@ -219,8 +243,6 @@ export default function MultiVideoDiagnosis() {
     }
   };
 
-  const changeDiagnosisResultHandler = () => {};
-
   let today = new Date();
   const dd = String(today.getDate()).padStart(2, "0");
   const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
@@ -343,25 +365,6 @@ export default function MultiVideoDiagnosis() {
                 </Button>
               )}
             </span>
-            {listPredictionResult.length === 0 ? (
-              <Button
-                type="primary"
-                shape="round"
-                style={{ marginLeft: "20px" }}
-                disabled
-              >
-                Change
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                shape="round"
-                style={{ marginLeft: "20px" }}
-                onClick={changeDiagnosisResultHandler}
-              >
-                Change
-              </Button>
-            )}
           </div>
 
           <div className="multi-video-diagnosis__diagnosis-result__result-panel__date-modified">
@@ -393,9 +396,25 @@ export default function MultiVideoDiagnosis() {
                 style={{ marginTop: "5px" }}
                 icon={<FundViewOutlined />}
                 size={10}
+                onClick={showSavePatientRecordModal}
               >
                 Proceed
               </Button>
+            )}
+
+            {isSavePatientRecordModalVisible && (
+              <SavePatientRecordModal
+                diagnosisResult={
+                  listPredictionResult[currentVideoSelected].predictedValue <
+                  0.5
+                    ? 1
+                    : 2
+                }
+                closeSavePatientRecordModalHandler={
+                  closeSavePatientRecordModalHandler
+                }
+                savePatientRecord={savePatientRecord}
+              />
             )}
           </div>
         </div>
