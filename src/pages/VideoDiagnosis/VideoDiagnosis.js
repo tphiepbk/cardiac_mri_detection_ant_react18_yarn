@@ -69,11 +69,48 @@ export default function VideoDiagnosis() {
   };
 
   const savePatientRecord = async (patientRecord) => {
-    console.log("Saving record...")
+    console.log("Saving record...");
     const response = await window.electronAPI.savePatientDiagnosisResult(
       patientRecord
     );
     console.log(response);
+  };
+
+  const alertTimeout = 2000;
+
+  const triggerTaskSucceededAlert = () => {
+    dispatch(alertsSlice.actions.openTaskSucceededAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskSucceededAlert());
+    }, alertTimeout);
+  };
+
+  const triggerTaskFailedAlert = () => {
+    dispatch(alertsSlice.actions.openTaskFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskFailedAlert());
+    }, alertTimeout);
+  };
+
+  const triggerTaskRunningAlert = () => {
+    dispatch(alertsSlice.actions.openTaskRunningAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskRunningAlert());
+    }, alertTimeout);
+  };
+
+  const triggerNoVideoAlert = () => {
+    dispatch(alertsSlice.actions.openNoVideoAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeNoVideoAlert());
+    }, alertTimeout);
+  };
+
+  const triggerUploadFailedAlert = () => {
+    dispatch(alertsSlice.actions.openUploadFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeUploadFailedAlert());
+    }, alertTimeout);
   };
 
   const getVideoMetadata = async (videoName, videoPath) => {
@@ -112,7 +149,7 @@ export default function VideoDiagnosis() {
 
       getVideoMetadata(videoName, videoInputPath);
     } else {
-      dispatch(alertsSlice.actions.openUploadFailedAlert());
+      triggerUploadFailedAlert();
     }
 
     dispatch(appSlice.actions.enableAppInteractive());
@@ -136,7 +173,9 @@ export default function VideoDiagnosis() {
       })
     );
 
-    dispatch(progressBarSlice.actions.clearProgressBar());
+    if (!processRunning) {
+      dispatch(progressBarSlice.actions.clearProgressBar());
+    }
 
     dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(0));
 
@@ -180,14 +219,16 @@ export default function VideoDiagnosis() {
     dispatch(appSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
-      dispatch(alertsSlice.actions.openTaskSucceededAlert());
+
+      triggerTaskSucceededAlert();
+
       if (parseFloat(predictionResponse.value) >= 0.5) {
-        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
-      } else {
         dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(2));
+      } else {
+        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
       }
     } else {
-      dispatch(alertsSlice.actions.openTaskFailedAlert());
+      triggerTaskFailedAlert();
     }
 
     dispatch(videoDiagnosisSlice.actions.enableButton());
@@ -195,9 +236,9 @@ export default function VideoDiagnosis() {
 
   const diagnoseButtonClickHandler = () => {
     if (processRunning) {
-      dispatch(alertsSlice.actions.openTaskRunningAlert());
+      triggerTaskRunningAlert();
     } else if (videoPath.avi === "") {
-      dispatch(alertsSlice.actions.openNoVideoAlert());
+      triggerNoVideoAlert();
     } else {
       diagnoseVideo();
     }

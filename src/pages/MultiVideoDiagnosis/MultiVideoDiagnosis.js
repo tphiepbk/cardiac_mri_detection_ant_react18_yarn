@@ -73,17 +73,6 @@ export default function MultiVideoDiagnosis() {
     console.log(filesOpenResponse);
 
     if (filesOpenResponse.result === "SUCCESS") {
-      /*
-      setListInputVideo(() =>
-        filesOpenResponse.videoObjectList.map((videoObject) => ({
-          index: videoObject.index,
-          name: videoObject.name,
-          path: videoObject.path,
-          convertedPath: videoObject.convertedPath,
-        }))
-      );
-      */
-
       dispatch(
         multiVideoDiagnosisSlice.actions.setListInputVideo(
           filesOpenResponse.videoObjectList.map((videoObject) => ({
@@ -97,24 +86,22 @@ export default function MultiVideoDiagnosis() {
     } else {
       dispatch(alertsSlice.actions.openUploadFailedAlert());
     }
-
-    //setInteractive((prevInteractive) => !prevInteractive);
     dispatch(appSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
     dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
 
-    dispatch(progressBarSlice.actions.clearProgressBar());
+    dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
+
+    if (!processRunning) {
+      dispatch(progressBarSlice.actions.clearProgressBar());
+    }
 
     dispatch(appSlice.actions.disableAppInteractive());
 
     uploadMultiVideos();
     setCurrentVideoSelected(0);
-
-    //dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
-
-    //dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
   };
 
   const diagnoseVideos = async () => {
