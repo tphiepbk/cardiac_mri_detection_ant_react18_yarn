@@ -38,6 +38,57 @@ export default function MultiVideoDiagnosis() {
   const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
+  const alertTimeout = 2000;
+
+  const triggerTaskSucceededAlert = () => {
+    dispatch(alertsSlice.actions.openTaskSucceededAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskSucceededAlert());
+    }, alertTimeout);
+  };
+
+  const triggerTaskFailedAlert = () => {
+    dispatch(alertsSlice.actions.openTaskFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskFailedAlert());
+    }, alertTimeout);
+  };
+
+  const triggerTaskRunningAlert = () => {
+    dispatch(alertsSlice.actions.openTaskRunningAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskRunningAlert());
+    }, alertTimeout);
+  };
+
+  const triggerNoVideoAlert = () => {
+    dispatch(alertsSlice.actions.openNoVideoAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeNoVideoAlert());
+    }, alertTimeout);
+  };
+
+  const triggerUploadFailedAlert = () => {
+    dispatch(alertsSlice.actions.openUploadFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeUploadFailedAlert());
+    }, alertTimeout);
+  };
+
+  const triggerSavePatientRecordSucceededAlert = () => {
+    dispatch(alertsSlice.actions.openSavePatientRecordSucceededAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeSavePatientRecordSucceededAlert());
+    }, alertTimeout);
+  };
+
+  const triggerSavePatientRecordFailedAlert = () => {
+    dispatch(alertsSlice.actions.openSavePatientRecordFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
+    }, alertTimeout);
+  };
+
   const showSliceModal = () => {
     setIsSliceModalVisible(true);
   };
@@ -84,7 +135,7 @@ export default function MultiVideoDiagnosis() {
         )
       );
     } else {
-      dispatch(alertsSlice.actions.openUploadFailedAlert());
+      triggerUploadFailedAlert();
     }
     dispatch(appSlice.actions.enableAppInteractive());
   };
@@ -146,7 +197,7 @@ export default function MultiVideoDiagnosis() {
     dispatch(appSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
-      dispatch(alertsSlice.actions.openTaskSucceededAlert());
+      triggerTaskSucceededAlert();
 
       dispatch(
         multiVideoDiagnosisSlice.actions.setListPredictionResult([
@@ -154,15 +205,15 @@ export default function MultiVideoDiagnosis() {
         ])
       );
     } else {
-      dispatch(alertsSlice.actions.openTaskFailedAlert());
+      triggerTaskFailedAlert();
     }
   };
 
   const diagnoseButtonClickHandler = () => {
     if (processRunning) {
-      dispatch(alertsSlice.actions.openTaskRunningAlert());
+      triggerTaskRunningAlert();
     } else if (listInputVideo.length === 0) {
-      dispatch(alertsSlice.actions.openNoVideoAlert());
+      triggerNoVideoAlert();
     } else {
       diagnoseVideos();
     }
