@@ -9,15 +9,19 @@ import {
   noVideoAlertSelector,
   taskRunningAlertSelector,
   uploadFailedAlertSelector,
+  savePatientRecordSucceededAlertSelector,
+  savePatientRecordFailedAlertSelector,
 } from "./alertsSelector";
 import alertsSlice from "./alertsSlice";
 
 export default function Alerts() {
-  const taskSucceededAlert = useSelector(taskSucceededAlertSelector)
-  const taskFailedAlert = useSelector(taskFailedAlertSelector)
-  const noVideoAlert = useSelector(noVideoAlertSelector)
-  const taskRunningAlert = useSelector(taskRunningAlertSelector)
-  const uploadFailedAlert = useSelector(uploadFailedAlertSelector)
+  const taskSucceededAlert = useSelector(taskSucceededAlertSelector);
+  const taskFailedAlert = useSelector(taskFailedAlertSelector);
+  const noVideoAlert = useSelector(noVideoAlertSelector);
+  const taskRunningAlert = useSelector(taskRunningAlertSelector);
+  const uploadFailedAlert = useSelector(uploadFailedAlertSelector);
+  const savePatientRecordSucceededAlert = useSelector(savePatientRecordSucceededAlertSelector);
+  const savePatientRecordFailedAlert = useSelector(savePatientRecordFailedAlertSelector);
 
   const dispatch = useDispatch();
 
@@ -40,6 +44,15 @@ export default function Alerts() {
   const closeTaskRunningAlertHandler = () => {
     dispatch(alertsSlice.actions.closeTaskRunningAlert());
   };
+
+  const closeSavePatientRecordSucceededAlertHandler = () => {
+    dispatch(alertsSlice.actions.closeSavePatientRecordSucceededAlert());
+  };
+
+  const closeSavePatientRecordFailedAlertHandler = () => {
+    dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
+  };
+
   return (
     <div className="alerts-container">
       {taskSucceededAlert && (
@@ -100,6 +113,30 @@ export default function Alerts() {
           closable
           banner
           afterClose={closeUploadFailedAlertHandler}
+        />
+      )}
+      {savePatientRecordSucceededAlert && (
+        <Alert
+          style={{ marginBottom: "15px" }}
+          message="Success"
+          description="Saved patient's record"
+          type="success"
+          showIcon
+          closable
+          banner
+          afterClose={closeSavePatientRecordSucceededAlertHandler}
+        />
+      )}
+      {savePatientRecordFailedAlert && (
+        <Alert
+          style={{ marginBottom: "15px" }}
+          message="Cannot save patient's record"
+          description="Please try again"
+          type="error"
+          showIcon
+          closable
+          banner
+          afterClose={closeSavePatientRecordFailedAlertHandler}
         />
       )}
     </div>

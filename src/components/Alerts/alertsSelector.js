@@ -24,3 +24,13 @@ export const taskRunningAlertSelector = createSelector(
   (state) => state.alerts.taskRunning,
   (taskRunningAlert) => taskRunningAlert
 );
+
+export const savePatientRecordSucceededAlertSelector = createSelector(
+  (state) => state.alerts.savePatientRecordSucceeded,
+  (savePatientRecordSucceededAlert) => savePatientRecordSucceededAlert
+);
+
+export const savePatientRecordFailedAlertSelector = createSelector(
+  (state) => state.alerts.savePatientRecordFailed,
+  (savePatientRecordFailedAlert) => savePatientRecordFailedAlert
+);

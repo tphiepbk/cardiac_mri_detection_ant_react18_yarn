@@ -6,6 +6,8 @@ const initialState = {
   noVideo: false,
   uploadFailed: false,
   taskRunning: false,
+  savePatientRecordSucceeded: false,
+  savePatientRecordFailed: false,
 };
 
 const alertsSlice = createSlice({
@@ -27,6 +29,12 @@ const alertsSlice = createSlice({
     openTaskRunningAlert: (state, _action) => {
       state.taskRunning = true;
     },
+    openSavePatientRecordSucceededAlert: (state, _action) => {
+      state.savePatientRecordSucceeded = true;
+    },
+    openSavePatientRecordFailedAlert: (state, _action) => {
+      state.savePatientRecordFailed = true;
+    },
     closeTaskSucceededAlert: (state, _action) => {
       state.taskSucceeded = false;
     },
@@ -41,6 +49,12 @@ const alertsSlice = createSlice({
     },
     closeTaskRunningAlert: (state, _action) => {
       state.taskRunning = false;
+    },
+    closeSavePatientRecordSucceededAlert: (state, _action) => {
+      state.savePatientRecordSucceeded = false;
+    },
+    closeSavePatientRecordFailedAlert: (state, _action) => {
+      state.savePatientRecordFailed = false;
     },
   },
 });

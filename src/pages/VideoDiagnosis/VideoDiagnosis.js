@@ -46,36 +46,6 @@ export default function VideoDiagnosis() {
     React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const selectSlice = (sliceNumber) => {
-    console.log(`Selected slice ${sliceNumber}`);
-    setCurrentSliceSelected(sliceNumber);
-    showModal();
-  };
-
-  const closeModal = () => {
-    setIsModalVisible(false);
-  };
-
-  const showSavePatientRecordModal = () => {
-    setIsSavePatientRecordModalVisible(true);
-  };
-
-  const closeSavePatientRecordModalHandler = () => {
-    setIsSavePatientRecordModalVisible(false);
-  };
-
-  const savePatientRecord = async (patientRecord) => {
-    console.log("Saving record...");
-    const response = await window.electronAPI.savePatientDiagnosisResult(
-      patientRecord
-    );
-    console.log(response);
-  };
-
   const alertTimeout = 2000;
 
   const triggerTaskSucceededAlert = () => {
@@ -111,6 +81,54 @@ export default function VideoDiagnosis() {
     setTimeout(() => {
       dispatch(alertsSlice.actions.closeUploadFailedAlert());
     }, alertTimeout);
+  };
+
+  const triggerSavePatientRecordSucceededAlert = () => {
+    dispatch(alertsSlice.actions.openSavePatientRecordSucceededAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeSavePatientRecordSucceededAlert());
+    }, alertTimeout);
+  };
+
+  const triggerSavePatientRecordFailedAlert = () => {
+    dispatch(alertsSlice.actions.openSavePatientRecordFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
+    }, alertTimeout);
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const selectSlice = (sliceNumber) => {
+    console.log(`Selected slice ${sliceNumber}`);
+    setCurrentSliceSelected(sliceNumber);
+    showModal();
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const showSavePatientRecordModal = () => {
+    setIsSavePatientRecordModalVisible(true);
+  };
+
+  const closeSavePatientRecordModalHandler = () => {
+    setIsSavePatientRecordModalVisible(false);
+  };
+
+  const savePatientRecord = async (patientRecord) => {
+    console.log("Saving record...");
+    const response = await window.electronAPI.savePatientDiagnosisResult(
+      patientRecord
+    );
+    if (response.result === "SUCCESS") {
+      triggerSavePatientRecordSucceededAlert();
+    } else {
+      triggerSavePatientRecordFailedAlert();
+    }
   };
 
   const getVideoMetadata = async (videoName, videoPath) => {
@@ -244,18 +262,6 @@ export default function VideoDiagnosis() {
     }
   };
 
-  const changeDiagnosisResultHandler = () => {
-    switch (diagnosisResult) {
-      case 1:
-        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(2));
-        break;
-      case 2:
-        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
-        break;
-      default:
-    }
-  };
-
   let today = new Date();
   const dd = String(today.getDate()).padStart(2, "0");
   const mm = String(today.getMonth() + 1).padStart(2, "0");
@@ -384,28 +390,6 @@ export default function VideoDiagnosis() {
                 </Button>
               )}
             </span>
-
-            {/*
-            {diagnosisResult === 0 ? (
-              <Button
-                type="primary"
-                shape="round"
-                style={{ marginLeft: "20px" }}
-                disabled
-              >
-                Change
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                shape="round"
-                style={{ marginLeft: "20px" }}
-                onClick={changeDiagnosisResultHandler}
-              >
-                Change
-              </Button>
-            )}
-             */}
           </div>
 
           <div className="video-diagnosis__diagnosis-result__result-panel__date-modified">
