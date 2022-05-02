@@ -5,30 +5,10 @@ import { Modal, Descriptions } from "antd";
 
 export default function MiniVideoModal(props) {
 
-  const { closeVideoModalHandler, videoIndex, videoName, videoPath, videoConvertedPath } = props
-
-  /*
-  (async (videoName, videoPath) => {
-    const response = await window.electronAPI.getFileMetadata(videoPath)
-    console.log(response)
-
-    if (response.result === 'SUCCESS') {
-      const {format_long_name, duration} = response.target.format
-      const {height, width} = response.target.streams[0]
-
-      setVideoMetadata({
-        name: videoName,
-        format: format_long_name,
-        duration: duration,
-        height: height,
-        width: width
-      })
-    }
-  })();
-  */
+  const { closeVideoModalHandler, videoMetadata, videoConvertedPath } = props
 
   return (
-    <Modal title={videoName} visible={true} onCancel={closeVideoModalHandler} footer={null} className='mini-video-modal'>
+    <Modal title={videoMetadata.name} visible={true} onCancel={closeVideoModalHandler} footer={null} className='mini-video-modal'>
       <ReactPlayer
         className="mini-video-modal__video"
         url={videoConvertedPath}
@@ -37,7 +17,6 @@ export default function MiniVideoModal(props) {
         loop={true}
       />
 
-      {/*
       <Descriptions 
         className="mini-video-modal__description"
         title="Description"
@@ -51,7 +30,6 @@ export default function MiniVideoModal(props) {
         <Descriptions.Item label="Duration">{`${videoMetadata.duration} s`}</Descriptions.Item>
         <Descriptions.Item label="Size">{`${videoMetadata.width} x ${videoMetadata.height}`}</Descriptions.Item>
       </Descriptions>
-       */}
     </Modal>
   )
 }

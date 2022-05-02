@@ -1,11 +1,15 @@
 .mini-video-modal {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  width: auto;
 }
 
 .mini-video-modal__video {
-  width: 32vw;
-  height: 47vh;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mini-video-modal__description {
+  margin-top: 20px;
+  width: 35vw;
 }

@@ -129,10 +129,13 @@ export default function MultiVideoDiagnosis() {
 
   const [isVideoModalVisible, setIsVideoModalVisible] = React.useState(false);
   const [currentVideoSelected, setCurrentVideoSelected] = React.useState(0);
-
-  const showVideoModal = (event) => {
-    setIsVideoModalVisible(true);
-  };
+  const [currentVideoMetadata, setCurrentVideoMetadata] = React.useState({
+    name: "",
+    format: "",
+    duration: 0,
+    height: 0,
+    width: 0,
+  });
 
   const closeVideoModal = () => {
     setIsVideoModalVisible(false);
@@ -141,6 +144,38 @@ export default function MultiVideoDiagnosis() {
   const selectVideo = (videoIndex) => {
     console.log(`Selected video ${videoIndex}`);
     setCurrentVideoSelected(videoIndex);
+  };
+
+  const inspectClickHandler = (videoIndex) => {
+    console.log("Selected Video Inspect", videoIndex);
+    setCurrentVideoSelected(videoIndex);
+    showVideoModal(videoIndex);
+  };
+
+  const showVideoModal = async (videoIndex) => {
+    await getVideoMetadata(
+      listInputVideo[videoIndex].name,
+      listInputVideo[videoIndex].path
+    );
+    setIsVideoModalVisible(true);
+  };
+
+  const getVideoMetadata = async (videoName, videoPath, callback) => {
+    const response = await window.electronAPI.getFileMetadata(videoPath);
+    console.log(response);
+
+    if (response.result === "SUCCESS") {
+      const { format_long_name, duration } = response.target.format;
+      const { height, width } = response.target.streams[0];
+
+      setCurrentVideoMetadata({
+        name: videoName,
+        format: format_long_name,
+        duration: duration,
+        height: height,
+        width: width,
+      });
+    }
   };
 
   const uploadMultiVideos = async () => {
@@ -288,7 +323,7 @@ export default function MultiVideoDiagnosis() {
                 key={index}
                 selected={index === currentVideoSelected ? true : false}
                 videoName={video.name}
-                inspectClickHandler={showVideoModal}
+                inspectClickHandler={() => inspectClickHandler(video.index)}
                 clickHandler={() => selectVideo(video.index)}
               />
             ))}
@@ -298,9 +333,7 @@ export default function MultiVideoDiagnosis() {
         {isVideoModalVisible && (
           <MiniVideoModal
             closeVideoModalHandler={closeVideoModal}
-            videoIndex={listInputVideo[currentVideoSelected].index}
-            videoName={listInputVideo[currentVideoSelected].name}
-            videoPath={listInputVideo[currentVideoSelected].path}
+            videoMetadata={currentVideoMetadata}
             videoConvertedPath={
               listInputVideo[currentVideoSelected].convertedPath
             }
