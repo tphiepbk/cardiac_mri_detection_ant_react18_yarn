@@ -10,11 +10,14 @@ import {
   Button,
 } from "antd";
 
+import moment from "moment";
+
 export default function SavePatientRecordModal(props) {
   const {
     savePatientRecord,
     closeSavePatientRecordModalHandler,
     diagnosisResult,
+    today,
   } = props;
 
   const onFinish = (values) => {
@@ -63,6 +66,7 @@ export default function SavePatientRecordModal(props) {
         initialValues={{
           gender: "male",
           diagnosisResultValue: diagnosisResult === 1 ? "normal" : "abnormal",
+          dateModified: moment(today, 'DD/MM/YYYY'),
         }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}

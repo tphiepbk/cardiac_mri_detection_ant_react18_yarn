@@ -434,6 +434,7 @@ export default function VideoDiagnosis() {
                   closeSavePatientRecordModalHandler
                 }
                 savePatientRecord={savePatientRecord}
+                today={today}
               />
             )}
           </div>
