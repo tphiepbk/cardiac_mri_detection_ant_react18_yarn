@@ -2,6 +2,8 @@
   "name": "cardiac_mri_detection_ant_react18_yarn",
   "version": "0.1.0",
   "private": true,
+  "author": "tphiepbk",
+  "description": "Cardiac MRI Abnormalities Detection",
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.1",
     "@testing-library/jest-dom": "^5.14.1",
@@ -11,6 +13,7 @@
     "concurrently": "^7.1.0",
     "cross-env": "^7.0.3",
     "electron-is-dev": "^2.0.0",
+    "electron-squirrel-startup": "^1.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "moment": "^2.29.3",
     "mongoose": "^6.3.1",
@@ -32,8 +35,10 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron:build": "yarn build && electron-builder -c.extraMetadata.main=src/electron-main.js",
-    "electron:start": "wait-on tcp:3000 && electron .",
-    "dev": "concurrently -k \"cross-env yarn start\" \"yarn electron:start\""
+    "electron:start": "wait-on tcp:3000 && electron-forge start",
+    "dev": "concurrently -k \"cross-env yarn start\" \"yarn electron:start\"",
+    "package": "react-scripts build && electron-forge package",
+    "make": "react-scripts build && electron-forge make"
   },
   "build": {
     "extends": null,
@@ -72,6 +77,40 @@
     ]
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-zip": "^6.0.0-beta.63",
     "electron": "^18.0.4"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "name": "Cardiac MRI Abnormalities Detection"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "cardiac_mri_detection_ant_react18_yarn"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }
