@@ -1,6 +1,19 @@
 import React from "react";
-import "./NPYDiagnosis.css";
-import { Button, Empty, Skeleton } from "antd";
+import ReactPlayer from "react-player";
+import { useDispatch, useSelector } from "react-redux";
+import npyDiagnosisSlice from "./npyDiagnosisSlice";
+import {
+  videoPathSelector,
+  videoMetadataSelector,
+  diagnosisResultSelector,
+  disabledButtonSelector,
+  listSlicesSelector,
+  npyFilePathsSelector,
+  npyFileNamesSelector,
+} from "./npyDiagnosisSelector";
+
+import { Button, Descriptions, Empty, Skeleton, Tabs, List } from "antd";
+
 import {
   UploadOutlined,
   FundViewOutlined,
@@ -9,183 +22,272 @@ import {
   MinusCircleOutlined,
 } from "@ant-design/icons";
 
-import VideoItem from "../../components/VideoItem/VideoItem";
 import SliceCard from "../../components/SliceCard/SliceCard";
 import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
-import MiniVideoModal from "../../components/MiniVideoModal/MiniVideoModal";
-import { useDispatch, useSelector } from "react-redux";
-import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
-import alertsSlice from "../../components/Alerts/alertsSlice";
-import appSlice from "../../appSlice";
-import multiVideoDiagnosisSlice from "../MultiVideoDiagnosis/multiVideoDiagnosisSlice";
-import { appProcessRunningSelector } from "../../appSelector";
-import {
-  disabledButtonSelector,
-  listInputVideoSelector,
-  listPredictionResultSelector,
-  multiVideoListSlicesSelector,
-} from "../MultiVideoDiagnosis/multiVideoDiagnosisSelector";
+import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
 
-export default function NPYDiagnosis() {
+import "./NPYDiagnosis.css";
+import alertsSlice from "../../components/Alerts/alertsSlice";
+import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
+import appSlice from "../../appSlice";
+import { appProcessRunningSelector } from "../../appSelector";
+
+const NO_DIAGNOSIS_RESULT = 0;
+const NORMAL_DIAGNOSIS_RESULT = 1;
+const ABNORMAL_DIAGNOSIS_RESULT = 2;
+
+export default function VideoDiagnosis() {
   const dispatch = useDispatch();
 
-  const processRunning = useSelector(appProcessRunningSelector);
-  const listInputVideo = useSelector(listInputVideoSelector);
-  const listPredictionResult = useSelector(listPredictionResultSelector);
+  const npyFileNames = useSelector(npyFileNamesSelector);
+  const npyFilePaths = useSelector(npyFilePathsSelector);
+  const videoPath = useSelector(videoPathSelector);
+  const videoMetadata = useSelector(videoMetadataSelector);
   const disabledButton = useSelector(disabledButtonSelector);
-  const multiVideoListSlices = useSelector(multiVideoListSlicesSelector);
+  const diagnosisResult = useSelector(diagnosisResultSelector);
+  const listSlices = useSelector(listSlicesSelector);
 
-  const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
+  const processRunning = useSelector(appProcessRunningSelector);
+
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [isSavePatientRecordModalVisible, setIsSavePatientRecordModalVisible] =
+    React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
-  const showSliceModal = () => {
-    setIsSliceModalVisible(true);
+  const alertTimeout = 2000;
+
+  const triggerTaskSucceededAlert = () => {
+    dispatch(alertsSlice.actions.openTaskSucceededAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskSucceededAlert());
+    }, alertTimeout);
+  };
+
+  const triggerTaskFailedAlert = () => {
+    dispatch(alertsSlice.actions.openTaskFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskFailedAlert());
+    }, alertTimeout);
+  };
+
+  const triggerTaskRunningAlert = () => {
+    dispatch(alertsSlice.actions.openTaskRunningAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeTaskRunningAlert());
+    }, alertTimeout);
+  };
+
+  const triggerNoVideoAlert = () => {
+    dispatch(alertsSlice.actions.openNoVideoAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeNoVideoAlert());
+    }, alertTimeout);
+  };
+
+  const triggerUploadFailedAlert = () => {
+    dispatch(alertsSlice.actions.openUploadFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeUploadFailedAlert());
+    }, alertTimeout);
+  };
+
+  const triggerSavePatientRecordSucceededAlert = () => {
+    dispatch(alertsSlice.actions.openSavePatientRecordSucceededAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeSavePatientRecordSucceededAlert());
+    }, alertTimeout);
+  };
+
+  const triggerSavePatientRecordFailedAlert = () => {
+    dispatch(alertsSlice.actions.openSavePatientRecordFailedAlert());
+    setTimeout(() => {
+      dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
+    }, alertTimeout);
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
   };
 
   const selectSlice = (sliceNumber) => {
     console.log(`Selected slice ${sliceNumber}`);
     setCurrentSliceSelected(sliceNumber);
-    showSliceModal();
+    showModal();
   };
 
-  const closeSliceModal = () => {
-    setIsSliceModalVisible(false);
+  const closeModal = () => {
+    setIsModalVisible(false);
   };
 
-  const [isVideoModalVisible, setIsVideoModalVisible] = React.useState(false);
-  const [currentVideoSelected, setCurrentVideoSelected] = React.useState(0);
-
-  const showVideoModal = (event) => {
-    setIsVideoModalVisible(true);
+  const showSavePatientRecordModal = () => {
+    setIsSavePatientRecordModalVisible(true);
   };
 
-  const closeVideoModal = () => {
-    setIsVideoModalVisible(false);
+  const closeSavePatientRecordModalHandler = () => {
+    setIsSavePatientRecordModalVisible(false);
   };
 
-  const selectVideo = (videoIndex) => {
-    console.log(`Selected video ${videoIndex}`);
-    setCurrentVideoSelected(videoIndex);
+  const savePatientRecord = async (patientRecord) => {
+    console.log("Saving record...");
+    const response = await window.electronAPI.savePatientDiagnosisResult(
+      patientRecord
+    );
+    if (response.result === "SUCCESS") {
+      triggerSavePatientRecordSucceededAlert();
+    } else {
+      triggerSavePatientRecordFailedAlert();
+    }
   };
 
-  const uploadMultiVideos = async () => {
-    const filesOpenResponse = await window.electronAPI.openMultiFilesDialog();
-    console.log(filesOpenResponse);
+  const tabChangeHandler = (key) => {
+    console.log("Changed to tab ", key);
+  };
 
-    if (filesOpenResponse.result === "SUCCESS") {
-      /*
-      setListInputVideo(() =>
-        filesOpenResponse.videoObjectList.map((videoObject) => ({
-          index: videoObject.index,
-          name: videoObject.name,
-          path: videoObject.path,
-          convertedPath: videoObject.convertedPath,
-        }))
-      );
-      */
+  const getVideoMetadata = async (videoName, videoPath) => {
+    const response = await window.electronAPI.getFileMetadata(videoPath);
+    console.log(response);
+
+    if (response.result === "SUCCESS") {
+      const { format_long_name, duration } = response.target.format;
+      const { height, width } = response.target.streams[0];
 
       dispatch(
-        multiVideoDiagnosisSlice.actions.setListInputVideo(
-          filesOpenResponse.videoObjectList.map((videoObject) => ({
-            index: videoObject.index,
-            name: videoObject.name,
-            path: videoObject.path,
-            convertedPath: videoObject.convertedPath,
-          }))
-        )
+        npyDiagnosisSlice.actions.setVideoMetadata({
+          name: videoName,
+          format: format_long_name,
+          duration: duration,
+          height: height,
+          width: width,
+        })
       );
+    }
+  };
+
+  const uploadNpyFiles = async () => {
+    const response = await window.electronAPI.openFolderDialog();
+    console.log(response);
+
+    if (response.result === "SUCCESS") {
+      const { npyFileNames, npyFilePaths, videoName, videoInputPath, videoOutputPath } =
+        response;
+
+      dispatch(
+        npyDiagnosisSlice.actions.setVideoPath({
+          avi: videoInputPath,
+          mp4: videoOutputPath,
+        })
+      );
+
+      getVideoMetadata(videoName, videoInputPath);
+      dispatch(npyDiagnosisSlice.actions.setNpyFileNames(npyFileNames));
+      dispatch(npyDiagnosisSlice.actions.setNpyFilePaths(npyFilePaths));
     } else {
-      dispatch(alertsSlice.actions.openUploadFailedAlert());
+      triggerUploadFailedAlert();
     }
 
-    //setInteractive((prevInteractive) => !prevInteractive);
     dispatch(appSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
+    dispatch(npyDiagnosisSlice.actions.setNpyFileNames([]));
+    dispatch(npyDiagnosisSlice.actions.setNpyFilePaths([]));
 
-    dispatch(progressBarSlice.actions.clearProgressBar());
+    dispatch(
+      npyDiagnosisSlice.actions.setVideoPath({
+        avi: "",
+        mp4: "",
+      })
+    );
+
+    dispatch(
+      npyDiagnosisSlice.actions.setVideoMetadata({
+        name: "",
+        format: "",
+        duration: "",
+        height: "",
+        width: "",
+      })
+    );
+
+    if (!processRunning) {
+      dispatch(progressBarSlice.actions.clearProgressBar());
+    }
+
+    dispatch(npyDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
 
     dispatch(appSlice.actions.disableAppInteractive());
 
-    uploadMultiVideos();
-    setCurrentVideoSelected(0);
-
-    //dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
-
-    //dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
+    uploadNpyFiles();
   };
 
-  const diagnoseVideos = async () => {
-    dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
+  const diagnoseVideo = async () => {
+    dispatch(npyDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
 
     dispatch(progressBarSlice.actions.clearProgressBar());
 
-    dispatch(multiVideoDiagnosisSlice.actions.disableButton());
+    dispatch(npyDiagnosisSlice.actions.disableButton());
 
     dispatch(appSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
-    }, listInputVideo.length * 150);
+    }, 250);
 
-    const predictionResponse = await window.electronAPI.makeMultiplePrediction(
-      listInputVideo
+    const predictionResponse = await window.electronAPI.makeSinglePrediction(
+      videoPath.avi
     );
     console.log(predictionResponse);
 
     clearInterval(progressBarRunning);
-
     dispatch(progressBarSlice.actions.completeProgressBar());
 
-    dispatch(multiVideoDiagnosisSlice.actions.enableButton());
-
-    const crawledMultiVideoListSlices = [];
+    const crawledListSlices = [];
     for (let i = 0; i <= 10; i++) {
-      crawledMultiVideoListSlices.push({
+      crawledListSlices.push({
         sliceNumber: i,
         sliceImageUrl:
           "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
         sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
       });
     }
-    dispatch(
-      multiVideoDiagnosisSlice.actions.setMultiVideoListSlices(
-        crawledMultiVideoListSlices
-      )
-    );
+    dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
     dispatch(appSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
-      dispatch(alertsSlice.actions.openTaskSucceededAlert());
+      triggerTaskSucceededAlert();
 
-      dispatch(
-        multiVideoDiagnosisSlice.actions.setListPredictionResult([
-          ...predictionResponse.returnedVideoObjectList,
-        ])
-      );
+      if (parseFloat(predictionResponse.value) >= 0.5) {
+        dispatch(
+          npyDiagnosisSlice.actions.setDiagnosisResult(
+            ABNORMAL_DIAGNOSIS_RESULT
+          )
+        );
+      } else {
+        dispatch(
+          npyDiagnosisSlice.actions.setDiagnosisResult(NORMAL_DIAGNOSIS_RESULT)
+        );
+      }
     } else {
-      dispatch(alertsSlice.actions.openTaskFailedAlert());
+      triggerTaskFailedAlert();
     }
+
+    dispatch(npyDiagnosisSlice.actions.enableButton());
   };
 
   const diagnoseButtonClickHandler = () => {
     if (processRunning) {
-      dispatch(alertsSlice.actions.openTaskRunningAlert());
-    } else if (listInputVideo.length === 0) {
-      dispatch(alertsSlice.actions.openNoVideoAlert());
+      triggerTaskRunningAlert();
+    } else if (videoPath.avi === "") {
+      triggerNoVideoAlert();
     } else {
-      diagnoseVideos();
+      diagnoseVideo();
     }
   };
 
-  const changeDiagnosisResultHandler = () => {};
-
   let today = new Date();
   const dd = String(today.getDate()).padStart(2, "0");
-  const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
   const yyyy = today.getFullYear();
   today = dd + "/" + mm + "/" + yyyy;
 
@@ -201,7 +303,7 @@ export default function NPYDiagnosis() {
               size={10}
               disabled
             >
-              Upload files
+              Upload file
             </Button>
           ) : (
             <Button
@@ -211,99 +313,117 @@ export default function NPYDiagnosis() {
               size={10}
               onClick={uploadButtonClickHandler}
             >
-              Upload files
+              Upload file
             </Button>
           )}
         </div>
 
-        {listInputVideo.length === 0 ? (
-          <Empty
-            className="npy-diagnosis__upload-container__video-list--empty"
-            description="No video uploaded"
-          />
-        ) : (
-          <div className="npy-diagnosis__upload-container__video-list">
-            {listInputVideo.map((video, index) => (
-              <VideoItem
-                key={index}
-                selected={index === currentVideoSelected ? true : false}
-                videoName={video.name}
-                inspectClickHandler={showVideoModal}
-                clickHandler={() => selectVideo(video.index)}
-              />
-            ))}
+        <div className="npy-diagnosis__upload-container__list-npy-video-wrapper">
+          <div className="npy_diagnosis_upload-container__npy-list--overflow">
+            <List
+              className={`npy_diagnosis_upload-container__npy-list${
+                npyFileNames.length === 0 ? "--empty" : ""
+              }`}
+              size="small"
+              dataSource={npyFileNames}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
           </div>
-        )}
 
-        {isVideoModalVisible && (
-          <MiniVideoModal
-            closeVideoModalHandler={closeVideoModal}
-            videoIndex={listInputVideo[currentVideoSelected].index}
-            videoName={listInputVideo[currentVideoSelected].name}
-            videoPath={listInputVideo[currentVideoSelected].path}
-            videoConvertedPath={
-              listInputVideo[currentVideoSelected].convertedPath
-            }
-          />
-        )}
-
-        <div className="npy-diagnosis__upload-container__bottom-button-container">
-          <div className="npy-diagnosis__upload-container__bottom-button-container__render-video-button">
-            {disabledButton ? (
-              <Button
-                type="primary"
-                shape="round"
-                icon={<FundViewOutlined />}
-                size={10}
-                disabled
-              >
-                Render video
-              </Button>
+          <Tabs
+            defaultActiveKey="1"
+            type="card"
+            size="small"
+            onChange={tabChangeHandler}
+            className="npy-diagnosis__upload-container__tabs-container"
+          >
+            <Tabs.TabPane tab="Original" key="1">
+              {videoPath.mp4 === "" ? (
+                <Empty
+                  className="npy-diagnosis__upload-container__no-video"
+                  description="No video uploaded"
+                />
+              ) : (
+                <ReactPlayer
+                  className="npy-diagnosis__upload-container__video"
+                  url={videoPath.mp4}
+                  playing={true}
+                  controls={false}
+                  loop={true}
+                />
+              )}
+            </Tabs.TabPane>
+            {videoPath.mp4 === "" ? (
+              <Tabs.TabPane tab="Cropped" key="2" disabled />
             ) : (
-              <Button
-                type="primary"
-                shape="round"
-                icon={<FundViewOutlined />}
-                size={10}
-                onClick={diagnoseButtonClickHandler}
-              >
-                Render video
-              </Button>
+              <Tabs.TabPane tab="Cropped" key="2">
+                <ReactPlayer
+                  className="npy-diagnosis__upload-container__video"
+                  url={videoPath.mp4}
+                  playing={true}
+                  controls={false}
+                  loop={true}
+                />
+              </Tabs.TabPane>
             )}
-          </div>
+          </Tabs>
+        </div>
 
-          <div className="npy-diagnosis__upload-container__bottom-button-container__diagnose-button">
-            {disabledButton ? (
-              <Button
-                type="primary"
-                shape="round"
-                icon={<FundViewOutlined />}
-                size={10}
-                disabled
-              >
-                Diagnose
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                shape="round"
-                icon={<FundViewOutlined />}
-                size={10}
-                onClick={diagnoseButtonClickHandler}
-              >
-                Diagnose
-              </Button>
-            )}
-          </div>
+        <Descriptions
+          className="npy-diagnosis__upload-container__video-description"
+          title="Description"
+          bordered
+          size="small"
+          layout="vertical"
+          column={4}
+        >
+          <Descriptions.Item label="Name" span={4}>
+            {videoMetadata.name ? videoMetadata.name : "N/A"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Format">
+            {videoMetadata.format ? videoMetadata.format : "N/A"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Duration">
+            {videoMetadata.duration ? `${videoMetadata.duration} s` : "N/A"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Size">
+            {videoMetadata.width && videoMetadata.height
+              ? `${videoMetadata.width} x ${videoMetadata.height}`
+              : "N/A"}
+          </Descriptions.Item>
+        </Descriptions>
+
+        <div className="npy-diagnosis__upload-container__diagnose-button">
+          {disabledButton ? (
+            <Button
+              type="primary"
+              shape="round"
+              icon={<FundViewOutlined />}
+              size={10}
+              disabled
+            >
+              Diagnose
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              shape="round"
+              icon={<FundViewOutlined />}
+              size={10}
+              onClick={diagnoseButtonClickHandler}
+            >
+              Diagnose
+            </Button>
+          )}
         </div>
       </div>
 
       <div className="npy-diagnosis__diagnosis-result">
         <div className="npy-diagnosis__diagnosis-result__result-panel">
-          <div className="multi--video-diagnosis__diagnosis-result__result-panel__result">
+          <div className="npy-diagnosis__diagnosis-result__result-panel__result">
             <h2>Result</h2>
             <span>
-              {listPredictionResult.length === 0 ? (
+              {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
                 <Button
                   icon={<MinusCircleOutlined />}
                   className="button-as-none-tag"
@@ -311,9 +431,7 @@ export default function NPYDiagnosis() {
                 >
                   NONE
                 </Button>
-              ) : parseFloat(
-                  listPredictionResult[currentVideoSelected].predictedValue
-                ) < 0.5 ? (
+              ) : diagnosisResult === NORMAL_DIAGNOSIS_RESULT ? (
                 <Button
                   icon={<CheckCircleOutlined />}
                   className="button-as-success-tag"
@@ -331,30 +449,11 @@ export default function NPYDiagnosis() {
                 </Button>
               )}
             </span>
-            {listPredictionResult.length === 0 ? (
-              <Button
-                type="primary"
-                shape="round"
-                style={{ marginLeft: "20px" }}
-                disabled
-              >
-                Change
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                shape="round"
-                style={{ marginLeft: "20px" }}
-                onClick={changeDiagnosisResultHandler}
-              >
-                Change
-              </Button>
-            )}
           </div>
 
           <div className="npy-diagnosis__diagnosis-result__result-panel__date-modified">
             <h2>Date Modified</h2>
-            {listPredictionResult.length === 0 ? (
+            {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
               <Skeleton paragraph={{ rows: 0 }} />
             ) : (
               <h1>{today}</h1>
@@ -363,7 +462,7 @@ export default function NPYDiagnosis() {
 
           <div className="npy-diagnosis__diagnosis-result__result-panel__save-record">
             <h2>Save record</h2>
-            {listPredictionResult.length === 0 ? (
+            {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
               <Button
                 type="primary"
                 shape="round"
@@ -381,20 +480,32 @@ export default function NPYDiagnosis() {
                 style={{ marginTop: "5px" }}
                 icon={<FundViewOutlined />}
                 size={10}
+                onClick={showSavePatientRecordModal}
               >
                 Proceed
               </Button>
             )}
+
+            {isSavePatientRecordModalVisible && (
+              <SavePatientRecordModal
+                diagnosisResult={diagnosisResult}
+                closeSavePatientRecordModalHandler={
+                  closeSavePatientRecordModalHandler
+                }
+                savePatientRecord={savePatientRecord}
+                today={today}
+              />
+            )}
           </div>
         </div>
 
-        {listPredictionResult.length === 0 ? (
+        {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
           <div className="npy-diagnosis__diagnosis-result__slices-panel--empty">
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </div>
         ) : (
           <div className="npy-diagnosis__diagnosis-result__slices-panel">
-            {multiVideoListSlices.map((slice) => (
+            {listSlices.map((slice) => (
               <SliceCard
                 key={slice.sliceNumber}
                 sliceNumber={slice.sliceNumber}
@@ -405,16 +516,12 @@ export default function NPYDiagnosis() {
               />
             ))}
 
-            {isSliceModalVisible && (
+            {isModalVisible && (
               <SliceCardModal
-                closeModalHandler={closeSliceModal}
+                closeModalHandler={closeModal}
                 sliceNumber={currentSliceSelected}
-                sliceImageUrl={
-                  multiVideoListSlices[currentSliceSelected].sliceImageUrl
-                }
-                sliceVideoPath={
-                  multiVideoListSlices[currentSliceSelected].sliceVideoPath
-                }
+                sliceImageUrl={listSlices[currentSliceSelected].sliceImageUrl}
+                sliceVideoPath={listSlices[currentSliceSelected].sliceVideoPath}
               />
             )}
           </div>
