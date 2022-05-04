@@ -14,8 +14,11 @@ contextBridge.exposeInMainWorld('electronAPI',{
   // * Make single prediction
   makeSinglePrediction : (filepath) => ipcRenderer.invoke('make-single-prediction', filepath),
 
-  // * Open folder dialog
+  // * Open multi files dialog
   openMultiFilesDialog: () => ipcRenderer.invoke('open-multi-files-dialog'),
+
+  // * Open folder dialog
+  openFolderDialog: () => ipcRenderer.invoke('open-folder-dialog'),
 
   // * Make multiple prediction
   makeMultiplePrediction : (videoObjectList) => ipcRenderer.invoke('make-multiple-prediction', videoObjectList),

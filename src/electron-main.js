@@ -13,11 +13,13 @@ const database = require("./database/mongoDB");
 
 let userDataPath_temp;
 const userDataPath = app.getPath("userData");
-if (process.platform === 'win32') {
+if (process.platform === "win32") {
   userDataPath_temp = `${userDataPath}/temp/`;
-} else if (process.platform === 'linux') {
-  const homedir = require('os').homedir();
-  userDataPath_temp = path.resolve(homedir + '/cardiac_mri_detection_ant_react18_yarn/')
+} else if (process.platform === "linux") {
+  const homedir = require("os").homedir();
+  userDataPath_temp = path.resolve(
+    homedir + "/cardiac_mri_detection_ant_react18_yarn/"
+  );
 }
 
 if (!fs.existsSync(userDataPath_temp)) {
@@ -151,7 +153,10 @@ ipcMain.handle("open-file-dialog", async (event, _arg) => {
               result: "SUCCESS",
               videoName: filename,
               videoInputPath: inputDir,
-              videoOutputPath: process.platform === 'linux' ? 'file:///' + outputDir : outputDir,
+              videoOutputPath:
+                process.platform === "linux"
+                  ? "file:///" + outputDir
+                  : outputDir,
             };
 
             resolve(returnValue);
@@ -262,7 +267,8 @@ ipcMain.handle("open-multi-files-dialog", async (_event, _arg) => {
             index: i,
             name: fileNames[i],
             path: files.filePaths[i].toString(),
-            convertedPath: process.platform === 'linux' ? 'file:///' + values[i] : values[i],
+            convertedPath:
+              process.platform === "linux" ? "file:///" + values[i] : values[i],
           });
         }
         returnValue.result = "SUCCESS";
@@ -272,6 +278,153 @@ ipcMain.handle("open-multi-files-dialog", async (_event, _arg) => {
       }
 
       return returnValue;
+    }
+  }
+});
+
+ipcMain.handle("open-folder-dialog", async (_event, _arg) => {
+  global.filepath = undefined;
+
+  const properties = ["openDirectory"];
+
+  const folder = await dialog.showOpenDialog({
+    title: "Select files to be uploaded",
+    defaultPath: path.join(__dirname, "../assets/"),
+    buttonLabel: "Open",
+    filters: [{ name: "MRI Videos", extensions: ["avi", "npy"] }],
+    properties: properties,
+  });
+
+  if (!folder) {
+    return {
+      description: "OPEN FOLDER DIALOG",
+      result: "FAILED",
+    };
+  } else {
+    if (folder.canceled) {
+      return {
+        description: "OPEN FOLDER DIALOG",
+        result: "CANCELED",
+      };
+    } else {
+      const folderPath = folder.filePaths[0];
+      const getFilesInFolderPromise = new Promise((resolve, _reject) => {
+        fs.readdir(folderPath, (err, files) => {
+          if (err) {
+            resolve("FAILED");
+          } else {
+            resolve(files);
+          }
+        });
+      });
+
+      const filesInFolder = await getFilesInFolderPromise;
+
+      if (filesInFolder === "FAILED") {
+        return {
+          description: "OPEN FOLDER DIALOG",
+          result: "FAILED",
+        };
+      } else {
+        const wrongFormat =
+          filesInFolder.filter((filename) => filename.slice(-4) !== ".npy")
+            .length === 0
+            ? false
+            : true;
+        if (filesInFolder.length < 10 || wrongFormat) {
+          return {
+            description: "OPEN FOLDER DIALOG",
+            result: "FAILED",
+          };
+        }
+
+        const folderName = path.basename(folderPath);
+        const pathToTempFolder = path.resolve(
+          `${userDataPath_temp}/${folderName}/`
+        );
+
+        if (!fs.existsSync(pathToTempFolder)) {
+          fs.mkdirSync(pathToTempFolder);
+        }
+
+        filesInFolder.sort(
+          (a, b) =>
+            parseInt(a.slice(0, a.length - 4)) -
+            parseInt(b.slice(0, b.length - 4))
+        );
+
+        const filesInFolder_fullPath = filesInFolder.map((filename) =>
+          path.resolve(`${folderPath}/${filename}`)
+        );
+
+        const npyProcessingModulePath = path.resolve(
+          __dirname + "/extra/npy_processing_module/main.py"
+        );
+
+        const options = {
+          mode: "text",
+          pythonOptions: ["-u"],
+          args: [pathToTempFolder, folderName, ...filesInFolder_fullPath],
+        };
+
+        const npyProcessingPromise = new Promise((resolve, reject) => {
+          PythonShell.run(npyProcessingModulePath, options, (err, _data) => {
+            if (err) {
+              resolve("FAILED");
+            } else {
+              resolve("SUCCESS");
+            }
+          });
+        });
+
+        const npyProcessingResult = await npyProcessingPromise;
+
+        if (npyProcessingResult === "FAILED") {
+          return {
+            description: "OPEN FOLDER DIALOG",
+            result: "FAILED",
+          };
+        }
+
+        const inputDir = path.resolve(
+          `${userDataPath_temp}/${folderName}/${folderName}.avi`
+        );
+        const filename = folderName;
+        const outputDir = path.resolve(
+          `${userDataPath_temp}/${folderName}/${folderName}_converted.mp4`
+        );
+        const ffmpegPromise = new Promise((resolve, _reject) => {
+          ffmpeg(inputDir)
+            .on("end", () => {
+              resolve("SUCCESS");
+            })
+            .on("error", (errFfmpeg) => {
+              console.log(`An error happened: ${errFfmpeg.message}`);
+              resolve("FAILED");
+            })
+            .saveToFile(outputDir);
+        });
+
+        const ffmpegResult = await ffmpegPromise;
+
+        if (ffmpegResult === "FAILED") {
+          return {
+            description: "OPEN FOLDER DIALOG",
+            result: "FAILED",
+          };
+        } else {
+          return {
+            description: "OPEN FOLDER DIALOG",
+            result: "SUCCESS",
+            npyFileNames: filesInFolder,
+            npyFilePaths: filesInFolder_fullPath,
+            videoName: filename,
+            videoInputPath: inputDir,
+            videoOutputPath:
+              process.platform === "linux" ? "file:///" + outputDir : outputDir,
+          };
+        }
+      }
     }
   }
 });
@@ -319,7 +472,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
     __dirname + "/resources/prediction_models/unet3.h5"
   );
 
-  console.log(unetPretrainPath)
+  console.log(unetPretrainPath);
 
   const checkColNumPretrainPath = path.resolve(
     __dirname + "/resources/prediction_models/check_col_num.h5"
@@ -460,65 +613,6 @@ ipcMain.handle("make-multiple-prediction", async (event, videoObjectList) => {
   console.log(returnValue);
 
   return returnValue;
-
-  /*
-  const allPromise = []
-
-  for (let videoObject of videoObjectList) {
-    const options = {
-      mode: 'text',
-      pythonOptions: ['-u'],
-      args: [videoObject.path, unetPretrainPath, checkColNumPretrainPath, classifyPretrainPath],
-    };
-
-    const pythonPromise = new Promise((resolve, reject) => {
-      PythonShell.run(predictionModulePath, options, (errPrediction, dataPrediction) => {
-        if (errPrediction) {
-          console.log(errPrediction);
-          resolve('FAILED')
-        } else {
-          console.log(dataPrediction.toString());
-          resolve(dataPrediction.toString())
-        }
-      })
-    })
-
-    allPromise.push(pythonPromise)
-  }
-
-  const values = await Promise.all(allPromise)
-
-  let returnValue = {
-    description: 'MAKE MULTIPLE PREDICTION'
-  }
-
-  if (values.length === videoObjectList.length) {
-    if (values.includes('FAILED')) {
-      returnValue.result = 'FAILED'
-    } else {
-      returnValue.result = 'SUCCESS'
-      const returnedVideoObjectList = []
-      for (let i = 0 ; i < values.length ; i++) {
-        returnedVideoObjectList.push({
-          index: i,
-          name: videoObjectList[i].name,
-          path: videoObjectList[i].path,
-          convertedPath: videoObjectList[i].convertedPath,
-          predictedValue: values[i]
-        })
-      }
-      returnValue.returnedVideoObjectList = returnedVideoObjectList
-    }
-  } else {
-    returnValue.result = 'FAILED'
-  }
-
-  console.log('=============== Finished making prediction ================');
-
-  console.log(returnValue)
-
-  return returnValue
-  */
 });
 
 ipcMain.on("clear-temp-folder", (event, data) => {
