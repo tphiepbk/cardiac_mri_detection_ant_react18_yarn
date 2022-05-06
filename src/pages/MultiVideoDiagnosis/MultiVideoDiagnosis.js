@@ -27,6 +27,9 @@ import {
   multiVideoListSlicesSelector,
 } from "./multiVideoDiagnosisSelector";
 
+const NORMAL_DIAGNOSIS_RESULT = 1;
+const ABNORMAL_DIAGNOSIS_RESULT = 2;
+
 export default function MultiVideoDiagnosis() {
   const dispatch = useDispatch();
 
@@ -440,9 +443,10 @@ export default function MultiVideoDiagnosis() {
                 diagnosisResult={
                   listPredictionResult[currentVideoSelected].predictedValue <
                   0.5
-                    ? 1
-                    : 2
+                    ? NORMAL_DIAGNOSIS_RESULT
+                    : ABNORMAL_DIAGNOSIS_RESULT
                 }
+                sampleName={listInputVideo[currentVideoSelected].name}
                 closeSavePatientRecordModalHandler={
                   closeSavePatientRecordModalHandler
                 }

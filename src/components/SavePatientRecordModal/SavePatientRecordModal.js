@@ -16,6 +16,7 @@ export default function SavePatientRecordModal(props) {
   const {
     savePatientRecord,
     closeSavePatientRecordModalHandler,
+    sampleName,
     diagnosisResult,
     today,
   } = props;
@@ -24,6 +25,7 @@ export default function SavePatientRecordModal(props) {
     closeSavePatientRecordModalHandler();
 
     const record = {
+      sampleName: sampleName,
       fullName: values.fullName,
       age: values.age,
       gender: values.gender,
@@ -66,11 +68,20 @@ export default function SavePatientRecordModal(props) {
         initialValues={{
           gender: "male",
           diagnosisResultValue: diagnosisResult === 1 ? "normal" : "abnormal",
-          dateModified: moment(today, 'DD/MM/YYYY'),
+          dateModified: moment(today, "DD/MM/YYYY"),
+          sampleName: sampleName,
         }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
       >
+        <Form.Item
+          label="Sample name"
+          name="sampleName"
+          rules={[{ required: true }]}
+        >
+          <Input disabled />
+        </Form.Item>
+
         <Form.Item
           label="Full Name"
           name="fullName"

@@ -463,6 +463,7 @@ export default function VideoDiagnosis() {
                 closeSavePatientRecordModalHandler={
                   closeSavePatientRecordModalHandler
                 }
+                sampleName={videoMetadata.name}
                 savePatientRecord={savePatientRecord}
                 today={today}
               />

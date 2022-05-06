@@ -637,7 +637,7 @@ ipcMain.on("clear-temp-folder", (event, data) => {
 
 ipcMain.handle("save-patient-record", async (_event, patientObject) => {
   const result = await database.savePatientRecord(patientObject);
-  console.log(result);
+  console.log("Save patient's record = ", result);
   const returnValue = {
     description: "SAVE PATIENT RECORD",
     result: result,

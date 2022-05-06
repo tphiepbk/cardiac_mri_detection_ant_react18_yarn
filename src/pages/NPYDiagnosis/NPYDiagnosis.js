@@ -303,7 +303,7 @@ export default function VideoDiagnosis() {
               size={10}
               disabled
             >
-              Upload file
+              Upload NPY Folder
             </Button>
           ) : (
             <Button
@@ -313,7 +313,7 @@ export default function VideoDiagnosis() {
               size={10}
               onClick={uploadButtonClickHandler}
             >
-              Upload file
+              Upload NPY Folder
             </Button>
           )}
         </div>
@@ -492,6 +492,7 @@ export default function VideoDiagnosis() {
                 closeSavePatientRecordModalHandler={
                   closeSavePatientRecordModalHandler
                 }
+                sampleName={videoMetadata.name}
                 savePatientRecord={savePatientRecord}
                 today={today}
               />
