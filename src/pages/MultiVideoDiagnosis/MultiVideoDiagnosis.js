@@ -370,7 +370,7 @@ export default function MultiVideoDiagnosis() {
 
       <div className="multi-video-diagnosis__diagnosis-result">
         <div className="multi-video-diagnosis__diagnosis-result__result-panel">
-          <div className="multi--video-diagnosis__diagnosis-result__result-panel__result">
+          <div className="multi-video-diagnosis__diagnosis-result__result-panel__result">
             <h2>Result</h2>
             <span>
               {listPredictionResult.length === 0 ? (

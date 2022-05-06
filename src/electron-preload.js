@@ -17,11 +17,14 @@ contextBridge.exposeInMainWorld('electronAPI',{
   // * Open multi files dialog
   openMultiFilesDialog: () => ipcRenderer.invoke('open-multi-files-dialog'),
 
-  // * Open folder dialog
-  openFolderDialog: () => ipcRenderer.invoke('open-folder-dialog'),
+  // * Open npy sample dialog
+  openNpySampleDialog: () => ipcRenderer.invoke('open-npy-sample-dialog'),
+
+  // * Open multi npy samples dialog
+  openMultiNpySamplesDialog: () => ipcRenderer.invoke('open-multi-npy-samples-dialog'),
 
   // * Make multiple prediction
-  makeMultiplePrediction : (videoObjectList) => ipcRenderer.invoke('make-multiple-prediction', videoObjectList),
+  makeMultiplePrediction : (sampleObjectList) => ipcRenderer.invoke('make-multiple-prediction', sampleObjectList),
 
   // * Save patient's record
   savePatientDiagnosisResult : (patientObject) => ipcRenderer.invoke('save-patient-record', patientObject),
