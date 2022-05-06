@@ -1,0 +1,44 @@
+.mini-npy-sample-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mini-npy-sample-modal__video {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mini-npy-sample-modal__list-npy-video-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mini-npy-sample-modal__npy-list--overflow {
+  border: 1px solid rgba(140, 140, 140, 0.35);
+  overflow: auto;
+  margin-top: 20px;
+  width: 6vw;
+  margin-right: 10px;
+  height: 43vh;
+  border-radius: 10px;
+}
+
+.mini-npy-sample-modal__npy-list {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+}
+
+.mini-npy-sample-modal__tabs-container {
+  margin-top: 20px;
+  margin-bottom: auto;
+  width: 100%;
+  height: 100%;
+}
+
+.mini-npy-sample-modal__description {
+  margin-top: 20px;
+  width: 100%;
+}

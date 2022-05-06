@@ -302,6 +302,22 @@ export default function VideoDiagnosis() {
           )}
         </div>
 
+        {videoPath.mp4 === "" ? (
+          <Empty
+            className="video-diagnosis__upload-container__no-video"
+            description="No video uploaded"
+          />
+        ) : (
+          <ReactPlayer
+            className="video-diagnosis__upload-container__video"
+            url={videoPath.mp4}
+            playing={true}
+            controls={false}
+            loop={true}
+          />
+        )}
+
+        {/*
         <Tabs
           defaultActiveKey="1"
           type="card"
@@ -339,6 +355,7 @@ export default function VideoDiagnosis() {
             </Tabs.TabPane>
           )}
         </Tabs>
+         */}
 
         <Descriptions
           className="video-diagnosis__upload-container__video-description"

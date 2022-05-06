@@ -164,7 +164,7 @@ export default function VideoDiagnosis() {
   };
 
   const uploadNpyFiles = async () => {
-    const response = await window.electronAPI.openFolderDialog();
+    const response = await window.electronAPI.openNpySampleDialog();
     console.log(response);
 
     if (response.result === "SUCCESS") {
@@ -220,7 +220,7 @@ export default function VideoDiagnosis() {
     uploadNpyFiles();
   };
 
-  const diagnoseVideo = async () => {
+  const diagnoseNpySample = async () => {
     dispatch(npyDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
 
     dispatch(progressBarSlice.actions.clearProgressBar());
@@ -281,7 +281,7 @@ export default function VideoDiagnosis() {
     } else if (videoPath.avi === "") {
       triggerNoVideoAlert();
     } else {
-      diagnoseVideo();
+      diagnoseNpySample();
     }
   };
 
