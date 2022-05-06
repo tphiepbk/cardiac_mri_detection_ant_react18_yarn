@@ -6,6 +6,8 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+const { execFile } = require("child_process");
+
 const path = require("path");
 
 const fs = require("fs");
@@ -361,24 +363,23 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
           path.resolve(`${folderPath}/${filename}`)
         );
 
-        const npyProcessingModulePath = path.resolve(
-          __dirname + "/extra/npy_processing_module/main.py"
+        const npyProcessingModuleExecutablePath = path.resolve(
+          __dirname +
+            "/resources/npy_processing_module/npy_processing_module.exe"
         );
 
-        const options = {
-          mode: "text",
-          pythonOptions: ["-u"],
-          args: [pathToTempFolder, folderName, ...filesInFolder_fullPath],
-        };
-
         const npyProcessingPromise = new Promise((resolve, reject) => {
-          PythonShell.run(npyProcessingModulePath, options, (err, _data) => {
-            if (err) {
-              resolve("FAILED");
-            } else {
-              resolve("SUCCESS");
+          execFile(
+            npyProcessingModuleExecutablePath,
+            [pathToTempFolder, folderName, ...filesInFolder_fullPath],
+            (error, _stdout, _stderr) => {
+              if (error) {
+                resolve("FAILED");
+              } else {
+                resolve("SUCCESS");
+              }
             }
-          });
+          );
         });
 
         const npyProcessingResult = await npyProcessingPromise;
@@ -513,28 +514,23 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
             (filename) => path.resolve(`${currentNpySamplePath}/${filename}`)
           );
 
-          const npyProcessingModulePath = path.resolve(
-            __dirname + "/extra/npy_processing_module/main.py"
+          const npyProcessingModuleExecutablePath = path.resolve(
+            __dirname +
+              "/resources/npy_processing_module/npy_processing_module.exe"
           );
 
-          const options = {
-            mode: "text",
-            pythonOptions: ["-u"],
-            args: [
-              pathToTempFolder,
-              currentNpySampleName,
-              ...filesInCurrentNpySample_fullPath,
-            ],
-          };
-
           const npyProcessingPromise = new Promise((resolve, reject) => {
-            PythonShell.run(npyProcessingModulePath, options, (err, _data) => {
-              if (err) {
-                resolve("FAILED");
-              } else {
-                resolve("SUCCESS");
+            execFile(
+              npyProcessingModuleExecutablePath,
+              [pathToTempFolder, currentNpySampleName, ...filesInCurrentNpySample_fullPath],
+              (error, _stdout, _stderr) => {
+                if (error) {
+                  resolve("FAILED");
+                } else {
+                  resolve("SUCCESS");
+                }
               }
-            });
+            );
           });
 
           const npyProcessingResult = await npyProcessingPromise;
@@ -644,47 +640,38 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
     __dirname + "/resources/prediction_models/unet3.h5"
   );
 
-  console.log(unetPretrainPath);
-
   const checkColNumPretrainPath = path.resolve(
     __dirname + "/resources/prediction_models/check_col_num.h5"
   );
   const classifyPretrainPath = path.resolve(
     __dirname + "/resources/prediction_models/classify5.h5"
   );
-  const options = {
-    mode: "text",
-    pythonOptions: ["-u"],
-    args: [
-      filepath,
-      unetPretrainPath,
-      checkColNumPretrainPath,
-      classifyPretrainPath,
-    ],
-  };
 
-  const predictionModulePath = path.resolve(
-    __dirname + "/extra/prediction_module/model.py"
+  const predictionModuleExecutable = path.resolve(
+    __dirname + "/resources/model/model.exe"
   );
 
-  const pythonPromise = new Promise((resolve, reject) => {
-    PythonShell.run(
-      predictionModulePath,
-      options,
-      (errPrediction, dataPrediction) => {
-        if (errPrediction) {
-          console.log(errPrediction);
+  const predictionPromise = new Promise((resolve, _reject) => {
+    execFile(
+      predictionModuleExecutable,
+      [
+        filepath,
+        unetPretrainPath,
+        checkColNumPretrainPath,
+        classifyPretrainPath,
+      ],
+      (error, stdout, _stderr) => {
+        if (error) {
           const returnValue = {
             description: "MAKE SINGLE PREDICTION",
             result: "FAILED",
           };
           resolve(returnValue);
         } else {
-          console.log(dataPrediction.toString());
           const returnValue = {
             description: "MAKE SINGLE PREDICTION",
             result: "SUCCESS",
-            value: dataPrediction.toString(),
+            value: stdout.toString(),
           };
           resolve(returnValue);
         }
@@ -692,11 +679,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
     );
   });
 
-  const returnValue = await pythonPromise;
-
-  console.log(returnValue);
-
-  console.log("=============== Finished making prediction ================");
+  const returnValue = await predictionPromise;
 
   return returnValue;
 });
@@ -714,41 +697,35 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   const classifyPretrainPath = path.resolve(
     __dirname + "/resources/prediction_models/classify5.h5"
   );
-  const predictionModulePath = path.resolve(
-    __dirname + "/extra/prediction_module/model_for_multiple.py"
+
+  const predictionModuleExecutablePath = path.resolve(
+    __dirname + "/resources/model_for_multiple/model_for_multiple.exe"
   );
 
   const isNpySample = sampleObjectList[0].hasOwnProperty("videoPath");
   let listVideoPath;
   if (isNpySample) {
-    listVideoPath = sampleObjectList.map((sampleObject) => sampleObject.videoPath);
+    listVideoPath = sampleObjectList.map(
+      (sampleObject) => sampleObject.videoPath
+    );
   } else {
     listVideoPath = sampleObjectList.map((sampleObject) => sampleObject.path);
   }
 
-
-  const options = {
-    mode: "text",
-    pythonOptions: ["-u"],
-    args: [
-      unetPretrainPath,
-      checkColNumPretrainPath,
-      classifyPretrainPath,
-      ...listVideoPath,
-    ],
-  };
-
-  const multiplePredictionPromise = new Promise((resolve, reject) => {
-    PythonShell.run(
-      predictionModulePath,
-      options,
-      (errPrediction, dataPrediction) => {
-        if (errPrediction) {
-          console.log(errPrediction);
+  const multiplePredictionPromise = new Promise((resolve, _reject) => {
+    execFile(
+      predictionModuleExecutablePath,
+      [
+        unetPretrainPath,
+        checkColNumPretrainPath,
+        classifyPretrainPath,
+        ...listVideoPath,
+      ],
+      (error, stdout, _stderr) => {
+        if (error) {
           resolve("FAILED");
         } else {
-          //console.log(dataPrediction.toString());
-          resolve(dataPrediction.toString());
+          resolve(stdout.toString());
         }
       }
     );
