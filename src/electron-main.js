@@ -2,6 +2,10 @@ const isDev = require("electron-is-dev");
 
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 
+if (require("electron-squirrel-startup")) {
+  app.quit();
+}
+
 const path = require("path");
 
 const fs = require("fs");
