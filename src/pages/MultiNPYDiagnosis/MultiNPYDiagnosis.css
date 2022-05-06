@@ -1,4 +1,4 @@
-.npy-diagnosis {
+.multi-npy-diagnosis {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6,103 +6,70 @@
   height: 100%;
 }
 
-.npy-diagnosis__upload-container {
+.multi-npy-diagnosis__upload-container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 60vw;
   height: 100%;
+  gap: 25px;
 }
 
-.npy-diagnosis__upload-container__upload-button > button {
-  background: green !important;
+.multi-npy-diagnosis__upload-container__upload-button > button {
+  background-color: green !important;
   border-color: green !important;
   border-radius: 5px !important;
 }
 
-.npy-diagnosis__upload-container__list-npy-video-wrapper {
-  display: flex;
-  justify-content: space-between;
-}
-
-.npy_diagnosis_upload-container__npy-list--overflow {
-  border: 1px solid rgba(140, 140, 140, 0.35);
+.multi-npy-diagnosis__upload-container__video-list {
+  padding: 0.5em;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  border-radius: 10px;
+  align-self: center;
   overflow: auto;
-  margin-top: 20px;
-  width: 6vw;
-  margin-right: 10px;
-  height: 49vh;
-  border-radius: 10px;
-}
 
-.npy_diagnosis_upload-container__npy-list {
-  display: flex;
-  justify-content: center;
   height: 100%;
-}
-
-.npy_diagnosis_upload-container__npy-list--empty {
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  align-items: center;
-}
-
-.npy-diagnosis__upload-container__tabs-container {
-  margin-top: 20px;
-  margin-bottom: auto;
   width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.multi-npy-diagnosis__upload-container__video-list--empty {
+  padding: 0.5em;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
+  border-radius: 10px;
+  align-self: center;
+
   height: 100%;
-}
+  width: 100%;
 
-.npy-diagnosis__upload-container__video {
-  padding: 5px;
-  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
-  border-radius: 10px;
-  height: 43vh !important;
-  width: 30vw !important;
-  margin-right: auto;
-  margin-left: auto;
-  background-color: #f9f9f9;
-}
-
-.npy-diagnosis__upload-container__no-video {
-  box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
-  border-radius: 10px;
-  height: 43vh !important;
-  width: 30vw !important;
-  margin-right: auto;
-  margin-left: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.npy-diagnosis__upload-container__video-description {
-  width: 100%;
-}
-
-.npy-diagnosis__upload-container__diagnose-button {
+.multi-npy-diagnosis__upload-container__diagnose-button {
   margin-top: 10px;
   align-self: flex-end;
 }
 
-.npy-diagnosis__upload-container__diagnose-button > button {
+.multi-npy-diagnosis__upload-container__diagnose-button > button {
   background-color: orange !important;
   border-color: orange !important;
   border-radius: 5px !important;
 }
 
-.npy-diagnosis__diagnosis-result {
+.multi-npy-diagnosis__diagnosis-result {
   display: flex;
   flex-direction: column;
   width: 45vw;
   height: 100%;
 }
 
-.npy-diagnosis__diagnosis-result__result-panel {
+.multi-npy-diagnosis__diagnosis-result__result-panel {
   display: flex;
   justify-content: space-between;
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
@@ -110,11 +77,11 @@
   border-radius: 10px;
 }
 
-.npy-diagnosis__diagnosis-result__result-panel > * > h2 {
+.multi-npy-diagnosis__diagnosis-result__result-panel > * > h2 {
   font-weight: bold;
 }
 
-.npy-diagnosis__diagnosis-result__slices-panel {
+.multi-npy-diagnosis__diagnosis-result__slices-panel {
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   padding: 15px 20px;
   border-radius: 10px;
@@ -126,7 +93,7 @@
   gap: 10px;
 }
 
-.npy-diagnosis__diagnosis-result__slices-panel--empty {
+.multi-npy-diagnosis__diagnosis-result__slices-panel--empty {
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   padding: 15px 20px;
   border-radius: 10px;
@@ -164,7 +131,6 @@
   pointer-events: none;
   margin-bottom: 15px;
 }
-
 
 .ant-descriptions-header {
   margin-bottom: 10px;

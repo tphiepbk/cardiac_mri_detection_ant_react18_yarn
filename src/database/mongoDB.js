@@ -14,6 +14,7 @@ const closeConnection = async () => {
 
 const patientSchema = new mongoose.Schema(
   {
+    sampleName: String,
     fullName: String,
     age: Number,
     gender: String,
@@ -37,6 +38,7 @@ const savePatientRecord = async (patientObject) => {
   await startConnection();
 
   const patientInstance = new patientModel({
+    sampleName: patientObject.sampleName,
     fullName: patientObject.fullName,
     age: patientObject.age,
     gender: patientObject.gender,

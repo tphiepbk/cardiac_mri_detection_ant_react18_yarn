@@ -10,7 +10,7 @@ import {
   listSlicesSelector,
 } from "./videoDiagnosisSelector";
 
-import { Button, Descriptions, Empty, Skeleton } from "antd";
+import { Button, Descriptions, Empty, Skeleton, Tabs } from "antd";
 
 import {
   UploadOutlined,
@@ -29,6 +29,10 @@ import alertsSlice from "../../components/Alerts/alertsSlice";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import appSlice from "../../appSlice";
 import { appProcessRunningSelector } from "../../appSelector";
+
+const NO_DIAGNOSIS_RESULT = 0;
+const NORMAL_DIAGNOSIS_RESULT = 1;
+const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
 export default function VideoDiagnosis() {
   const dispatch = useDispatch();
@@ -131,6 +135,10 @@ export default function VideoDiagnosis() {
     }
   };
 
+  const tabChangeHandler = (key) => {
+    console.log("Changed to tab ", key);
+  };
+
   const getVideoMetadata = async (videoName, videoPath) => {
     const response = await window.electronAPI.getFileMetadata(videoPath);
     console.log(response);
@@ -195,7 +203,7 @@ export default function VideoDiagnosis() {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
 
-    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(0));
+    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
 
     dispatch(appSlice.actions.disableAppInteractive());
 
@@ -203,7 +211,7 @@ export default function VideoDiagnosis() {
   };
 
   const diagnoseVideo = async () => {
-    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(0));
+    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
 
     dispatch(progressBarSlice.actions.clearProgressBar());
 
@@ -237,13 +245,12 @@ export default function VideoDiagnosis() {
     dispatch(appSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
-
       triggerTaskSucceededAlert();
 
       if (parseFloat(predictionResponse.value) >= 0.5) {
-        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(2));
+        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(ABNORMAL_DIAGNOSIS_RESULT));
       } else {
-        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(1));
+        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(NORMAL_DIAGNOSIS_RESULT));
       }
     } else {
       triggerTaskFailedAlert();
@@ -310,6 +317,46 @@ export default function VideoDiagnosis() {
           />
         )}
 
+        {/*
+        <Tabs
+          defaultActiveKey="1"
+          type="card"
+          size="small"
+          onChange={tabChangeHandler}
+          className="video-diagnosis__upload-container__tabs-container"
+        >
+          <Tabs.TabPane tab="Original" key="1">
+            {videoPath.mp4 === "" ? (
+              <Empty
+                className="video-diagnosis__upload-container__no-video"
+                description="No video uploaded"
+              />
+            ) : (
+              <ReactPlayer
+                className="video-diagnosis__upload-container__video"
+                url={videoPath.mp4}
+                playing={true}
+                controls={false}
+                loop={true}
+              />
+            )}
+          </Tabs.TabPane>
+          {videoPath.mp4 === "" ? (
+            <Tabs.TabPane tab="Cropped" key="2" disabled />
+          ) : (
+            <Tabs.TabPane tab="Cropped" key="2">
+              <ReactPlayer
+                className="video-diagnosis__upload-container__video"
+                url={videoPath.mp4}
+                playing={true}
+                controls={false}
+                loop={true}
+              />
+            </Tabs.TabPane>
+          )}
+        </Tabs>
+         */}
+
         <Descriptions
           className="video-diagnosis__upload-container__video-description"
           title="Description"
@@ -319,18 +366,18 @@ export default function VideoDiagnosis() {
           column={4}
         >
           <Descriptions.Item label="Name" span={4}>
-            {videoMetadata.name}
+            {videoMetadata.name ? videoMetadata.name : "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Format">
-            {videoMetadata.format}
+            {videoMetadata.format ? videoMetadata.format : "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Duration">
-            {videoMetadata.duration ? `${videoMetadata.duration} s` : ""}
+            {videoMetadata.duration ? `${videoMetadata.duration} s` : "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Size">
             {videoMetadata.width && videoMetadata.height
               ? `${videoMetadata.width} x ${videoMetadata.height}`
-              : ""}
+              : "N/A"}
           </Descriptions.Item>
         </Descriptions>
 
@@ -364,7 +411,7 @@ export default function VideoDiagnosis() {
           <div className="video-diagnosis__diagnosis-result__result-panel__result">
             <h2>Result</h2>
             <span>
-              {diagnosisResult === 0 ? (
+              {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
                 <Button
                   icon={<MinusCircleOutlined />}
                   className="button-as-none-tag"
@@ -372,7 +419,7 @@ export default function VideoDiagnosis() {
                 >
                   NONE
                 </Button>
-              ) : diagnosisResult === 1 ? (
+              ) : diagnosisResult === NORMAL_DIAGNOSIS_RESULT ? (
                 <Button
                   icon={<CheckCircleOutlined />}
                   className="button-as-success-tag"
@@ -394,7 +441,7 @@ export default function VideoDiagnosis() {
 
           <div className="video-diagnosis__diagnosis-result__result-panel__date-modified">
             <h2>Date Modified</h2>
-            {diagnosisResult === 0 ? (
+            {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
               <Skeleton paragraph={{ rows: 0 }} />
             ) : (
               <h1>{today}</h1>
@@ -403,7 +450,7 @@ export default function VideoDiagnosis() {
 
           <div className="video-diagnosis__diagnosis-result__result-panel__save-record">
             <h2>Save record</h2>
-            {diagnosisResult === 0 ? (
+            {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
               <Button
                 type="primary"
                 shape="round"
@@ -433,6 +480,7 @@ export default function VideoDiagnosis() {
                 closeSavePatientRecordModalHandler={
                   closeSavePatientRecordModalHandler
                 }
+                sampleName={videoMetadata.name}
                 savePatientRecord={savePatientRecord}
                 today={today}
               />
@@ -440,7 +488,7 @@ export default function VideoDiagnosis() {
           </div>
         </div>
 
-        {diagnosisResult === 0 ? (
+        {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
           <div className="video-diagnosis__diagnosis-result__slices-panel--empty">
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </div>
