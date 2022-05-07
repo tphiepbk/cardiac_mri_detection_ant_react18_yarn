@@ -1,5 +1,5 @@
 {
-  "name": "cardiac_mri_detection_ant_react18_yarn",
+  "name": "cardiac_mri_abnormalities_detection",
   "version": "0.1.0",
   "private": true,
   "author": "tphiepbk",
@@ -93,7 +93,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "cardiac_mri_detection_ant_react18_yarn"
+            "name": "cardiac_mri_abnormalities_detection"
           }
         },
         {
