@@ -23,6 +23,7 @@ for filedir, filename in zip(NPY_LIST_FILEDIR, NPY_LIST_FILENAME):
 
     # * GENERATE IMAGES FROM NUMPY ARRAYS
     videoArr = np.load(filedir)
+    # ! Lấy model của Đạt predict ra bounding box, truyền filedir vào để lấy ra bbox, lưu vô biến
 
     expandDim_videoArr = np.expand_dims(videoArr, axis=0)
     videoArr = np.transpose(expandDim_videoArr, [0, 3, 1, 2])
@@ -41,6 +42,8 @@ if (not os.path.exists(temp_path)):
 if NUMBER_OF_SLICES == 10:
     for i in range(NUMBER_OF_FRAMES):
         firstRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/0_frames/{}.png'.format(i)))
+        # ! Lấy toạ độ bbox vẽ lên image dùng cv2
+
         for j in range (1, 4):
             path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
             img = cv2.imread(path)
