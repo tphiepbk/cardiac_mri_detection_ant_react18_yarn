@@ -365,7 +365,7 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
 
         const npyProcessingModuleExecutablePath = path.resolve(
           __dirname +
-            "/resources/npy_processing_module/npy_processing_module.exe"
+            "/resources/npy_processor/npy_processor.exe"
         );
 
         const npyProcessingPromise = new Promise((resolve, reject) => {
@@ -516,7 +516,7 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
 
           const npyProcessingModuleExecutablePath = path.resolve(
             __dirname +
-              "/resources/npy_processing_module/npy_processing_module.exe"
+              "/resources/npy_processor/npy_processor.exe"
           );
 
           const npyProcessingPromise = new Promise((resolve, reject) => {
@@ -637,18 +637,18 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
   console.log(`filePath : ${filepath}`);
 
   const unetPretrainPath = path.resolve(
-    __dirname + "/resources/prediction_models/unet3.h5"
+    __dirname + "/resources/pretrained_models/unet3.h5"
   );
 
   const checkColNumPretrainPath = path.resolve(
-    __dirname + "/resources/prediction_models/check_col_num.h5"
+    __dirname + "/resources/pretrained_models/check_col_num.h5"
   );
   const classifyPretrainPath = path.resolve(
-    __dirname + "/resources/prediction_models/classify5.h5"
+    __dirname + "/resources/pretrained_models/classify5.h5"
   );
 
   const predictionModuleExecutable = path.resolve(
-    __dirname + "/resources/model/model.exe"
+    __dirname + "/resources/prediction_module/prediction_module.exe"
   );
 
   const predictionPromise = new Promise((resolve, _reject) => {
@@ -688,18 +688,18 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   console.log("=================== Making prediction =====================");
 
   const unetPretrainPath = path.resolve(
-    __dirname + "/resources/prediction_models/unet3.h5"
+    __dirname + "/resources/pretrained_models/unet3.h5"
   );
 
   const checkColNumPretrainPath = path.resolve(
-    __dirname + "/resources/prediction_models/check_col_num.h5"
+    __dirname + "/resources/pretrained_models/check_col_num.h5"
   );
   const classifyPretrainPath = path.resolve(
-    __dirname + "/resources/prediction_models/classify5.h5"
+    __dirname + "/resources/pretrained_models/classify5.h5"
   );
 
   const predictionModuleExecutablePath = path.resolve(
-    __dirname + "/resources/model_for_multiple/model_for_multiple.exe"
+    __dirname + "/resources/multiple_prediction_module/multiple_prediction_module.exe"
   );
 
   const isNpySample = sampleObjectList[0].hasOwnProperty("videoPath");
