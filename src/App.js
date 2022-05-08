@@ -22,8 +22,9 @@ import ProgressBar from "./components/ProgressBar/ProgressBar";
 
 import {
   DesktopOutlined,
-  PieChartOutlined,
-  FileOutlined,
+  DashboardOutlined,
+  UnorderedListOutlined,
+  FundOutlined,
   PoweroffOutlined,
 } from "@ant-design/icons";
 import Alerts from "./components/Alerts/Alerts";
@@ -90,24 +91,24 @@ export default function App() {
               mode="inline"
               onSelect={(key) => changePage(key.key)}
             >
-              <Menu.Item key="1" icon={<PieChartOutlined />}>
+              <Menu.Item key="1" icon={<DashboardOutlined />}>
                 Dashboard
               </Menu.Item>
               <Menu.SubMenu
                 key="sub1"
-                icon={<DesktopOutlined />}
+                icon={<FundOutlined />}
                 title="Diagnosis"
               >
-                <Menu.Item key="2">Video File</Menu.Item>
-                <Menu.Item key="3">NPY Files</Menu.Item>
+                <Menu.Item key="2">Video format</Menu.Item>
+                <Menu.Item key="3">NPY format</Menu.Item>
               </Menu.SubMenu>
               <Menu.SubMenu
                 key="sub2"
-                icon={<FileOutlined />}
+                icon={<UnorderedListOutlined />}
                 title="Multi-Diagnosis"
               >
-                <Menu.Item key="4">Video Files</Menu.Item>
-                <Menu.Item key="5">NPY Files</Menu.Item>
+                <Menu.Item key="4">Video format</Menu.Item>
+                <Menu.Item key="5">NPY format</Menu.Item>
               </Menu.SubMenu>
             </Menu>
           </Sider>

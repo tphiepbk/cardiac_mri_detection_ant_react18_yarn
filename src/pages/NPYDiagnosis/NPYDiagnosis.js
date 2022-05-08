@@ -8,7 +8,6 @@ import {
   diagnosisResultSelector,
   disabledButtonSelector,
   listSlicesSelector,
-  npyFilePathsSelector,
   npyFileNamesSelector,
 } from "./npyDiagnosisSelector";
 
@@ -16,10 +15,11 @@ import { Button, Descriptions, Empty, Skeleton, Tabs, List } from "antd";
 
 import {
   UploadOutlined,
-  FundViewOutlined,
+  UserAddOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   MinusCircleOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 
 import SliceCard from "../../components/SliceCard/SliceCard";
@@ -40,7 +40,6 @@ export default function VideoDiagnosis() {
   const dispatch = useDispatch();
 
   const npyFileNames = useSelector(npyFileNamesSelector);
-  const npyFilePaths = useSelector(npyFilePathsSelector);
   const videoPath = useSelector(videoPathSelector);
   const videoMetadata = useSelector(videoMetadataSelector);
   const disabledButton = useSelector(disabledButtonSelector);
@@ -303,7 +302,7 @@ export default function VideoDiagnosis() {
               size={10}
               disabled
             >
-              Upload NPY Folder
+              Upload NPY sample
             </Button>
           ) : (
             <Button
@@ -313,7 +312,7 @@ export default function VideoDiagnosis() {
               size={10}
               onClick={uploadButtonClickHandler}
             >
-              Upload NPY Folder
+              Upload NPY sample
             </Button>
           )}
         </div>
@@ -348,7 +347,7 @@ export default function VideoDiagnosis() {
                   className="npy-diagnosis__upload-container__video"
                   url={videoPath.mp4}
                   playing={true}
-                  controls={false}
+                  controls={true}
                   loop={true}
                 />
               )}
@@ -361,7 +360,7 @@ export default function VideoDiagnosis() {
                   className="npy-diagnosis__upload-container__video"
                   url={videoPath.mp4}
                   playing={true}
-                  controls={false}
+                  controls={true}
                   loop={true}
                 />
               </Tabs.TabPane>
@@ -398,7 +397,7 @@ export default function VideoDiagnosis() {
             <Button
               type="primary"
               shape="round"
-              icon={<FundViewOutlined />}
+              icon={<SendOutlined />}
               size={10}
               disabled
             >
@@ -408,7 +407,7 @@ export default function VideoDiagnosis() {
             <Button
               type="primary"
               shape="round"
-              icon={<FundViewOutlined />}
+              icon={<SendOutlined />}
               size={10}
               onClick={diagnoseButtonClickHandler}
             >
@@ -467,7 +466,7 @@ export default function VideoDiagnosis() {
                 type="primary"
                 shape="round"
                 style={{ marginTop: "5px" }}
-                icon={<FundViewOutlined />}
+                icon={<UserAddOutlined />}
                 size={10}
                 disabled
               >
@@ -478,7 +477,7 @@ export default function VideoDiagnosis() {
                 type="primary"
                 shape="round"
                 style={{ marginTop: "5px" }}
-                icon={<FundViewOutlined />}
+                icon={<UserAddOutlined />}
                 size={10}
                 onClick={showSavePatientRecordModal}
               >
