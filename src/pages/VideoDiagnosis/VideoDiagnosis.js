@@ -10,14 +10,15 @@ import {
   listSlicesSelector,
 } from "./videoDiagnosisSelector";
 
-import { Button, Descriptions, Empty, Skeleton, Tabs } from "antd";
+import { Button, Descriptions, Empty, Skeleton } from "antd";
 
 import {
   UploadOutlined,
-  FundViewOutlined,
+  UserAddOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   MinusCircleOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 
 import SliceCard from "../../components/SliceCard/SliceCard";
@@ -135,10 +136,6 @@ export default function VideoDiagnosis() {
     }
   };
 
-  const tabChangeHandler = (key) => {
-    console.log("Changed to tab ", key);
-  };
-
   const getVideoMetadata = async (videoName, videoPath) => {
     const response = await window.electronAPI.getFileMetadata(videoPath);
     console.log(response);
@@ -203,7 +200,9 @@ export default function VideoDiagnosis() {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
 
-    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
+    dispatch(
+      videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT)
+    );
 
     dispatch(appSlice.actions.disableAppInteractive());
 
@@ -211,7 +210,9 @@ export default function VideoDiagnosis() {
   };
 
   const diagnoseVideo = async () => {
-    dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
+    dispatch(
+      videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT)
+    );
 
     dispatch(progressBarSlice.actions.clearProgressBar());
 
@@ -248,9 +249,17 @@ export default function VideoDiagnosis() {
       triggerTaskSucceededAlert();
 
       if (parseFloat(predictionResponse.value) >= 0.5) {
-        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(ABNORMAL_DIAGNOSIS_RESULT));
+        dispatch(
+          videoDiagnosisSlice.actions.setDiagnosisResult(
+            ABNORMAL_DIAGNOSIS_RESULT
+          )
+        );
       } else {
-        dispatch(videoDiagnosisSlice.actions.setDiagnosisResult(NORMAL_DIAGNOSIS_RESULT));
+        dispatch(
+          videoDiagnosisSlice.actions.setDiagnosisResult(
+            NORMAL_DIAGNOSIS_RESULT
+          )
+        );
       }
     } else {
       triggerTaskFailedAlert();
@@ -287,7 +296,7 @@ export default function VideoDiagnosis() {
               size={10}
               disabled
             >
-              Upload file
+              Upload video 
             </Button>
           ) : (
             <Button
@@ -297,7 +306,7 @@ export default function VideoDiagnosis() {
               size={10}
               onClick={uploadButtonClickHandler}
             >
-              Upload file
+              Upload video
             </Button>
           )}
         </div>
@@ -312,50 +321,10 @@ export default function VideoDiagnosis() {
             className="video-diagnosis__upload-container__video"
             url={videoPath.mp4}
             playing={true}
-            controls={false}
+            controls={true}
             loop={true}
           />
         )}
-
-        {/*
-        <Tabs
-          defaultActiveKey="1"
-          type="card"
-          size="small"
-          onChange={tabChangeHandler}
-          className="video-diagnosis__upload-container__tabs-container"
-        >
-          <Tabs.TabPane tab="Original" key="1">
-            {videoPath.mp4 === "" ? (
-              <Empty
-                className="video-diagnosis__upload-container__no-video"
-                description="No video uploaded"
-              />
-            ) : (
-              <ReactPlayer
-                className="video-diagnosis__upload-container__video"
-                url={videoPath.mp4}
-                playing={true}
-                controls={false}
-                loop={true}
-              />
-            )}
-          </Tabs.TabPane>
-          {videoPath.mp4 === "" ? (
-            <Tabs.TabPane tab="Cropped" key="2" disabled />
-          ) : (
-            <Tabs.TabPane tab="Cropped" key="2">
-              <ReactPlayer
-                className="video-diagnosis__upload-container__video"
-                url={videoPath.mp4}
-                playing={true}
-                controls={false}
-                loop={true}
-              />
-            </Tabs.TabPane>
-          )}
-        </Tabs>
-         */}
 
         <Descriptions
           className="video-diagnosis__upload-container__video-description"
@@ -386,7 +355,7 @@ export default function VideoDiagnosis() {
             <Button
               type="primary"
               shape="round"
-              icon={<FundViewOutlined />}
+              icon={<SendOutlined />}
               size={10}
               disabled
             >
@@ -396,7 +365,7 @@ export default function VideoDiagnosis() {
             <Button
               type="primary"
               shape="round"
-              icon={<FundViewOutlined />}
+              icon={<SendOutlined />}
               size={10}
               onClick={diagnoseButtonClickHandler}
             >
@@ -455,7 +424,7 @@ export default function VideoDiagnosis() {
                 type="primary"
                 shape="round"
                 style={{ marginTop: "5px" }}
-                icon={<FundViewOutlined />}
+                icon={<UserAddOutlined />}
                 size={10}
                 disabled
               >
@@ -466,7 +435,7 @@ export default function VideoDiagnosis() {
                 type="primary"
                 shape="round"
                 style={{ marginTop: "5px" }}
-                icon={<FundViewOutlined />}
+                icon={<UserAddOutlined />}
                 size={10}
                 onClick={showSavePatientRecordModal}
               >

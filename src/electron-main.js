@@ -289,6 +289,8 @@ ipcMain.handle("open-multi-files-dialog", async (_event, _arg) => {
 });
 
 ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
+  console.log("================== Opening NPY sample ==================");
+
   global.filepath = undefined;
 
   const properties = ["openDirectory"];
@@ -303,13 +305,13 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
 
   if (!folder) {
     return {
-      description: "OPEN FOLDER DIALOG",
+      description: "OPEN NPY SAMPLE DIALOG",
       result: "FAILED",
     };
   } else {
     if (folder.canceled) {
       return {
-        description: "OPEN FOLDER DIALOG",
+        description: "OPEN NPY SAMPLE DIALOG",
         result: "CANCELED",
       };
     } else {
@@ -328,7 +330,7 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
 
       if (filesInFolder === "FAILED") {
         return {
-          description: "OPEN FOLDER DIALOG",
+          description: "OPEN NPY SAMPLE DIALOG",
           result: "FAILED",
         };
       } else {
@@ -339,7 +341,7 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
             : true;
         if (filesInFolder.length < 10 || wrongFormat) {
           return {
-            description: "OPEN FOLDER DIALOG",
+            description: "OPEN NPY SAMPLE DIALOG",
             result: "FAILED",
           };
         }
@@ -364,16 +366,20 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
         );
 
         const npyProcessingModuleExecutablePath = path.resolve(
-          __dirname +
-            "/resources/npy_processor/npy_processor.exe"
+          __dirname + "/resources/npy_processor/npy_processor.exe"
+        );
+
+        const detectorPath = path.resolve(
+          __dirname + "/resources/pretrained_models/best.pt"
         );
 
         const npyProcessingPromise = new Promise((resolve, reject) => {
           execFile(
             npyProcessingModuleExecutablePath,
-            [pathToTempFolder, folderName, ...filesInFolder_fullPath],
+            [detectorPath, pathToTempFolder, folderName, folderPath],
             (error, _stdout, _stderr) => {
               if (error) {
+                console.log(error);
                 resolve("FAILED");
               } else {
                 resolve("SUCCESS");
@@ -386,7 +392,7 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
 
         if (npyProcessingResult === "FAILED") {
           return {
-            description: "OPEN FOLDER DIALOG",
+            description: "OPEN NPY SAMPLE DIALOG",
             result: "FAILED",
           };
         }
@@ -414,12 +420,16 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
 
         if (ffmpegResult === "FAILED") {
           return {
-            description: "OPEN FOLDER DIALOG",
+            description: "OPEN NPY SAMPLE DIALOG",
             result: "FAILED",
           };
         } else {
+          console.log(
+            "================== Finished opening NPY sample =================="
+          );
+
           return {
-            description: "OPEN FOLDER DIALOG",
+            description: "OPEN NPY SAMPLE DIALOG",
             result: "SUCCESS",
             npyFileNames: filesInFolder,
             npyFilePaths: filesInFolder_fullPath,
@@ -515,14 +525,17 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
           );
 
           const npyProcessingModuleExecutablePath = path.resolve(
-            __dirname +
-              "/resources/npy_processor/npy_processor.exe"
+            __dirname + "/resources/npy_processor/npy_processor.exe"
           );
 
           const npyProcessingPromise = new Promise((resolve, reject) => {
             execFile(
               npyProcessingModuleExecutablePath,
-              [pathToTempFolder, currentNpySampleName, ...filesInCurrentNpySample_fullPath],
+              [
+                pathToTempFolder,
+                currentNpySampleName,
+                ...filesInCurrentNpySample_fullPath,
+              ],
               (error, _stdout, _stderr) => {
                 if (error) {
                   resolve("FAILED");
@@ -681,6 +694,8 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
 
   const returnValue = await predictionPromise;
 
+  console.log("=================== Finished making prediction =====================");
+
   return returnValue;
 });
 
@@ -699,7 +714,8 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   );
 
   const predictionModuleExecutablePath = path.resolve(
-    __dirname + "/resources/multiple_prediction_module/multiple_prediction_module.exe"
+    __dirname +
+      "/resources/multiple_prediction_module/multiple_prediction_module.exe"
   );
 
   const isNpySample = sampleObjectList[0].hasOwnProperty("videoPath");

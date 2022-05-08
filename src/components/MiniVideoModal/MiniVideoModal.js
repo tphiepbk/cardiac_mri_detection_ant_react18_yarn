@@ -13,7 +13,7 @@ export default function MiniVideoModal(props) {
         className="mini-video-modal__video"
         url={videoConvertedPath}
         playing={true}
-        controls={false}
+        controls={true}
         loop={true}
       />
 

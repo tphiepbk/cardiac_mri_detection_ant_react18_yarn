@@ -36,7 +36,7 @@ export default function MiniNpySampleModal(props) {
               className="mini-npy-sample-modal__video"
               url={videoConvertedPath}
               playing={true}
-              controls={false}
+              controls={true}
               loop={true}
             />
           </Tabs.TabPane>
@@ -45,7 +45,7 @@ export default function MiniNpySampleModal(props) {
               className="mini-npy-sample-modal__video"
               url={videoConvertedPath}
               playing={true}
-              controls={false}
+              controls={true}
               loop={true}
             />
           </Tabs.TabPane>

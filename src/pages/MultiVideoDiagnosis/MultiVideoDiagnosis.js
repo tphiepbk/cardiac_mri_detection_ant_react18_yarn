@@ -3,10 +3,11 @@ import "./MultiVideoDiagnosis.css";
 import { Button, Empty, Skeleton } from "antd";
 import {
   UploadOutlined,
-  FundViewOutlined,
+  UserAddOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   MinusCircleOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 
 import VideoItem from "../../components/VideoItem/VideoItem";
@@ -299,7 +300,7 @@ export default function MultiVideoDiagnosis() {
               size={10}
               disabled
             >
-              Upload file
+              Upload videos
             </Button>
           ) : (
             <Button
@@ -309,7 +310,7 @@ export default function MultiVideoDiagnosis() {
               size={10}
               onClick={uploadButtonClickHandler}
             >
-              Upload file
+              Upload videos
             </Button>
           )}
         </div>
@@ -348,7 +349,7 @@ export default function MultiVideoDiagnosis() {
             <Button
               type="primary"
               shape="round"
-              icon={<FundViewOutlined />}
+              icon={<SendOutlined />}
               size={10}
               disabled
             >
@@ -358,7 +359,7 @@ export default function MultiVideoDiagnosis() {
             <Button
               type="primary"
               shape="round"
-              icon={<FundViewOutlined />}
+              icon={<SendOutlined />}
               size={10}
               onClick={diagnoseButtonClickHandler}
             >
@@ -419,7 +420,7 @@ export default function MultiVideoDiagnosis() {
                 type="primary"
                 shape="round"
                 style={{ marginTop: "5px" }}
-                icon={<FundViewOutlined />}
+                icon={<UserAddOutlined />}
                 size={10}
                 disabled
               >
@@ -430,7 +431,7 @@ export default function MultiVideoDiagnosis() {
                 type="primary"
                 shape="round"
                 style={{ marginTop: "5px" }}
-                icon={<FundViewOutlined />}
+                icon={<UserAddOutlined />}
                 size={10}
                 onClick={showSavePatientRecordModal}
               >
