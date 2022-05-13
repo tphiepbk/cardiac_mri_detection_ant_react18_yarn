@@ -709,10 +709,10 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
     execFile(
       predictionModuleExecutable,
       [
-        filepath,
         unetPretrainPath,
         checkColNumPretrainPath,
         classifyPretrainPath,
+        filepath,
       ],
       (error, stdout, _stderr) => {
         if (error) {
@@ -722,10 +722,13 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
           };
           resolve(returnValue);
         } else {
+          const predictionResult = JSON.parse(
+            stdout.replaceAll("'", '"')
+          );
           const returnValue = {
             description: "MAKE SINGLE PREDICTION",
             result: "SUCCESS",
-            value: stdout.toString(),
+            value: predictionResult[0].result.toString(),
           };
           resolve(returnValue);
         }

@@ -1,4 +1,5 @@
 import sys
+import os
 
 from tensorflow import keras
 from tensorflow.keras.models import *
@@ -156,7 +157,7 @@ final_model = Model(inputs, out, name='classify')
 # ***************************************************** PREDICTION *****************************************************
 list_result = []
 
-list_file_path = sys.argv[4:]
+list_file_path = list(map(lambda path : os.path.abspath(path), sys.argv[4:]))
 
 model = keras.models.load_model(CHECK_COL_NUM_PRETRAINED_PATH)
 
@@ -208,6 +209,6 @@ for path in list_file_path:
 
     res = final_model.predict(input)
 
-    list_result.append({"filepath": path, "result": res[0][0]})
+    list_result.append({"filePath": path, "result": res[0][0]})
 
 print(list_result)

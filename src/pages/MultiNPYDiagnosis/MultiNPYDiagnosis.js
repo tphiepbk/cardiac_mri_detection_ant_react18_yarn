@@ -180,7 +180,10 @@ export default function MultiNPYDiagnosis() {
   };
 
   const uploadMultiNpySamples = async () => {
-    const npySamplesOpenResponse = await window.electronAPI.openMultiNpySamplesDialog();
+    dispatch(appSlice.actions.enableLoadingScreen());
+    const npySamplesOpenResponse =
+      await window.electronAPI.openMultiNpySamplesDialog();
+    dispatch(appSlice.actions.disableLoadingScreen());
     console.log(npySamplesOpenResponse);
 
     if (npySamplesOpenResponse.result === "SUCCESS") {

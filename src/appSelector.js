@@ -10,6 +10,11 @@ export const appProcessRunningSelector = createSelector(
   (appProcessRunning) => appProcessRunning
 );
 
+export const appLoadingScreenSelector = createSelector(
+  (state) => state.app.loadingScreen,
+  (appLoadingScreen) => appLoadingScreen
+);
+
 export const appCurrentSelectedPageSelector = createSelector(
   (state) => state.app.currentSelectedPage,
   (appCurrentSelectedPage) => appCurrentSelectedPage

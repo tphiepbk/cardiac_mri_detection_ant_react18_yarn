@@ -5,8 +5,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { progressBarSelector } from "./components/ProgressBar/progressBarSelector";
 import {
   appInteractiveSelector,
-  appProcessRunningSelector,
   appCurrentSelectedPageSelector,
+  appLoadingScreenSelector,
 } from "./appSelector";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -16,12 +16,12 @@ import MultiVideoDiagnosis from "./pages/MultiVideoDiagnosis/MultiVideoDiagnosis
 import MultiNPYDiagnosis from "./pages/MultiNPYDiagnosis/MultiNPYDiagnosis";
 import TitleBar from "./components/TitleBar/TitleBar";
 
-import { Layout, Menu, Avatar, Button, Space } from "antd";
+import { Layout, Menu, Avatar, Button, Space, Spin } from "antd";
 
 import ProgressBar from "./components/ProgressBar/ProgressBar";
 
 import {
-  DesktopOutlined,
+  LoadingOutlined,
   DashboardOutlined,
   UnorderedListOutlined,
   FundOutlined,
@@ -38,6 +38,7 @@ export default function App() {
 
   const currentSelectedPage = useSelector(appCurrentSelectedPageSelector);
   const appInteractive = useSelector(appInteractiveSelector);
+  const appLoadingScreen = useSelector(appLoadingScreenSelector);
 
   const changePage = (pageKey) => {
     if (!pageKey.includes("sub")) {
@@ -66,6 +67,8 @@ export default function App() {
       renderedPage = null;
   }
 
+  const loadingIcon = <LoadingOutlined style={{ fontSize: 100 }} spin />;
+
   return (
     <div
       className={
@@ -73,89 +76,91 @@ export default function App() {
       }
     >
       <TitleBar />
-      <div className="app-container">
-        <Layout style={{ minHeight: "96.9vh" }}>
-          <Alerts />
-          <Sider>
-            <div className="sidebar__logo-container">
-              <img
-                src={hcmutLogo}
-                alt="React logo"
-                className="sidebar__logo-container__logo"
-              />
-            </div>
-
-            <Menu
-              theme="dark"
-              defaultSelectedKeys={[currentSelectedPage]}
-              mode="inline"
-              onSelect={(key) => changePage(key.key)}
-            >
-              <Menu.Item key="1" icon={<DashboardOutlined />}>
-                Dashboard
-              </Menu.Item>
-              <Menu.SubMenu
-                key="sub1"
-                icon={<FundOutlined />}
-                title="Diagnosis"
-              >
-                <Menu.Item key="2">Video format</Menu.Item>
-                <Menu.Item key="3">NPY format</Menu.Item>
-              </Menu.SubMenu>
-              <Menu.SubMenu
-                key="sub2"
-                icon={<UnorderedListOutlined />}
-                title="Multi-Diagnosis"
-              >
-                <Menu.Item key="4">Video format</Menu.Item>
-                <Menu.Item key="5">NPY format</Menu.Item>
-              </Menu.SubMenu>
-            </Menu>
-          </Sider>
-
-          <Layout className="site-layout">
-            <Header className="header">
-              <ProgressBar percent={progressBarPercent} />
-              {/*
-              <Space size={15}>
-                <ProgressBar percent={progressBarPercent} />
-                <Button
-                  type="primary"
-                  shape="circle"
-                  icon={<CloseOutlined />}
-                  size={10}
-                  danger
+      <Spin tip={'Files are being processed. Please wait...'} size="large" spinning={appLoadingScreen} indicator={loadingIcon}>
+        <div className="app-container">
+          <Layout style={{ minHeight: "96.9vh" }}>
+            <Alerts />
+            <Sider>
+              <div className="sidebar__logo-container">
+                <img
+                  src={hcmutLogo}
+                  alt="React logo"
+                  className="sidebar__logo-container__logo"
                 />
-              </Space>
-              */}
-
-              <Space size={15}>
-                <Avatar src="https://joeschmoe.io/api/v1/random" />
-                <h3>Thai Phuc Hiep</h3>
-                <Button
-                  type="primary"
-                  icon={<PoweroffOutlined />}
-                  shape="round"
-                  danger
-                >
-                  Logout
-                </Button>
-              </Space>
-            </Header>
-
-            <Content style={{ margin: "0 16px" }}>
-              <div className="site-layout-background main-content">
-                {renderedPage}
               </div>
-            </Content>
 
-            <Footer className="footer">
-              Ho Chi Minh City University of Technology © 2022 Created by
-              tphiepbk
-            </Footer>
+              <Menu
+                theme="dark"
+                defaultSelectedKeys={[currentSelectedPage]}
+                mode="inline"
+                onSelect={(key) => changePage(key.key)}
+              >
+                <Menu.Item key="1" icon={<DashboardOutlined />}>
+                  Dashboard
+                </Menu.Item>
+                <Menu.SubMenu
+                  key="sub1"
+                  icon={<FundOutlined />}
+                  title="Diagnosis"
+                >
+                  <Menu.Item key="2">Video format</Menu.Item>
+                  <Menu.Item key="3">NPY format</Menu.Item>
+                </Menu.SubMenu>
+                <Menu.SubMenu
+                  key="sub2"
+                  icon={<UnorderedListOutlined />}
+                  title="Multi-Diagnosis"
+                >
+                  <Menu.Item key="4">Video format</Menu.Item>
+                  <Menu.Item key="5">NPY format</Menu.Item>
+                </Menu.SubMenu>
+              </Menu>
+            </Sider>
+
+            <Layout className="site-layout">
+              <Header className="header">
+                <ProgressBar percent={progressBarPercent} />
+                {/*
+                <Space size={15}>
+                  <ProgressBar percent={progressBarPercent} />
+                  <Button
+                    type="primary"
+                    shape="circle"
+                    icon={<CloseOutlined />}
+                    size={10}
+                    danger
+                  />
+                </Space>
+                */}
+
+                <Space size={15}>
+                  <Avatar src="https://joeschmoe.io/api/v1/random" />
+                  <h3>Thai Phuc Hiep</h3>
+                  <Button
+                    type="primary"
+                    icon={<PoweroffOutlined />}
+                    shape="round"
+                    danger
+                  >
+                    Logout
+                  </Button>
+                </Space>
+              </Header>
+
+              <Content style={{ margin: "0 16px" }}>
+                <div className="site-layout-background main-content">
+                  {renderedPage}
+                </div>
+              </Content>
+
+              <Footer className="footer">
+                Ho Chi Minh City University of Technology © 2022 Created by
+                tphiepbk
+              </Footer>
+            </Layout>
           </Layout>
-        </Layout>
-      </div>
+        </div>
+      </Spin>
     </div>
   );
 }

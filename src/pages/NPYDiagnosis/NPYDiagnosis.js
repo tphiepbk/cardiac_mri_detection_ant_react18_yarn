@@ -165,8 +165,10 @@ export default function VideoDiagnosis() {
   };
 
   const uploadNpySample = async () => {
+    dispatch(appSlice.actions.enableLoadingScreen());
     const response = await window.electronAPI.openNpySampleDialog();
     console.log(response);
+    dispatch(appSlice.actions.disableLoadingScreen());
 
     if (response.result === "SUCCESS") {
       const {
