@@ -13,10 +13,15 @@ const path = require("path");
 const fs = require("fs");
 
 const ffmpeg = require("fluent-ffmpeg");
-const { PythonShell } = require("python-shell");
 
 const database = require("./database/mongoDB");
+const { homedir } = require("os");
 
+let userDataPath_temp = path.resolve(
+  homedir + "/cardiac_mri_abnormalities_detection/"
+);
+
+/*
 let userDataPath_temp;
 const userDataPath = app.getPath("userData");
 if (process.platform === "win32") {
@@ -27,6 +32,7 @@ if (process.platform === "win32") {
     homedir + "/cardiac_mri_detection_ant_react18_yarn/"
   );
 }
+*/
 
 if (!fs.existsSync(userDataPath_temp)) {
   fs.mkdirSync(userDataPath_temp);
@@ -291,253 +297,85 @@ ipcMain.handle("open-multi-files-dialog", async (_event, _arg) => {
 ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
   console.log("================== Opening NPY sample ==================");
 
-  global.filepath = undefined;
-
   const properties = ["openDirectory"];
 
   const folder = await dialog.showOpenDialog({
     title: "Select files to be uploaded",
     defaultPath: path.join(__dirname, "../assets/"),
     buttonLabel: "Open",
-    filters: [{ name: "NPY Folder", extensions: ["avi", "npy"] }],
+    filters: [{ name: "NPY Folder", extensions: ["npy"] }],
     properties: properties,
   });
 
+  let returnValue = {
+    description: "OPEN NPY SAMPLE DIALOG",
+  };
+
   if (!folder) {
-    return {
-      description: "OPEN NPY SAMPLE DIALOG",
-      result: "FAILED",
-    };
+    returnValue.result = "FAILED";
   } else {
     if (folder.canceled) {
-      return {
-        description: "OPEN NPY SAMPLE DIALOG",
-        result: "CANCELED",
-      };
+      returnValue.result = "CANCELED";
     } else {
-      const folderPath = folder.filePaths[0];
-      const getFilesInFolderPromise = new Promise((resolve, _reject) => {
-        fs.readdir(folderPath, (err, files) => {
-          if (err) {
-            resolve("FAILED");
-          } else {
-            resolve(files);
-          }
-        });
-      });
+      const samplePath = folder.filePaths[0];
+      const sampleName = path.basename(samplePath);
 
-      const filesInFolder = await getFilesInFolderPromise;
+      let filesInFolder;
+      try {
+        filesInFolder = fs.readdirSync(samplePath);
+      } catch (err) {
+        filesInFolder = "FAILED";
+      }
 
       if (filesInFolder === "FAILED") {
-        return {
-          description: "OPEN NPY SAMPLE DIALOG",
-          result: "FAILED",
-        };
+        returnValue.result = "FAILED";
       } else {
+        const MINIMUM_NUMBER_OF_NPY_FILES = 10;
+        const MAXIMUM_NUMBER_OF_NPY_FILES = 13;
+
         const wrongFormat =
           filesInFolder.filter((filename) => filename.slice(-4) !== ".npy")
             .length === 0
             ? false
             : true;
-        if (filesInFolder.length < 10 || wrongFormat) {
-          return {
-            description: "OPEN NPY SAMPLE DIALOG",
-            result: "FAILED",
-          };
-        }
 
-        const folderName = path.basename(folderPath);
-        const pathToTempFolder = path.resolve(
-          `${userDataPath_temp}/${folderName}/`
-        );
-
-        if (!fs.existsSync(pathToTempFolder)) {
-          fs.mkdirSync(pathToTempFolder);
-        }
-
-        filesInFolder.sort(
-          (a, b) =>
-            parseInt(a.slice(0, a.length - 4)) -
-            parseInt(b.slice(0, b.length - 4))
-        );
-
-        const filesInFolder_fullPath = filesInFolder.map((filename) =>
-          path.resolve(`${folderPath}/${filename}`)
-        );
-
-        const npyProcessingModuleExecutablePath = path.resolve(
-          __dirname + "/resources/npy_processor/npy_processor.exe"
-        );
-
-        const detectorPath = path.resolve(
-          __dirname + "/resources/pretrained_models/best.pt"
-        );
-
-        const npyProcessingPromise = new Promise((resolve, reject) => {
-          execFile(
-            npyProcessingModuleExecutablePath,
-            [detectorPath, pathToTempFolder, folderName, folderPath],
-            (error, _stdout, _stderr) => {
-              if (error) {
-                console.log(error);
-                resolve("FAILED");
-              } else {
-                resolve("SUCCESS");
-              }
-            }
-          );
-        });
-
-        const npyProcessingResult = await npyProcessingPromise;
-
-        if (npyProcessingResult === "FAILED") {
-          return {
-            description: "OPEN NPY SAMPLE DIALOG",
-            result: "FAILED",
-          };
-        }
-
-        const inputDir = path.resolve(
-          `${userDataPath_temp}/${folderName}/${folderName}.avi`
-        );
-        const filename = folderName;
-        const outputDir = path.resolve(
-          `${userDataPath_temp}/${folderName}/${folderName}_converted.mp4`
-        );
-        const ffmpegPromise = new Promise((resolve, _reject) => {
-          ffmpeg(inputDir)
-            .on("end", () => {
-              resolve("SUCCESS");
-            })
-            .on("error", (errFfmpeg) => {
-              console.log(`An error happened: ${errFfmpeg.message}`);
-              resolve("FAILED");
-            })
-            .saveToFile(outputDir);
-        });
-
-        const ffmpegResult = await ffmpegPromise;
-
-        if (ffmpegResult === "FAILED") {
-          return {
-            description: "OPEN NPY SAMPLE DIALOG",
-            result: "FAILED",
-          };
+        if (
+          filesInFolder.length < MINIMUM_NUMBER_OF_NPY_FILES ||
+          filesInFolder.length > MAXIMUM_NUMBER_OF_NPY_FILES ||
+          wrongFormat
+        ) {
+          returnValue.result = "FAILED";
         } else {
-          console.log(
-            "================== Finished opening NPY sample =================="
-          );
-
-          return {
-            description: "OPEN NPY SAMPLE DIALOG",
-            result: "SUCCESS",
-            npyFileNames: filesInFolder,
-            npyFilePaths: filesInFolder_fullPath,
-            videoName: filename,
-            videoInputPath: inputDir,
-            videoOutputPath:
-              process.platform === "linux" ? "file:///" + outputDir : outputDir,
-          };
-        }
-      }
-    }
-  }
-});
-
-ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
-  global.filepath = undefined;
-
-  const properties = ["openDirectory", "multiSelections"];
-
-  const folders = await dialog.showOpenDialog({
-    title: "Select files to be uploaded",
-    defaultPath: path.join(__dirname, "../assets/"),
-    buttonLabel: "Open",
-    filters: [{ name: "NPY Folders", extensions: ["avi", "npy"] }],
-    properties: properties,
-  });
-
-  console.log(folders);
-
-  if (!folders) {
-    return {
-      description: "OPEN MULTI NPY SAMPLES DIALOG",
-      result: "FAILED",
-    };
-  } else {
-    if (folders.canceled) {
-      return {
-        description: "OPEN MULTI NPY SAMPLES DIALOG",
-        result: "CANCELED",
-      };
-    } else {
-      const allNpyObjects = [];
-
-      for (let i = 0; i < folders.filePaths.length; i++) {
-        const currentNpySamplePath = folders.filePaths[i];
-
-        const getFilesInCurrentNpySamplePromise = new Promise(
-          (resolve, _reject) => {
-            fs.readdir(currentNpySamplePath, (err, files) => {
-              if (err) {
-                resolve("FAILED");
-              } else {
-                resolve(files);
-              }
-            });
-          }
-        );
-
-        const filesInCurrentNpySample = await getFilesInCurrentNpySamplePromise;
-
-        if (filesInCurrentNpySample === "FAILED") {
-          allNpyObjects.push("FAILED");
-          break;
-        } else {
-          const wrongFormat =
-            filesInCurrentNpySample.filter(
-              (filename) => filename.slice(-4) !== ".npy"
-            ).length === 0
-              ? false
-              : true;
-          if (filesInCurrentNpySample.length < 10 || wrongFormat) {
-            allNpyObjects.push("FAILED");
-            break;
-          }
-
-          const currentNpySampleName = path.basename(currentNpySamplePath);
-          const pathToTempFolder = path.resolve(
-            `${userDataPath_temp}/${currentNpySampleName}/`
-          );
-
-          if (!fs.existsSync(pathToTempFolder)) {
-            fs.mkdirSync(pathToTempFolder);
-          }
-
-          filesInCurrentNpySample.sort(
+          filesInFolder.sort(
             (a, b) =>
               parseInt(a.slice(0, a.length - 4)) -
               parseInt(b.slice(0, b.length - 4))
-          );
-
-          const filesInCurrentNpySample_fullPath = filesInCurrentNpySample.map(
-            (filename) => path.resolve(`${currentNpySamplePath}/${filename}`)
           );
 
           const npyProcessingModuleExecutablePath = path.resolve(
             __dirname + "/resources/npy_processor/npy_processor.exe"
           );
 
-          const npyProcessingPromise = new Promise((resolve, reject) => {
+          const ultralyticsYoloV5Path = path.resolve(
+            __dirname + "/resources/ultralytics_yolov5_master/"
+          );
+
+          const detectorPath = path.resolve(
+            __dirname + "/resources/pretrained_models/best.pt"
+          );
+
+          const npyProcessingPromise = new Promise((resolve, _reject) => {
             execFile(
               npyProcessingModuleExecutablePath,
               [
-                pathToTempFolder,
-                currentNpySampleName,
-                ...filesInCurrentNpySample_fullPath,
+                ultralyticsYoloV5Path,
+                detectorPath,
+                userDataPath_temp,
+                samplePath,
               ],
               (error, _stdout, _stderr) => {
                 if (error) {
+                  console.log(error);
                   resolve("FAILED");
                 } else {
                   resolve("SUCCESS");
@@ -549,65 +387,268 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
           const npyProcessingResult = await npyProcessingPromise;
 
           if (npyProcessingResult === "FAILED") {
-            allNpyObjects.push("FAILED");
-          }
-
-          const inputDir = path.resolve(
-            `${userDataPath_temp}/${currentNpySampleName}/${currentNpySampleName}.avi`
-          );
-          const filename = currentNpySampleName;
-          const outputDir = path.resolve(
-            `${userDataPath_temp}/${currentNpySampleName}/${currentNpySampleName}_converted.mp4`
-          );
-          const ffmpegPromise = new Promise((resolve, _reject) => {
-            ffmpeg(inputDir)
-              .on("end", () => {
-                resolve("SUCCESS");
-              })
-              .on("error", (errFfmpeg) => {
-                console.log(`An error happened: ${errFfmpeg.message}`);
-                resolve("FAILED");
-              })
-              .saveToFile(outputDir);
-          });
-
-          const ffmpegResult = await ffmpegPromise;
-
-          if (ffmpegResult === "FAILED") {
-            allNpyObjects.push("FAILED");
-            break;
+            returnValue.result = "FAILED";
           } else {
-            allNpyObjects.push({
-              index: i,
-              npyFileNames: filesInCurrentNpySample,
-              npyFilePaths: filesInCurrentNpySample_fullPath,
-              videoName: filename,
-              videoInputPath: inputDir,
-              videoOutputPath:
+            const inputDir = path.resolve(
+              `${userDataPath_temp}/${sampleName}.avi`
+            );
+
+            const outputDir = path.resolve(
+              `${userDataPath_temp}/${sampleName}_converted.mp4`
+            );
+            const ffmpegPromise = new Promise((resolve, _reject) => {
+              ffmpeg(inputDir)
+                .on("end", () => {
+                  resolve("SUCCESS");
+                })
+                .on("error", (errFfmpeg) => {
+                  console.log(`An error happened: ${errFfmpeg.message}`);
+                  resolve("FAILED");
+                })
+                .saveToFile(outputDir);
+            });
+
+            const inputDirBbox = path.resolve(
+              path.resolve(`${userDataPath_temp}/${sampleName}_bbox.avi`)
+            );
+
+            const outputDirBbox = path.resolve(
+              `${userDataPath_temp}/${sampleName}__bbox_converted.mp4`
+            );
+            const ffmpegPromiseBbox = new Promise((resolve, _reject) => {
+              ffmpeg(inputDirBbox)
+                .on("end", () => {
+                  resolve("SUCCESS");
+                })
+                .on("error", (errFfmpeg) => {
+                  console.log(`An error happened: ${errFfmpeg.message}`);
+                  resolve("FAILED");
+                })
+                .saveToFile(outputDirBbox);
+            });
+
+            const ffmpegResult = await Promise.all([
+              ffmpegPromise,
+              ffmpegPromiseBbox,
+            ]);
+
+            if (ffmpegResult.includes("FAILED")) {
+              returnValue.result = "FAILED";
+            } else {
+              returnValue.result = "SUCCESS";
+              returnValue.npyFileNames = filesInFolder;
+              returnValue.videoName = sampleName;
+              returnValue.videoInputPath = inputDir;
+              returnValue.videoOutputPath =
                 process.platform === "linux"
                   ? "file:///" + outputDir
-                  : outputDir,
-            });
+                  : outputDir;
+              returnValue.videoInputBboxPath = inputDirBbox;
+              returnValue.videoOutputBboxPath =
+                process.platform === "linux"
+                  ? "file:///" + outputDirBbox
+                  : outputDirBbox;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  console.log(
+    "================== Finished opening NPY sample =================="
+  );
+
+  return returnValue;
+});
+
+ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
+  console.log(
+    "==================================== Opening multi npy samples ==========================================="
+  );
+
+  const properties = ["openDirectory", "multiSelections"];
+
+  const folders = await dialog.showOpenDialog({
+    title: "Select files to be uploaded",
+    defaultPath: path.join(__dirname, "../assets/"),
+    buttonLabel: "Open",
+    filters: [{ name: "NPY Folders", extensions: ["npy"] }],
+    properties: properties,
+  });
+
+  let returnValue = {
+    description: "OPEN MULTI NPY SAMPLES DIALOG",
+  };
+
+  if (!folders) {
+    returnValue.result = "FAILED"
+  } else {
+    if (folders.canceled) {
+      returnValue.result = "CANCELED"
+    } else {
+      const validNpySamples = [];
+
+      for (let i = 0; i < folders.filePaths.length; i++) {
+        const currentNpySamplePath = folders.filePaths[i];
+
+        let filesInCurrentNpySample;
+        try {
+          filesInCurrentNpySample = fs.readdirSync(currentNpySamplePath);
+        } catch (err) {
+          continue;
+        }
+
+        if (filesInCurrentNpySample !== "FAILED") {
+          const MINIMUM_NUMBER_OF_NPY_FILES = 10;
+          const MAXIMUM_NUMBER_OF_NPY_FILES = 13;
+
+          const wrongFormat =
+            filesInCurrentNpySample.filter(
+              (filename) => filename.slice(-4) !== ".npy"
+            ).length === 0
+              ? false
+              : true;
+
+          if (
+            filesInCurrentNpySample.length >= MINIMUM_NUMBER_OF_NPY_FILES &&
+            filesInCurrentNpySample.length <= MAXIMUM_NUMBER_OF_NPY_FILES &&
+            !wrongFormat
+          ) {
+            validNpySamples.push(currentNpySamplePath);
           }
         }
       }
 
-      console.log(allNpyObjects);
-
-      let returnValue = {
-        description: "OPEN MULTI NPY SAMPLES DIALOG",
-      };
-
-      if (allNpyObjects.includes("FAILED")) {
+      if (validNpySamples.length === 0) {
         returnValue.result = "FAILED";
       } else {
-        returnValue.result = "SUCCESS";
-        returnValue.npyObjectList = allNpyObjects;
-      }
+        const npyProcessingModuleExecutablePath = path.resolve(
+          __dirname + "/resources/npy_processor/npy_processor.exe"
+        );
 
-      return returnValue;
+        const detectorPath = path.resolve(
+          __dirname + "/resources/pretrained_models/best.pt"
+        );
+
+        const ultralyticsYoloV5Path = path.resolve(
+          __dirname + "/resources/ultralytics_yolov5_master/"
+        );
+
+        const npyProcessingPromise = new Promise((resolve, _reject) => {
+          execFile(
+            npyProcessingModuleExecutablePath,
+            [
+              ultralyticsYoloV5Path,
+              detectorPath,
+              userDataPath_temp,
+              ...validNpySamples,
+            ],
+            (error, stdout, _stderr) => {
+              if (error) {
+                resolve("FAILED");
+              } else {
+                resolve(stdout);
+              }
+            }
+          );
+        });
+
+        const npyProcessingResult = await npyProcessingPromise;
+
+        if (npyProcessingResult === "FAILED") {
+          returnValue.result = npyProcessingResult;
+        } else {
+          const returnNPYSamples = [];
+
+          for (let i = 0; i < validNpySamples.length; i++) {
+            const currentNpySamplePath = validNpySamples[i];
+            const currentNpySampleName = path.basename(currentNpySamplePath)
+
+            const inputDir = path.resolve(`${userDataPath_temp}/${currentNpySampleName}.avi`);
+
+            const outputDir = path.resolve(
+              `${userDataPath_temp}/${currentNpySampleName}_converted.mp4`
+            );
+
+            const inputDirBbox = path.resolve(`${userDataPath_temp}/${currentNpySampleName}_bbox.avi`);
+
+            const outputDirBbox = path.resolve(
+              `${userDataPath_temp}/${currentNpySampleName}_bbox_converted.mp4`
+            );
+
+            const ffmpegPromise = new Promise((resolve, _reject) => {
+              ffmpeg(inputDir)
+                .on("end", () => {
+                  resolve("SUCCESS");
+                })
+                .on("error", (errFfmpeg) => {
+                  console.log(`An error happened: ${errFfmpeg.message}`);
+                  resolve("FAILED");
+                })
+                .saveToFile(outputDir);
+            });
+
+            const ffmpegPromiseBbox = new Promise((resolve, _reject) => {
+              ffmpeg(inputDirBbox)
+                .on("end", () => {
+                  resolve("SUCCESS");
+                })
+                .on("error", (errFfmpeg) => {
+                  console.log(`An error happened: ${errFfmpeg.message}`);
+                  resolve("FAILED");
+                })
+                .saveToFile(outputDirBbox);
+            });
+
+            const ffmpegResult = await Promise.all([
+              ffmpegPromise,
+              ffmpegPromiseBbox,
+            ]);
+
+            const filesInCurrentNpySample = fs.readdirSync(
+              currentNpySamplePath
+            );
+
+            filesInCurrentNpySample.sort(
+              (a, b) =>
+                parseInt(a.slice(0, a.length - 4)) -
+                parseInt(b.slice(0, b.length - 4))
+            );
+
+            if (ffmpegResult.includes("FAILED")) {
+              returnNPYSamples.push("FAILED");
+            } else {
+              returnNPYSamples.push({
+                index: i,
+                npyFileNames: filesInCurrentNpySample,
+                videoName: currentNpySampleName,
+                videoInputPath: inputDir,
+                videoOutputPath:
+                  process.platform === "linux"
+                    ? "file:///" + outputDir
+                    : outputDir,
+                videoInputBboxPath: inputDirBbox,
+                videoOutputBboxPath:
+                  process.platform === "linux"
+                    ? "file:///" + outputDirBbox
+                    : outputDirBbox,
+              });
+            }
+
+            returnValue.result = "SUCCESS";
+            returnValue.npyObjectList = returnNPYSamples;
+          }
+        }
+      }
     }
   }
+
+  console.log(
+    "================================= Finished opening multi npy samples ======================================="
+  );
+
+  return returnValue;
 });
 
 ipcMain.handle("get-video-metadata", async (event, data) => {
@@ -668,10 +709,10 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
     execFile(
       predictionModuleExecutable,
       [
-        filepath,
         unetPretrainPath,
         checkColNumPretrainPath,
         classifyPretrainPath,
+        filepath,
       ],
       (error, stdout, _stderr) => {
         if (error) {
@@ -681,10 +722,13 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
           };
           resolve(returnValue);
         } else {
+          const predictionResult = JSON.parse(
+            stdout.replaceAll("'", '"')
+          );
           const returnValue = {
             description: "MAKE SINGLE PREDICTION",
             result: "SUCCESS",
-            value: stdout.toString(),
+            value: predictionResult[0].result.toString(),
           };
           resolve(returnValue);
         }
@@ -694,7 +738,9 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
 
   const returnValue = await predictionPromise;
 
-  console.log("=================== Finished making prediction =====================");
+  console.log(
+    "=================== Finished making prediction ====================="
+  );
 
   return returnValue;
 });
@@ -826,5 +872,6 @@ ipcMain.handle("save-patient-record", async (_event, patientObject) => {
   };
   return returnValue;
 });
+
 // Disable security warning
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = "true";

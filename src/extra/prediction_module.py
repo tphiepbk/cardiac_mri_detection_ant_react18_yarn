@@ -1,4 +1,5 @@
 import sys
+import os
 
 from tensorflow import keras
 from tensorflow.keras.models import *
@@ -10,10 +11,9 @@ import numpy as np
 
 import cv2
 
-FILEDIRECTORY = sys.argv[1]
-UNET_PRETRAINED_PATH = sys.argv[2]
-CHECK_COL_NUM_PRETRAINED_PATH = sys.argv[3]
-CLASSIFY_PRETRAINED_PATH = sys.argv[4]
+UNET_PRETRAINED_PATH = sys.argv[1]
+CHECK_COL_NUM_PRETRAINED_PATH = sys.argv[2]
+CLASSIFY_PRETRAINED_PATH = sys.argv[3]
 
 NUM_FEATURES = 512
 MAX_FRAMES = 30
@@ -154,59 +154,61 @@ out = Dense(1, activation='sigmoid')(x)
 
 final_model = Model(inputs, out, name='classify')
 
-"""# Prediction
+# ***************************************************** PREDICTION *****************************************************
+list_result = []
 
-### Load video
-"""
-
-path = FILEDIRECTORY
+list_file_path = list(map(lambda path : os.path.abspath(path), sys.argv[4:]))
 
 model = keras.models.load_model(CHECK_COL_NUM_PRETRAINED_PATH)
 
-input = np.zeros((12,30,160,160,1))
-
-cap = cv2.VideoCapture(path)
-ret, frame = cap.read()
-frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-frame = cv2.resize(frame,(64,48))
-frame = frame[None,...,None]
-col_check = int(model.predict(frame)[0] < 0.5)
-
-frame_num = 0
-cap = cv2.VideoCapture(path)
-while(cap.isOpened()):
-    ret, frame = cap.read()
-    if not ret:
-        break
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    h = 160
-    w = 128 if col_check else 160
-    for i in range(3):
-        for j in range(4 + col_check):
-            slice_num = i*(4 + col_check)+j
-            if slice_num >= 12:
-                break
-            x = j*w
-            y = i*h
-
-            croped_frame = frame[y:y+h, x:x+w]
-            if croped_frame.sum() == 0:
-                break
-            if col_check:
-                croped_frame = np.pad(croped_frame, ((0,0),(16,16)), 'constant', constant_values=0)
-            
-            input[slice_num,frame_num] = croped_frame[...,None]
-    frame_num += 1
-    if frame_num >= 30:
-        break
-
-input = input[None,...]
-
-"""### Predict"""
-
 final_model.load_weights(CLASSIFY_PRETRAINED_PATH)
 
-res = final_model.predict(input)
+for path in list_file_path:
 
-print(res[0][0])
+    input = np.zeros((12,30,160,160,1))
+
+    cap = cv2.VideoCapture(path)
+    ret, frame = cap.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame = cv2.resize(frame,(64,48))
+    frame = frame[None,...,None]
+    col_check = int(model.predict(frame)[0] < 0.5)
+
+    frame_num = 0
+    cap = cv2.VideoCapture(path)
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        h = 160
+        w = 128 if col_check else 160
+        for i in range(3):
+            for j in range(4 + col_check):
+                slice_num = i*(4 + col_check)+j
+                if slice_num >= 12:
+                    break
+                x = j*w
+                y = i*h
+
+                croped_frame = frame[y:y+h, x:x+w]
+                if croped_frame.sum() == 0:
+                    break
+                if col_check:
+                    croped_frame = np.pad(croped_frame, ((0,0),(16,16)), 'constant', constant_values=0)
+                
+                input[slice_num,frame_num] = croped_frame[...,None]
+        frame_num += 1
+        if frame_num >= 30:
+            break
+
+    input = input[None,...]
+
+    """### Predict"""
+
+    res = final_model.predict(input)
+
+    list_result.append({"filePath": path, "result": res[0][0]})
+
+print(list_result)

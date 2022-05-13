@@ -9,6 +9,7 @@ import {
   disabledButtonSelector,
   listSlicesSelector,
   npyFileNamesSelector,
+  videoBboxPathSelector,
 } from "./npyDiagnosisSelector";
 
 import { Button, Descriptions, Empty, Skeleton, Tabs, List } from "antd";
@@ -41,6 +42,7 @@ export default function VideoDiagnosis() {
 
   const npyFileNames = useSelector(npyFileNamesSelector);
   const videoPath = useSelector(videoPathSelector);
+  const videoBboxPath = useSelector(videoBboxPathSelector);
   const videoMetadata = useSelector(videoMetadataSelector);
   const disabledButton = useSelector(disabledButtonSelector);
   const diagnosisResult = useSelector(diagnosisResultSelector);
@@ -162,13 +164,21 @@ export default function VideoDiagnosis() {
     }
   };
 
-  const uploadNpyFiles = async () => {
+  const uploadNpySample = async () => {
+    dispatch(appSlice.actions.enableLoadingScreen());
     const response = await window.electronAPI.openNpySampleDialog();
     console.log(response);
+    dispatch(appSlice.actions.disableLoadingScreen());
 
     if (response.result === "SUCCESS") {
-      const { npyFileNames, npyFilePaths, videoName, videoInputPath, videoOutputPath } =
-        response;
+      const {
+        npyFileNames,
+        videoName,
+        videoInputPath,
+        videoOutputPath,
+        videoInputBboxPath,
+        videoOutputBboxPath,
+      } = response;
 
       dispatch(
         npyDiagnosisSlice.actions.setVideoPath({
@@ -176,10 +186,15 @@ export default function VideoDiagnosis() {
           mp4: videoOutputPath,
         })
       );
+      dispatch(
+        npyDiagnosisSlice.actions.setVideoBboxPath({
+          avi: videoInputBboxPath,
+          mp4: videoOutputBboxPath,
+        })
+      );
 
       getVideoMetadata(videoName, videoInputPath);
       dispatch(npyDiagnosisSlice.actions.setNpyFileNames(npyFileNames));
-      dispatch(npyDiagnosisSlice.actions.setNpyFilePaths(npyFilePaths));
     } else {
       triggerUploadFailedAlert();
     }
@@ -193,6 +208,13 @@ export default function VideoDiagnosis() {
 
     dispatch(
       npyDiagnosisSlice.actions.setVideoPath({
+        avi: "",
+        mp4: "",
+      })
+    );
+
+    dispatch(
+      npyDiagnosisSlice.actions.setVideoBboxPath({
         avi: "",
         mp4: "",
       })
@@ -216,7 +238,7 @@ export default function VideoDiagnosis() {
 
     dispatch(appSlice.actions.disableAppInteractive());
 
-    uploadNpyFiles();
+    uploadNpySample();
   };
 
   const diagnoseNpySample = async () => {
@@ -352,13 +374,13 @@ export default function VideoDiagnosis() {
                 />
               )}
             </Tabs.TabPane>
-            {videoPath.mp4 === "" ? (
+            {videoBboxPath.mp4 === "" ? (
               <Tabs.TabPane tab="Cropped" key="2" disabled />
             ) : (
               <Tabs.TabPane tab="Cropped" key="2">
                 <ReactPlayer
                   className="npy-diagnosis__upload-container__video"
-                  url={videoPath.mp4}
+                  url={videoBboxPath.mp4}
                   playing={true}
                   controls={true}
                   loop={true}
