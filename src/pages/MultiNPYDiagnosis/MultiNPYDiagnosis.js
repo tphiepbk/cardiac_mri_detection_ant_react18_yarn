@@ -189,10 +189,11 @@ export default function MultiNPYDiagnosis() {
           npySamplesOpenResponse.npyObjectList.map((npyObject) => ({
             index: npyObject.index,
             npyFileNames: npyObject.npyFileNames,
-            npyFilePaths: npyObject.npyFilePaths,
             videoName: npyObject.videoName,
             videoPath: npyObject.videoInputPath,
             videoOutputPath: npyObject.videoOutputPath,
+            videoBboxPath: npyObject.videoInputBboxPath,
+            videoOutputBboxPath: npyObject.videoOutputBboxPath,
           }))
         )
       );
@@ -340,6 +341,9 @@ export default function MultiNPYDiagnosis() {
             videoMetadata={currentVideoMetadata}
             videoConvertedPath={
               listInputNpyObject[currentVideoSelected].videoOutputPath
+            }
+            videoBboxConvertedPath={
+              listInputNpyObject[currentVideoSelected].videoOutputBboxPath
             }
           />
         )}

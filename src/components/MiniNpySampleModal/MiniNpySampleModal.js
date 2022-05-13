@@ -5,7 +5,7 @@ import { Modal, Descriptions, List, Tabs } from "antd";
 
 export default function MiniNpySampleModal(props) {
 
-  const { closeVideoModalHandler, npyFileNames, videoMetadata, videoConvertedPath } = props
+  const { closeVideoModalHandler, npyFileNames, videoMetadata, videoConvertedPath, videoBboxConvertedPath } = props
 
   const tabChangeHandler = (key) => {
     console.log("Changed to tab ", key);
@@ -43,7 +43,7 @@ export default function MiniNpySampleModal(props) {
           <Tabs.TabPane tab="Cropped" key="2">
             <ReactPlayer
               className="mini-npy-sample-modal__video"
-              url={videoConvertedPath}
+              url={videoBboxConvertedPath}
               playing={true}
               controls={true}
               loop={true}

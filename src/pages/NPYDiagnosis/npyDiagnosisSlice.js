@@ -9,6 +9,10 @@ const initialState = {
     mp4: "",
     avi: "",
   },
+  videoBboxPath: {
+    mp4: "",
+    avi: "",
+  },
   videoMetadata: {
     name: "",
     format: "",
@@ -34,6 +38,10 @@ const npyDiagnosisSlice = createSlice({
     setVideoPath: (state, action) => {
       state.videoPath.avi = action.payload.avi;
       state.videoPath.mp4 = action.payload.mp4;
+    },
+    setVideoBboxPath: (state, action) => {
+      state.videoBboxPath.avi = action.payload.avi;
+      state.videoBboxPath.mp4 = action.payload.mp4;
     },
     setVideoMetadata: (state, action) => {
       state.videoMetadata.name = action.payload.name;

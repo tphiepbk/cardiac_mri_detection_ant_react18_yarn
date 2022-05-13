@@ -15,6 +15,11 @@ export const videoPathSelector = createSelector(
   (videoPath) => videoPath
 );
 
+export const videoBboxPathSelector = createSelector(
+  (state) => state.npyDiagnosis.videoBboxPath,
+  (videoBboxPath) => videoBboxPath
+);
+
 export const videoMetadataSelector = createSelector(
   (state) => state.npyDiagnosis.videoMetadata,
   (videoMetadata) => videoMetadata

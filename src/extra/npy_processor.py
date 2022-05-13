@@ -1,35 +1,23 @@
 import numpy as np
 import glob
-import matplotlib.pyplot as plt
 import cv2
 import os
 import sys
 import torch
-from pathlib import Path
 from functools import reduce
 from sklearn.cluster import KMeans
 
-import sklearn.utils._typedefs
-import sklearn.neighbors._partition_nodes
-import yaml
-import PIL.ExifTags
-import seaborn
+ULTRALYTICS_YOLOV5_PATH = os.path.abspath(sys.argv[1])
 
-DETECTOR_PATH = os.path.abspath(sys.argv[1])
-TEMP_FOLDER_PATH = os.path.abspath(sys.argv[2])
-VIDEO_NAME = sys.argv[3]
-NPY_FOLDER_PATH = os.path.abspath(sys.argv[4])
+DETECTOR_PATH = os.path.abspath(sys.argv[2])
 
-NPY_LIST_FILEDIR = glob.glob(os.path.abspath(NPY_FOLDER_PATH + '/*.npy'))
+TEMP_FOLDER_PATH = os.path.abspath(sys.argv[3])
 
-NPY_LIST_FILENAME = list(map(lambda element : Path(element).stem, NPY_LIST_FILEDIR))
-NUMBER_OF_SLICES = len(NPY_LIST_FILEDIR)
-
-NUMBER_OF_FRAMES = 0
+NPY_FOLDER_PATHS = list(map(lambda folder_path: os.path.abspath(folder_path), sys.argv[4:]))
 
 # * =============================================== BOUNDING BOX TOOLS ===============================================
 def load_detection_model(path):
-    detector = torch.hub.load('ultralytics/yolov5', 'custom', path=path)
+    detector = torch.hub.load(ULTRALYTICS_YOLOV5_PATH, 'custom', path=path, source='local')
     detector.max_det = 1
     return detector
 
@@ -131,255 +119,140 @@ def get_bounding_box(npy_sample_path, detection_model_path):
 
 # * ==================================================================================================================
 
-bbox = get_bounding_box(NPY_FOLDER_PATH, os.path.abspath(DETECTOR_PATH))
-color = (0, 255, 0)
-thickness = 2
+results = []
 
-if (not os.path.exists(TEMP_FOLDER_PATH)):
-    os.mkdir(TEMP_FOLDER_PATH)
+for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
+    VIDEO_NAME = os.path.basename(NPY_FOLDER_PATH)
+    TEMP_FILE_NAME = TEMP_FOLDER_PATH + '/' + '{}.png'.format(VIDEO_NAME)
 
-for filedir, filename in zip(NPY_LIST_FILEDIR, NPY_LIST_FILENAME):
+    NPY_LIST_FILEDIR = glob.glob(os.path.abspath(NPY_FOLDER_PATH + '/*.npy'))
+    NPY_LIST_FILEDIR.sort(key = lambda x: int(os.path.basename(x).split('.')[0]))
+    NPY_LIST_FILEDIR = NPY_LIST_FILEDIR[::-1]
 
-    temp_path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/'.format(filename))
-    if (not os.path.exists(temp_path)):
-        os.mkdir(temp_path)
+    NPY_LIST_FILENAME = list(map(lambda element : os.path.basename(element).split('.')[0], NPY_LIST_FILEDIR))
 
-    # * GENERATE IMAGES FROM NUMPY ARRAYS
-    videoArr = np.load(filedir)
+    NUMBER_OF_SLICES = len(NPY_LIST_FILEDIR)
 
-    expandDim_videoArr = np.expand_dims(videoArr, axis=0)
-    videoArr = np.transpose(expandDim_videoArr, [0, 3, 1, 2])
+    bbox = get_bounding_box(NPY_FOLDER_PATH, os.path.abspath(DETECTOR_PATH))
+    color = (0, 255, 0)
+    thickness = 2
 
-    videoArr = videoArr[0]
+    npy_slices = []
 
-    NUMBER_OF_FRAMES = len(videoArr)
+    for filedir, filename in zip(NPY_LIST_FILEDIR, NPY_LIST_FILENAME):
+
+        videoArr = np.load(filedir)
+
+        expandDim_videoArr = np.expand_dims(videoArr, axis=0)
+        videoArr = np.transpose(expandDim_videoArr, [0, 3, 1, 2])
+
+        videoArr = videoArr[0]
+
+        npy_slices += [videoArr]
+
+    NUMBER_OF_FRAMES = len(npy_slices[0])
+
+    blank_image = np.zeros(npy_slices[0][0].shape + (3,), np.uint8)
+
+    concatenated_frames = []
+    concatenated_frames_bbox = []
 
     for i in range(NUMBER_OF_FRAMES):
-        plt.imsave(os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(filename, i)), videoArr[i], cmap='gray')
 
-temp_path = TEMP_FOLDER_PATH + '/{}_concatenated'.format(VIDEO_NAME, VIDEO_NAME)
-if (not os.path.exists(temp_path)):
-    os.mkdir(temp_path)
+        current_frame_slices = [element[i] for element in npy_slices]
 
-temp_path_bbox = TEMP_FOLDER_PATH + '/{}_bbox_concatenated'.format(VIDEO_NAME, VIDEO_NAME)
-if (not os.path.exists(temp_path_bbox)):
-    os.mkdir(temp_path_bbox)
+        current_frame_converted_slices = []
+        current_frame_converted_slices_bbox = []
 
-if NUMBER_OF_SLICES == 10:
-    for i in range(NUMBER_OF_FRAMES):
-        firstRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/9_frames/{}.png'.format(i)))
-        firstRow_bbox = firstRow.copy()
-        firstRow_bbox = cv2.rectangle(firstRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (8, 5, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            firstRow = np.concatenate((firstRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            firstRow_bbox = np.concatenate((firstRow_bbox, img_bbox), axis=1)
+        for current_frame_current_slice in current_frame_slices:
+            cv2.imwrite(TEMP_FILE_NAME, current_frame_current_slice)
+            img = cv2.imread(TEMP_FILE_NAME)
+            current_frame_converted_slices += [img]
+            current_frame_converted_slices_bbox += [cv2.rectangle(img.copy(), (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)]
 
-        secondRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/5_frames/{}.png'.format(i)))
-        secondRow_bbox = secondRow.copy()
-        secondRow_bbox = cv2.rectangle(secondRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (4, 1, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            secondRow = np.concatenate((secondRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            secondRow_bbox = np.concatenate((secondRow_bbox, img_bbox), axis=1)
+        first_row, second_row, third_row = None, None, None
+        first_row_bbox, second_row_bbox, third_row_bbox = None, None, None
 
-        thirdRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/1_frames/{}.png'.format(i)))
-        thirdRow_bbox = thirdRow.copy()
-        thirdRow_bbox = cv2.rectangle(thirdRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        blank_image = np.zeros(thirdRow.shape, np.uint8)
-        for j in range (0, -1, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            thirdRow = np.concatenate((thirdRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            thirdRow_bbox = np.concatenate((thirdRow_bbox, img_bbox), axis=1)
+        if NUMBER_OF_SLICES == 10:
+            first_row = np.concatenate(tuple(current_frame_converted_slices[0:4]), axis=1)
+            second_row = np.concatenate(tuple(current_frame_converted_slices[4:8]), axis=1)
+            third_row = np.concatenate(tuple(current_frame_converted_slices[8:10] + [blank_image, blank_image]), axis=1)
 
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
+            final = np.concatenate((first_row, second_row, third_row), axis=0)
 
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
+            concatenated_frames += [final]
 
-        final = np.concatenate((firstRow, secondRow, thirdRow), axis=0)
-        final_bbox = np.concatenate((firstRow_bbox, secondRow_bbox, thirdRow_bbox), axis=0)
+            first_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[0:4]), axis=1)
+            second_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[4:8]), axis=1)
+            third_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[8:10] + [blank_image, blank_image]), axis=1)
 
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_concatenated/{}.png'.format(VIDEO_NAME, i)), final)
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_bbox_concatenated/{}.png'.format(VIDEO_NAME, i)), final_bbox)
+            final_bbox = np.concatenate((first_row_bbox, second_row_bbox, third_row_bbox), axis=0)
 
-elif NUMBER_OF_SLICES == 11:
-    for i in range(NUMBER_OF_FRAMES):
-        firstRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/10_frames/{}.png'.format(i)))
-        firstRow_bbox = firstRow.copy()
-        firstRow_bbox = cv2.rectangle(firstRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (9, 6, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            firstRow = np.concatenate((firstRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            firstRow_bbox = np.concatenate((firstRow_bbox, img_bbox), axis=1)
+            concatenated_frames_bbox += [final_bbox]
 
-        secondRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/6_frames/{}.png'.format(i)))
-        secondRow_bbox = secondRow.copy()
-        secondRow_bbox = cv2.rectangle(secondRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (5, 2, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            secondRow = np.concatenate((secondRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            secondRow_bbox = np.concatenate((secondRow_bbox, img_bbox), axis=1)
+        elif NUMBER_OF_SLICES == 11:
+            first_row = np.concatenate(tuple(current_frame_converted_slices[0:4]), axis=1)
+            second_row = np.concatenate(tuple(current_frame_converted_slices[4:8]), axis=1)
+            third_row = np.concatenate(tuple(current_frame_converted_slices[8:11] + [blank_image]), axis=1)
 
-        thirdRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/2_frames/{}.png'.format(i)))
-        thirdRow_bbox = thirdRow.copy()
-        thirdRow_bbox = cv2.rectangle(thirdRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        blank_image = np.zeros(thirdRow.shape, np.uint8)
-        for j in range (1, -1, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            thirdRow = np.concatenate((thirdRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            thirdRow_bbox = np.concatenate((thirdRow_bbox, img_bbox), axis=1)
+            final = np.concatenate((first_row, second_row, third_row), axis=0)
 
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
+            concatenated_frames += [final]
 
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
+            first_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[0:4]), axis=1)
+            second_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[4:8]), axis=1)
+            third_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[8:11] + [blank_image]), axis=1)
 
-        final = np.concatenate((firstRow, secondRow, thirdRow), axis=0)
+            final_bbox = np.concatenate((first_row_bbox, second_row_bbox, third_row_bbox), axis=0)
 
-        final_bbox = np.concatenate((firstRow_bbox, secondRow_bbox, thirdRow_bbox), axis=0)
+            concatenated_frames_bbox += [final_bbox]
 
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_concatenated/{}.png'.format(VIDEO_NAME, i)), final)
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_bbox_concatenated/{}.png'.format(VIDEO_NAME, i)), final_bbox)
+        elif NUMBER_OF_SLICES == 12:
+            first_row = np.concatenate(tuple(current_frame_converted_slices[0:5]), axis=1)
+            second_row = np.concatenate(tuple(current_frame_converted_slices[5:10]), axis=1)
+            third_row = np.concatenate(tuple(current_frame_converted_slices[10:12] + [blank_image, blank_image, blank_image]), axis=1)
 
-elif NUMBER_OF_SLICES == 12:
-    for i in range(NUMBER_OF_FRAMES):
-        firstRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/11_frames/{}.png'.format(i)))
-        firstRow_bbox = firstRow.copy()
-        firstRow_bbox = cv2.rectangle(firstRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (10, 6, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            firstRow = np.concatenate((firstRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            firstRow_bbox = np.concatenate((firstRow_bbox, img_bbox), axis=1)
+            final = np.concatenate((first_row, second_row, third_row), axis=0)
 
-        secondRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/6_frames/{}.png'.format(i)))
-        secondRow_bbox = secondRow.copy()
-        secondRow_bbox = cv2.rectangle(secondRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (5, 1, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            secondRow = np.concatenate((secondRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            secondRow_bbox = np.concatenate((secondRow_bbox, img_bbox), axis=1)
+            concatenated_frames += [final]
 
-        thirdRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/1_frames/{}.png'.format(i)))
-        thirdRow_bbox = thirdRow.copy()
-        thirdRow_bbox = cv2.rectangle(thirdRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        blank_image = np.zeros(thirdRow.shape, np.uint8)
-        for j in range (0, -1, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            thirdRow = np.concatenate((thirdRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            thirdRow_bbox = np.concatenate((thirdRow_bbox, img_bbox), axis=1)
+            first_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[0:5]), axis=1)
+            second_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[5:10]), axis=1)
+            third_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[10:12] + [blank_image, blank_image, blank_image]), axis=1)
 
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
+            final_bbox = np.concatenate((first_row_bbox, second_row_bbox, third_row_bbox), axis=0)
 
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
+            concatenated_frames_bbox += [final_bbox]
 
-        final = np.concatenate((firstRow, secondRow, thirdRow), axis=0)
+        else:
+            first_row = np.concatenate(tuple(current_frame_converted_slices[0:5]), axis=1)
+            second_row = np.concatenate(tuple(current_frame_converted_slices[5:10]), axis=1)
+            third_row = np.concatenate(tuple(current_frame_converted_slices[10:13] + [blank_image, blank_image]), axis=1)
 
-        final_bbox = np.concatenate((firstRow_bbox, secondRow_bbox, thirdRow_bbox), axis=0)
+            final = np.concatenate((first_row, second_row, third_row), axis=0)
 
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_concatenated/{}.png'.format(VIDEO_NAME, i)), final)
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_bbox_concatenated/{}.png'.format(VIDEO_NAME, i)), final_bbox)
+            concatenated_frames += [final]
 
-else:
-    for i in range(NUMBER_OF_FRAMES):
-        firstRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/12_frames/{}.png'.format(i)))
-        firstRow_bbox = firstRow.copy()
-        firstRow_bbox = cv2.rectangle(firstRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (11, 7, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            firstRow = np.concatenate((firstRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            firstRow_bbox = np.concatenate((firstRow_bbox, img_bbox), axis=1)
+            first_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[0:5]), axis=1)
+            second_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[5:10]), axis=1)
+            third_row_bbox = np.concatenate(tuple(current_frame_converted_slices_bbox[10:13] + [blank_image, blank_image]), axis=1)
 
-        secondRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/7_frames/{}.png'.format(i)))
-        secondRow_bbox = secondRow.copy()
-        secondRow_bbox = cv2.rectangle(secondRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        for j in range (6, 2):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            secondRow = np.concatenate((secondRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            secondRow_bbox = np.concatenate((secondRow_bbox, img_bbox), axis=1)
+            final_bbox = np.concatenate((first_row_bbox, second_row_bbox, third_row_bbox), axis=0)
 
-        thirdRow = cv2.imread(os.path.abspath(TEMP_FOLDER_PATH + '/2_frames/{}.png'.format(i)))
-        thirdRow_bbox = thirdRow.copy()
-        thirdRow_bbox = cv2.rectangle(thirdRow_bbox, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-        blank_image = np.zeros(thirdRow.shape, np.uint8)
-        for j in range (1, -1, -1):
-            path = os.path.abspath(TEMP_FOLDER_PATH + '/{}_frames/{}.png'.format(j, i))
-            img = cv2.imread(path)
-            thirdRow = np.concatenate((thirdRow, img), axis=1)
-            img_bbox = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, thickness)
-            thirdRow_bbox = np.concatenate((thirdRow_bbox, img_bbox), axis=1)
+            concatenated_frames_bbox += [final_bbox]
 
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
-        thirdRow = np.concatenate((thirdRow, blank_image), axis=1)
+    height, width, layers = concatenated_frames[0].shape
 
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
-        thirdRow_bbox = np.concatenate((thirdRow_bbox, blank_image), axis=1)
+    video_avi = cv2.VideoWriter(os.path.abspath('{}/{}.avi'.format(TEMP_FOLDER_PATH, VIDEO_NAME)), 0, NUMBER_OF_FRAMES, (width,height))
 
-        final = np.concatenate((firstRow, secondRow, thirdRow), axis=0)
+    for frame in concatenated_frames:
+        cv2.imwrite(TEMP_FILE_NAME, frame)
+        video_avi.write(cv2.imread(TEMP_FILE_NAME))
+    video_avi.release()
 
-        final_bbox = np.concatenate((firstRow_bbox, secondRow_bbox, thirdRow_bbox), axis=0)
+    video_avi_bbox = cv2.VideoWriter(os.path.abspath('{}/{}_bbox.avi'.format(TEMP_FOLDER_PATH, VIDEO_NAME)), 0, NUMBER_OF_FRAMES, (width,height))
 
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_concatenated/{}.png'.format(VIDEO_NAME, i)), final)
-        cv2.imwrite(os.path.abspath(TEMP_FOLDER_PATH + '/{}_bbox_concatenated/{}.png'.format(VIDEO_NAME, i)), final_bbox)
-
-# * GENERATE VIDEO FROM IMAGES
-images_folder = os.path.abspath(TEMP_FOLDER_PATH + '/{}_concatenated/'.format(VIDEO_NAME))
-
-output_video_name_avi = os.path.abspath(TEMP_FOLDER_PATH + '/{}.avi'.format(VIDEO_NAME))
-
-images = [img for img in os.listdir(images_folder) if img.endswith(".png")]
-
-images.sort(key = lambda x: int(x[:-4]))
-
-frame = cv2.imread(os.path.join(images_folder, images[0]))
-
-height, width, layers = frame.shape
-
-video_avi = cv2.VideoWriter(output_video_name_avi, 0, NUMBER_OF_FRAMES, (width,height))
-for image in images:
-    video_avi.write(cv2.imread(os.path.join(images_folder, image)))
-video_avi.release()
-
-# * GENERATE VIDEO FROM IMAGES WITH BOUNDING BOX
-images_folder = os.path.abspath(TEMP_FOLDER_PATH + '/{}_bbox_concatenated/'.format(VIDEO_NAME))
-
-output_video_name_avi = os.path.abspath(TEMP_FOLDER_PATH + '/{}_bbox.avi'.format(VIDEO_NAME))
-
-images = [img for img in os.listdir(images_folder) if img.endswith(".png")]
-
-images.sort(key = lambda x: int(x[:-4]))
-
-frame = cv2.imread(os.path.join(images_folder, images[0]))
-
-height, width, layers = frame.shape
-
-video_avi = cv2.VideoWriter(output_video_name_avi, 0, NUMBER_OF_FRAMES, (width,height))
-for image in images:
-    video_avi.write(cv2.imread(os.path.join(images_folder, image)))
-video_avi.release()
+    for frame in concatenated_frames_bbox:
+        cv2.imwrite(TEMP_FILE_NAME, frame)
+        video_avi_bbox.write(cv2.imread(TEMP_FILE_NAME))
+    video_avi_bbox.release()
