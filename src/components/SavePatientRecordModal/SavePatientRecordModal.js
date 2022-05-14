@@ -1,5 +1,6 @@
 import React from "react";
 import "./SavePatientRecordModal.css";
+import { usernameSelector } from "../../pages/Login/loginSelector";
 import {
   Modal,
   Form,
@@ -11,8 +12,12 @@ import {
 } from "antd";
 
 import moment from "moment";
+import { useSelector } from "react-redux";
 
 export default function SavePatientRecordModal(props) {
+  const username = useSelector(usernameSelector)
+  console.log(username)
+
   const {
     savePatientRecord,
     closeSavePatientRecordModalHandler,
@@ -35,7 +40,7 @@ export default function SavePatientRecordModal(props) {
       diagnosisResult: {
         value: values.diagnosisResultValue,
         confirmed: false,
-        confirmedBy: "tphiepbk",
+        author: username,
         dateModified: values.dateModified.toDate(),
       },
     };

@@ -28,8 +28,8 @@ import SavePatientRecordModal from "../../components/SavePatientRecordModal/Save
 import "./VideoDiagnosis.css";
 import alertsSlice from "../../components/Alerts/alertsSlice";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
-import appSlice from "../../appSlice";
-import { appProcessRunningSelector } from "../../appSelector";
+import mainPageSlice from "../MainPage/mainPageSlice";
+import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
 
 const NO_DIAGNOSIS_RESULT = 0;
 const NORMAL_DIAGNOSIS_RESULT = 1;
@@ -157,7 +157,9 @@ export default function VideoDiagnosis() {
   };
 
   const uploadVideo = async () => {
+    dispatch(mainPageSlice.actions.enableLoadingScreen())
     const response = await window.electronAPI.openFileDialog();
+    dispatch(mainPageSlice.actions.disableLoadingScreen())
     console.log(response);
 
     if (response.result === "SUCCESS") {
@@ -175,7 +177,7 @@ export default function VideoDiagnosis() {
       triggerUploadFailedAlert();
     }
 
-    dispatch(appSlice.actions.enableAppInteractive());
+    dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
@@ -204,7 +206,7 @@ export default function VideoDiagnosis() {
       videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT)
     );
 
-    dispatch(appSlice.actions.disableAppInteractive());
+    dispatch(mainPageSlice.actions.disableAppInteractive());
 
     uploadVideo();
   };
@@ -218,7 +220,7 @@ export default function VideoDiagnosis() {
 
     dispatch(videoDiagnosisSlice.actions.disableButton());
 
-    dispatch(appSlice.actions.setProcessRunning(true));
+    dispatch(mainPageSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
@@ -243,7 +245,7 @@ export default function VideoDiagnosis() {
     }
     dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
-    dispatch(appSlice.actions.setProcessRunning(false));
+    dispatch(mainPageSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();

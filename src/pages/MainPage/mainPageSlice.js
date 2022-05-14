@@ -7,8 +7,8 @@ const initialState = {
   currentSelectedPage: "1",
 };
 
-const appSlice = createSlice({
-  name: "app",
+const mainPageSlice = createSlice({
+  name: "mainPage",
   initialState,
   reducers: {
     enableAppInteractive: (state, _action) => {
@@ -32,4 +32,4 @@ const appSlice = createSlice({
   },
 });
 
-export default appSlice;
+export default mainPageSlice;

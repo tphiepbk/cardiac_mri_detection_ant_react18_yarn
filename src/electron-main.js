@@ -482,10 +482,10 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
   };
 
   if (!folders) {
-    returnValue.result = "FAILED"
+    returnValue.result = "FAILED";
   } else {
     if (folders.canceled) {
-      returnValue.result = "CANCELED"
+      returnValue.result = "CANCELED";
     } else {
       const validNpySamples = [];
 
@@ -563,15 +563,19 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
 
           for (let i = 0; i < validNpySamples.length; i++) {
             const currentNpySamplePath = validNpySamples[i];
-            const currentNpySampleName = path.basename(currentNpySamplePath)
+            const currentNpySampleName = path.basename(currentNpySamplePath);
 
-            const inputDir = path.resolve(`${userDataPath_temp}/${currentNpySampleName}.avi`);
+            const inputDir = path.resolve(
+              `${userDataPath_temp}/${currentNpySampleName}.avi`
+            );
 
             const outputDir = path.resolve(
               `${userDataPath_temp}/${currentNpySampleName}_converted.mp4`
             );
 
-            const inputDirBbox = path.resolve(`${userDataPath_temp}/${currentNpySampleName}_bbox.avi`);
+            const inputDirBbox = path.resolve(
+              `${userDataPath_temp}/${currentNpySampleName}_bbox.avi`
+            );
 
             const outputDirBbox = path.resolve(
               `${userDataPath_temp}/${currentNpySampleName}_bbox_converted.mp4`
@@ -606,9 +610,8 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
               ffmpegPromiseBbox,
             ]);
 
-            const filesInCurrentNpySample = fs.readdirSync(
-              currentNpySamplePath
-            );
+            const filesInCurrentNpySample =
+              fs.readdirSync(currentNpySamplePath);
 
             filesInCurrentNpySample.sort(
               (a, b) =>
@@ -722,9 +725,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
           };
           resolve(returnValue);
         } else {
-          const predictionResult = JSON.parse(
-            stdout.replaceAll("'", '"')
-          );
+          const predictionResult = JSON.parse(stdout.replaceAll("'", '"'));
           const returnValue = {
             description: "MAKE SINGLE PREDICTION",
             result: "SUCCESS",
@@ -861,6 +862,23 @@ ipcMain.on("clear-temp-folder", (event, data) => {
 
   console.log("============== Finished removing temp files ===============");
   event.reply("response-clear-temp-folder");
+});
+
+ipcMain.handle("check-credentials", async (_event, username, password) => {
+  const result = await database.checkCredentials(username, password);
+  let returnValue = {
+    description: "CHECK CREDENTIALS",
+  };
+  if (result === "FAILED") {
+    returnValue.result = "FAILED";
+  } else if (result.length === 0) {
+    returnValue.result = "NOT FOUND";
+  } else {
+    returnValue.result = "SUCCESS";
+    returnValue.fullname = result[0].fullname;
+    returnValue.username = result[0].username;
+  }
+  return returnValue;
 });
 
 ipcMain.handle("save-patient-record", async (_event, patientObject) => {

@@ -28,4 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI',{
 
   // * Save patient's record
   savePatientDiagnosisResult : (patientObject) => ipcRenderer.invoke('save-patient-record', patientObject),
+
+  // * Check credentials 
+  checkCredentials : (username, password) => ipcRenderer.invoke('check-credentials', username, password),
 })

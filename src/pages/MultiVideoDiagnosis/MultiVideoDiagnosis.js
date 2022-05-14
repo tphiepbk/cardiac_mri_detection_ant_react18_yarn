@@ -17,10 +17,10 @@ import MiniVideoModal from "../../components/MiniVideoModal/MiniVideoModal";
 import { useDispatch, useSelector } from "react-redux";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import alertsSlice from "../../components/Alerts/alertsSlice";
-import appSlice from "../../appSlice";
+import mainPageSlice from "../MainPage/mainPageSlice";
 import multiVideoDiagnosisSlice from "./multiVideoDiagnosisSlice";
 import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
-import { appProcessRunningSelector } from "../../appSelector";
+import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
 import {
   disabledButtonSelector,
   listInputVideoSelector,
@@ -183,7 +183,9 @@ export default function MultiVideoDiagnosis() {
   };
 
   const uploadMultiVideos = async () => {
+    dispatch(mainPageSlice.actions.enableLoadingScreen())
     const filesOpenResponse = await window.electronAPI.openMultiFilesDialog();
+    dispatch(mainPageSlice.actions.disableLoadingScreen())
     console.log(filesOpenResponse);
 
     if (filesOpenResponse.result === "SUCCESS") {
@@ -200,7 +202,7 @@ export default function MultiVideoDiagnosis() {
     } else {
       triggerUploadFailedAlert();
     }
-    dispatch(appSlice.actions.enableAppInteractive());
+    dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
@@ -212,7 +214,7 @@ export default function MultiVideoDiagnosis() {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
 
-    dispatch(appSlice.actions.disableAppInteractive());
+    dispatch(mainPageSlice.actions.disableAppInteractive());
 
     uploadMultiVideos();
     setCurrentVideoSelected(0);
@@ -225,7 +227,7 @@ export default function MultiVideoDiagnosis() {
 
     dispatch(multiVideoDiagnosisSlice.actions.disableButton());
 
-    dispatch(appSlice.actions.setProcessRunning(true));
+    dispatch(mainPageSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
@@ -257,7 +259,7 @@ export default function MultiVideoDiagnosis() {
       )
     );
 
-    dispatch(appSlice.actions.setProcessRunning(false));
+    dispatch(mainPageSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();

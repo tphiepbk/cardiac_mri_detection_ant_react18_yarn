@@ -17,10 +17,10 @@ import MiniNpySampleModal from "../../components/MiniNpySampleModal/MiniNpySampl
 import { useDispatch, useSelector } from "react-redux";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import alertsSlice from "../../components/Alerts/alertsSlice";
-import appSlice from "../../appSlice";
+import mainPageSlice from "../MainPage/mainPageSlice";
 import multiNpyDiagnosisSlice from "./multiNpyDiagnosisSlice";
 import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
-import { appProcessRunningSelector } from "../../appSelector";
+import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
 import {
   disabledButtonSelector,
   listInputNpyObjectSelector,
@@ -180,10 +180,10 @@ export default function MultiNPYDiagnosis() {
   };
 
   const uploadMultiNpySamples = async () => {
-    dispatch(appSlice.actions.enableLoadingScreen());
+    dispatch(mainPageSlice.actions.enableLoadingScreen());
     const npySamplesOpenResponse =
       await window.electronAPI.openMultiNpySamplesDialog();
-    dispatch(appSlice.actions.disableLoadingScreen());
+    dispatch(mainPageSlice.actions.disableLoadingScreen());
     console.log(npySamplesOpenResponse);
 
     if (npySamplesOpenResponse.result === "SUCCESS") {
@@ -203,7 +203,7 @@ export default function MultiNPYDiagnosis() {
     } else {
       triggerUploadFailedAlert();
     }
-    dispatch(appSlice.actions.enableAppInteractive());
+    dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
@@ -215,7 +215,7 @@ export default function MultiNPYDiagnosis() {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
 
-    dispatch(appSlice.actions.disableAppInteractive());
+    dispatch(mainPageSlice.actions.disableAppInteractive());
 
     uploadMultiNpySamples();
     setCurrentVideoSelected(0);
@@ -228,7 +228,7 @@ export default function MultiNPYDiagnosis() {
 
     dispatch(multiNpyDiagnosisSlice.actions.disableButton());
 
-    dispatch(appSlice.actions.setProcessRunning(true));
+    dispatch(mainPageSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
@@ -260,7 +260,7 @@ export default function MultiNPYDiagnosis() {
       )
     );
 
-    dispatch(appSlice.actions.setProcessRunning(false));
+    dispatch(mainPageSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();
