@@ -14,6 +14,7 @@ import VideoDiagnosis from "./pages/VideoDiagnosis/VideoDiagnosis";
 import NPYDiagnosis from "./pages/NPYDiagnosis/NPYDiagnosis";
 import MultiVideoDiagnosis from "./pages/MultiVideoDiagnosis/MultiVideoDiagnosis";
 import MultiNPYDiagnosis from "./pages/MultiNPYDiagnosis/MultiNPYDiagnosis";
+import Login from "./pages/Login/Login";
 import TitleBar from "./components/TitleBar/TitleBar";
 
 import { Layout, Menu, Avatar, Button, Space, Spin } from "antd";
@@ -76,9 +77,14 @@ export default function App() {
       }
     >
       <TitleBar />
-      <Spin tip={'Files are being processed. Please wait...'} size="large" spinning={appLoadingScreen} indicator={loadingIcon}>
-        <div className="app-container">
-          <Layout style={{ minHeight: "96.9vh" }}>
+      <div className="app-container">
+      {/*
+        <div className="login-wrapper">
+          <Login />
+        </div>
+      */}
+        <Spin tip={'Files are being processed. Please wait...'} size="large" spinning={appLoadingScreen} indicator={loadingIcon}>
+          <Layout style={{height: "100%" }}>
             <Alerts />
             <Sider>
               <div className="sidebar__logo-container">
@@ -120,19 +126,6 @@ export default function App() {
             <Layout className="site-layout">
               <Header className="header">
                 <ProgressBar percent={progressBarPercent} />
-                {/*
-                <Space size={15}>
-                  <ProgressBar percent={progressBarPercent} />
-                  <Button
-                    type="primary"
-                    shape="circle"
-                    icon={<CloseOutlined />}
-                    size={10}
-                    danger
-                  />
-                </Space>
-                */}
-
                 <Space size={15}>
                   <Avatar src="https://joeschmoe.io/api/v1/random" />
                   <h3>Thai Phuc Hiep</h3>
@@ -159,8 +152,8 @@ export default function App() {
               </Footer>
             </Layout>
           </Layout>
-        </div>
-      </Spin>
+        </Spin>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,33 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #F5F5F5;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50%;
+}
+
+.login-container__title {
+  font-weight: bold;
+  font-size: xx-large;
+  margin-bottom: 30px;
+}
+
+.login-container__form {
+  width: 100%;
+}
+
+.login-container__input-username {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.login-container__input-password {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}

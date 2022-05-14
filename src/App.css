@@ -58,5 +58,31 @@
   margin-top: 100px !important;
   font-size: x-large;
   font-weight: bold;
-  margin-left: 45px;
+}
+
+.ant-spin-nested-loading, .ant-spin-container {
+  height: 100%;
+  width: auto;
+}
+
+
+.anticon-loading {
+  margin-left: -60px !important;
+}
+
+.app-with-title-bar {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container {
+  height: 100%;
+}
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-image: url(./images/login_background.jpg);
 }
