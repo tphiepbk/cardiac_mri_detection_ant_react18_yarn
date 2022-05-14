@@ -14,6 +14,11 @@ export default function Dashboard() {
       key: 'id',
     },
     {
+      title: 'Sample name',
+      dataIndex: 'sample_name',
+      key: 'sample_name',
+    },
+    {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
@@ -58,9 +63,9 @@ export default function Dashboard() {
       ),
     },
     {
-      title: 'Confirmed By',
-      dataIndex: 'confirmed_by',
-      key: 'confirmed_by',
+      title: 'Author',
+      dataIndex: 'author',
+      key: 'author',
     },
     {
       title: 'Date Modified',
@@ -72,13 +77,14 @@ export default function Dashboard() {
   const dataSample = {
     key: '',
     id: 0,
+    sample_name: "test1",
     name: 'John Brown',
     age: 32,
     gender: 'Male',
     address: 'New York No. 1 Lake Park',
     result: 'normal',
     status: 'confirmed',
-    confirmed_by: 'tphiepbk',
+    author: 'tphiepbk',
     date_modified: '30/03/2022'
   }
 

@@ -30,8 +30,8 @@ import SavePatientRecordModal from "../../components/SavePatientRecordModal/Save
 import "./NPYDiagnosis.css";
 import alertsSlice from "../../components/Alerts/alertsSlice";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
-import appSlice from "../../appSlice";
-import { appProcessRunningSelector } from "../../appSelector";
+import mainPageSlice from "../MainPage/mainPageSlice";
+import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
 
 const NO_DIAGNOSIS_RESULT = 0;
 const NORMAL_DIAGNOSIS_RESULT = 1;
@@ -165,10 +165,10 @@ export default function VideoDiagnosis() {
   };
 
   const uploadNpySample = async () => {
-    dispatch(appSlice.actions.enableLoadingScreen());
+    dispatch(mainPageSlice.actions.enableLoadingScreen());
     const response = await window.electronAPI.openNpySampleDialog();
     console.log(response);
-    dispatch(appSlice.actions.disableLoadingScreen());
+    dispatch(mainPageSlice.actions.disableLoadingScreen());
 
     if (response.result === "SUCCESS") {
       const {
@@ -199,7 +199,7 @@ export default function VideoDiagnosis() {
       triggerUploadFailedAlert();
     }
 
-    dispatch(appSlice.actions.enableAppInteractive());
+    dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
@@ -236,7 +236,7 @@ export default function VideoDiagnosis() {
 
     dispatch(npyDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
 
-    dispatch(appSlice.actions.disableAppInteractive());
+    dispatch(mainPageSlice.actions.disableAppInteractive());
 
     uploadNpySample();
   };
@@ -248,7 +248,7 @@ export default function VideoDiagnosis() {
 
     dispatch(npyDiagnosisSlice.actions.disableButton());
 
-    dispatch(appSlice.actions.setProcessRunning(true));
+    dispatch(mainPageSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
@@ -273,7 +273,7 @@ export default function VideoDiagnosis() {
     }
     dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
-    dispatch(appSlice.actions.setProcessRunning(false));
+    dispatch(mainPageSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();

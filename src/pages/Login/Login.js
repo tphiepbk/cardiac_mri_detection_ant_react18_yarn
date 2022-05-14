@@ -8,10 +8,41 @@ import {
   UserOutlined,
   LockOutlined,
 } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import loginSlice from "./loginSlice";
 
 export default function Login() {
-  const onFinish = (values) => {
+  const dispatch = useDispatch();
+
+  const NORMAL = 0;
+  const SOMETHING_WENT_WRONG = 1;
+  const INVALID_USERNAME_OR_PASSWORD = 2;
+
+  const [authIndicator, setAuthIndicator] = React.useState(NORMAL);
+
+  const onFinish = async (values) => {
     console.log("Success:", values);
+    const response = await window.electronAPI.checkCredentials(
+      values.username,
+      values.password
+    );
+    console.log(response);
+    if (response.result === "FAILED") {
+      console.log("Something went wrong");
+      setAuthIndicator(SOMETHING_WENT_WRONG);
+    } else if (response.result === "NOT FOUND") {
+      console.log("Invalid username or password");
+      setAuthIndicator(INVALID_USERNAME_OR_PASSWORD);
+    } else {
+      console.log("Login successfully");
+      setAuthIndicator(NORMAL);
+      dispatch(
+        loginSlice.actions.login({
+          username: response.username,
+          userFullName: response.fullname,
+        })
+      );
+    }
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -73,13 +104,21 @@ export default function Login() {
             fontWeight: "900",
             display: "flex",
             justifyContent: "center",
-            marginLeft: "5px"
+            marginLeft: "5px",
           }}
           name="remember"
           valuePropName="checked"
         >
           <Checkbox>Remember me</Checkbox>
         </Form.Item>
+
+        <h3 style={{ color: "red", fontWeight: "bold", textAlign: "center" }}>
+          {authIndicator === SOMETHING_WENT_WRONG
+            ? "Something went wrong. Try again later"
+            : authIndicator === INVALID_USERNAME_OR_PASSWORD
+            ? "Invalid username or password"
+            : ""}
+        </h3>
 
         <Form.Item
           style={{
