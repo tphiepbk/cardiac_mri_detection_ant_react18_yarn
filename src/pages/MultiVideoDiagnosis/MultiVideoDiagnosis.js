@@ -158,8 +158,8 @@ export default function MultiVideoDiagnosis() {
 
   const showVideoModal = async (videoIndex) => {
     await getVideoMetadata(
-      listInputVideo[videoIndex].name,
-      listInputVideo[videoIndex].path
+      listInputVideo[videoIndex].videoName,
+      listInputVideo[videoIndex].videoInputPath
     );
     setIsVideoModalVisible(true);
   };
@@ -193,9 +193,9 @@ export default function MultiVideoDiagnosis() {
         multiVideoDiagnosisSlice.actions.setListInputVideo(
           filesOpenResponse.videoObjectList.map((videoObject) => ({
             index: videoObject.index,
-            name: videoObject.name,
-            path: videoObject.path,
-            convertedPath: videoObject.convertedPath,
+            videoName: videoObject.videoName,
+            videoInputPath: videoObject.videoInputPath,
+            videoOutputPath: videoObject.videoOutputPath,
           }))
         )
       );
@@ -328,7 +328,7 @@ export default function MultiVideoDiagnosis() {
               <VideoItem
                 key={index}
                 selected={index === currentVideoSelected ? true : false}
-                videoName={video.name}
+                videoName={video.videoName}
                 inspectClickHandler={() => inspectClickHandler(video.index)}
                 clickHandler={() => selectVideo(video.index)}
               />
@@ -341,7 +341,7 @@ export default function MultiVideoDiagnosis() {
             closeVideoModalHandler={closeVideoModal}
             videoMetadata={currentVideoMetadata}
             videoConvertedPath={
-              listInputVideo[currentVideoSelected].convertedPath
+              listInputVideo[currentVideoSelected].videoOutputPath
             }
           />
         )}
@@ -449,7 +449,7 @@ export default function MultiVideoDiagnosis() {
                     ? NORMAL_DIAGNOSIS_RESULT
                     : ABNORMAL_DIAGNOSIS_RESULT
                 }
-                sampleName={listInputVideo[currentVideoSelected].name}
+                sampleName={listInputVideo[currentVideoSelected].videoName}
                 closeSaveSampleRecordModalHandler={
                   closeSaveSampleRecordModalHandler
                 }

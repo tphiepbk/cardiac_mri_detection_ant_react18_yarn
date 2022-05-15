@@ -279,9 +279,9 @@ ipcMain.handle("open-multi-files-dialog", async (_event, _arg) => {
         for (let i = 0; i < files.filePaths.length; i++) {
           videoObjectList.push({
             index: i,
-            name: fileNames[i],
-            path: files.filePaths[i].toString(),
-            convertedPath:
+            videoName: fileNames[i],
+            videoInputPath: files.filePaths[i].toString(),
+            videoOutputPath:
               process.platform === "linux" ? "file:///" + values[i] : values[i],
           });
         }
@@ -468,8 +468,34 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
             if (ffmpegResult.includes("FAILED")) {
               returnValue.result = "FAILED";
             } else {
+
+              const currentSampleTempPath = path.resolve(`${userDataPath_temp}/${sampleName}/`)
+
+              let sliceTempPaths = fs.readdirSync(currentSampleTempPath)
+
+              sliceTempPaths = sliceTempPaths.filter(element => element.substring(0, 5) === 'slice')
+              sliceTempPaths.sort(
+                (a, b) =>
+                  parseInt(a.substring(6, a.length)) -
+                  parseInt(b.substring(6, b.length))
+              )
+
+              const numberOfFrames = fs.readdirSync(`${currentSampleTempPath}/${sliceTempPaths[0]}/`).length
+
+              const returnedSlicesTempPaths = []
+
+              for (let sliceNumber = 0 ; sliceNumber < sliceTempPaths.length ; sliceNumber++) {
+                const temp = []
+                for (let frameNumber = 0 ; frameNumber < numberOfFrames ; frameNumber++) {
+                  temp.push(path.resolve(`${currentSampleTempPath}/slice_${sliceNumber}/${frameNumber}.png`))
+                }
+                returnedSlicesTempPaths.unshift(temp)
+              }
+
               returnValue.result = "SUCCESS";
               returnValue.npyFileNames = filesInFolder;
+              returnValue.sliceTempPaths = returnedSlicesTempPaths;
+              returnValue.numberOfFrames = numberOfFrames
               returnValue.videoName = sampleName;
               returnValue.videoInputPath = inputDir;
               returnValue.videoOutputPath =
@@ -685,9 +711,35 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
             if (ffmpegResult.includes("FAILED")) {
               returnNPYSamples.push("FAILED");
             } else {
+
+              const currentSampleTempPath = path.resolve(`${userDataPath_temp}/${currentNpySampleName}/`)
+
+              let sliceTempPaths = fs.readdirSync(currentSampleTempPath)
+
+              sliceTempPaths = sliceTempPaths.filter(element => element.substring(0, 5) === 'slice')
+              sliceTempPaths.sort(
+                (a, b) =>
+                  parseInt(a.substring(6, a.length)) -
+                  parseInt(b.substring(6, b.length))
+              )
+
+              const numberOfFrames = fs.readdirSync(`${currentSampleTempPath}/${sliceTempPaths[0]}/`).length
+
+              const returnedSlicesTempPaths = []
+
+              for (let sliceNumber = 0 ; sliceNumber < sliceTempPaths.length ; sliceNumber++) {
+                const temp = []
+                for (let frameNumber = 0 ; frameNumber < numberOfFrames ; frameNumber++) {
+                  temp.push(path.resolve(`${currentSampleTempPath}/slice_${sliceNumber}/${frameNumber}.png`))
+                }
+                returnedSlicesTempPaths.unshift(temp)
+              }
+
               returnNPYSamples.push({
                 index: i,
                 npyFileNames: filesInCurrentNpySample,
+                sliceTempPaths: returnedSlicesTempPaths,
+                numberOfFrames: numberOfFrames,
                 videoName: currentNpySampleName,
                 videoInputPath: inputDir,
                 videoOutputPath:
@@ -821,6 +873,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
   const predictionPromise = new Promise((resolve, _reject) => {
     PythonShell.run(predictionScript, options, (err, results) => {
       if (err) {
+        console.log(err)
         const returnValue = {
           description: "MAKE SINGLE PREDICTION",
           result: "FAILED",
@@ -861,6 +914,11 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
     __dirname + "/resources/pretrained_models/classify5.h5"
   );
 
+  const listVideoPath = sampleObjectList.map(
+    (sampleObject) => sampleObject.videoInputPath
+  );
+
+  /*
   const isNpySample = sampleObjectList[0].hasOwnProperty("videoPath");
   let listVideoPath;
   if (isNpySample) {
@@ -870,6 +928,7 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   } else {
     listVideoPath = sampleObjectList.map((sampleObject) => sampleObject.path);
   }
+  */
 
   /*
   const predictionModuleExecutablePath = path.resolve(
@@ -926,41 +985,31 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
     description: "MAKE MULTIPLE PREDICTION",
   };
 
-  const predictionResults = JSON.parse(
-    rawPredictionResults.replaceAll("'", '"')
-  );
+  if (rawPredictionResults === "FAILED") {
+    returnValue.value = "FAILED";
+  } else {
+    const predictionResults = JSON.parse(
+      rawPredictionResults.replaceAll("'", '"')
+    );
 
-  if (predictionResults.length === sampleObjectList.length) {
-    if (predictionResults.includes("FAILED")) {
+    if (predictionResults.length !== sampleObjectList.length) {
       returnValue.result = "FAILED";
     } else {
       returnValue.result = "SUCCESS";
       const returnedSampleObjectList = [];
       for (let i = 0; i < predictionResults.length; i++) {
-        if (predictionResults[i].filePath === sampleObjectList[i].path) {
-          if (isNpySample) {
-            returnedSampleObjectList.push({
-              index: i,
-              videoName: sampleObjectList[i].videoName,
-              videoPath: sampleObjectList[i].videoPath,
-              videoConvertedPath: sampleObjectList[i].videoOutputPath,
-              predictedValue: predictionResults[i].result,
-            });
-          } else {
-            returnedSampleObjectList.push({
-              index: i,
-              name: sampleObjectList[i].name,
-              path: sampleObjectList[i].path,
-              convertedPath: sampleObjectList[i].convertedPath,
-              predictedValue: predictionResults[i].result,
-            });
-          }
+        if (predictionResults[i].filePath === sampleObjectList[i].videoInputPath) {
+          returnedSampleObjectList.push({
+            index: i,
+            videoName: sampleObjectList[i].videoName,
+            videoInputPath: sampleObjectList[i].videoInputPath,
+            videoOutputPath: sampleObjectList[i].videoOutputPath,
+            predictedValue: predictionResults[i].result,
+          });
         }
       }
       returnValue.returnedVideoObjectList = returnedSampleObjectList;
     }
-  } else {
-    returnValue.result = "FAILED";
   }
 
   console.log("=============== Finished making multiple prediction ================");

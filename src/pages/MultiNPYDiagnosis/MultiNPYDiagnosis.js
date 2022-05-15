@@ -156,7 +156,7 @@ export default function MultiNPYDiagnosis() {
   const showVideoModal = async (videoIndex) => {
     await getVideoMetadata(
       listInputNpyObject[videoIndex].videoName,
-      listInputNpyObject[videoIndex].videoPath
+      listInputNpyObject[videoIndex].videoInputPath
     );
     setIsVideoModalVisible(true);
   };
@@ -193,11 +193,26 @@ export default function MultiNPYDiagnosis() {
             index: npyObject.index,
             npyFileNames: npyObject.npyFileNames,
             videoName: npyObject.videoName,
-            videoPath: npyObject.videoInputPath,
+            videoInputPath: npyObject.videoInputPath,
             videoOutputPath: npyObject.videoOutputPath,
-            videoBboxPath: npyObject.videoInputBboxPath,
+            videoInputBboxPath: npyObject.videoInputBboxPath,
             videoOutputBboxPath: npyObject.videoOutputBboxPath,
           }))
+        )
+      );
+
+      const crawledMultiVideoListSlices = npySamplesOpenResponse.npyObjectList.map(npyObject => {
+        const crawledListSlices = npyObject.sliceTempPaths.map((slice, index) => ({
+          sliceNumber: index,
+          sliceImageUrl: slice[0],
+          sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+        }))
+        return crawledListSlices
+      })
+
+      dispatch(
+        multiNpyDiagnosisSlice.actions.setMultiVideoListSlices(
+          crawledMultiVideoListSlices
         )
       );
     } else {
@@ -245,6 +260,7 @@ export default function MultiNPYDiagnosis() {
 
     dispatch(multiNpyDiagnosisSlice.actions.enableButton());
 
+    /*
     const crawledMultiVideoListSlices = [];
     for (let i = 0; i <= 10; i++) {
       crawledMultiVideoListSlices.push({
@@ -259,6 +275,7 @@ export default function MultiNPYDiagnosis() {
         crawledMultiVideoListSlices
       )
     );
+    */
 
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
@@ -454,6 +471,7 @@ export default function MultiNPYDiagnosis() {
                     ? 1
                     : 2
                 }
+                sampleName={listInputNpyObject[currentVideoSelected].videoName}
                 closeSaveSampleRecordModalHandler={
                   closeSaveSampleRecordModalHandler
                 }
@@ -470,7 +488,7 @@ export default function MultiNPYDiagnosis() {
           </div>
         ) : (
           <div className="multi-npy-diagnosis__diagnosis-result__slices-panel">
-            {multiVideoListSlices.map((slice) => (
+            {multiVideoListSlices[currentVideoSelected].map((slice) => (
               <SliceCard
                 key={slice.sliceNumber}
                 sliceNumber={slice.sliceNumber}
@@ -486,10 +504,10 @@ export default function MultiNPYDiagnosis() {
                 closeModalHandler={closeSliceModal}
                 sliceNumber={currentSliceSelected}
                 sliceImageUrl={
-                  multiVideoListSlices[currentSliceSelected].sliceImageUrl
+                  multiVideoListSlices[currentVideoSelected][currentSliceSelected].sliceImageUrl
                 }
                 sliceVideoPath={
-                  multiVideoListSlices[currentSliceSelected].sliceVideoPath
+                  multiVideoListSlices[currentVideoSelected][currentSliceSelected].sliceVideoPath
                 }
               />
             )}

@@ -174,6 +174,8 @@ export default function VideoDiagnosis() {
       const {
         npyFileNames,
         videoName,
+        sliceTempPaths,
+        numberOfFrames,
         videoInputPath,
         videoOutputPath,
         videoInputBboxPath,
@@ -192,6 +194,14 @@ export default function VideoDiagnosis() {
           mp4: videoOutputBboxPath,
         })
       );
+
+      const crawledListSlices = sliceTempPaths.map((slice, index) => ({
+        sliceNumber: index,
+        sliceImageUrl: slice[0],
+        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+      }))
+
+      dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
       getVideoMetadata(videoName, videoInputPath);
       dispatch(npyDiagnosisSlice.actions.setNpyFileNames(npyFileNames));
@@ -262,6 +272,7 @@ export default function VideoDiagnosis() {
     clearInterval(progressBarRunning);
     dispatch(progressBarSlice.actions.completeProgressBar());
 
+    /*
     const crawledListSlices = [];
     for (let i = 0; i <= 10; i++) {
       crawledListSlices.push({
@@ -272,6 +283,7 @@ export default function VideoDiagnosis() {
       });
     }
     dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
+    */
 
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
