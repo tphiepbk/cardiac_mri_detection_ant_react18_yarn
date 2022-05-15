@@ -827,7 +827,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
         };
         resolve(returnValue);
       } else {
-        const predictionResult = JSON.parse(results.replaceAll("'", '"'));
+        const predictionResult = JSON.parse(results.toString().replaceAll("'", '"'));
         const returnValue = {
           description: "MAKE SINGLE PREDICTION",
           result: "SUCCESS",
@@ -848,7 +848,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
 });
 
 ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
-  console.log("=================== Making prediction =====================");
+  console.log("=================== Making multiple prediction =====================");
 
   const unetPretrainPath = path.resolve(
     __dirname + "/resources/pretrained_models/unet3.h5"
@@ -963,7 +963,7 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
     returnValue.result = "FAILED";
   }
 
-  console.log("=============== Finished making prediction ================");
+  console.log("=============== Finished making multiple prediction ================");
 
   console.log(returnValue);
 
@@ -1001,9 +1001,18 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
     returnValue.result = "NOT FOUND";
   } else {
     returnValue.result = "SUCCESS";
-    returnValue.fullname = result[0].fullname;
+    returnValue.fullName = result[0].fullName;
     returnValue.username = result[0].username;
   }
+  return returnValue;
+});
+
+ipcMain.handle("get-all-sample-records", async (_event, _data) => {
+  const result = await database.getAllSampleRecords()
+  const returnValue = {
+    description: "GET ALL SAMPLE RECORDS",
+    result: result,
+  };
   return returnValue;
 });
 

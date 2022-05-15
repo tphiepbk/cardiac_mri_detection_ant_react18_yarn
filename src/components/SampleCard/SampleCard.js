@@ -1,48 +1,62 @@
 import React from "react";
 import "./SampleCard.css";
+import avatarLogo from "../../images/avatar.png"
 
 import { Image, Button, Descriptions, Tag, Tooltip } from "antd";
 
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
+import { currentSelectedSampleSelector } from "../../pages/Dashboard/dashboardSelector";
+import { useSelector } from "react-redux";
+
 export default function SampleCard() {
-  const addressText =
-    "F4/27C, to 4, ap 6, xa Le Minh Xuan, huyen Binh Chanh, Thanh pho Ho Chi Minh, Viet Nam";
+  const currentSelectedSample = useSelector(currentSelectedSampleSelector);
 
   return (
     <div className="sample-card">
       <Image
         width={150}
         preview={false}
-        src={`https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?`}
-        /*
-        placeholder={
-          <Image
-            preview={false}
-            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?x-oss-process=image/blur,r_50,s_50/quality,q_1/resize,m_mfit,h_200,w_200"
-            width={200}
-          />
-        }
-        */
+        src={avatarLogo}
       />
 
       <Descriptions
-        title="Sample's Information"
         bordered
         column={4}
-        size={"default"}
+        size={"small"}
       >
-        <Descriptions.Item label="ID">1812227</Descriptions.Item>
-        <Descriptions.Item label="Name">Thai Phuc Hiep</Descriptions.Item>
-        <Descriptions.Item label="Age">20</Descriptions.Item>
-        <Descriptions.Item label="Gender">Male</Descriptions.Item>
-        <Descriptions.Item label="Address" className="address-cell">
-          {addressText.length > 86 ? (
-            <Tooltip title={addressText}>
-              <span>{addressText.substring(0, 86) + " ..."}</span>
+        <Descriptions.Item label="ID">
+          {currentSelectedSample.id}
+        </Descriptions.Item>
+        <Descriptions.Item label="Name">
+          {currentSelectedSample.name}
+        </Descriptions.Item>
+        <Descriptions.Item label="Age">
+          {currentSelectedSample.age}
+        </Descriptions.Item>
+        <Descriptions.Item label="Gender">
+          {currentSelectedSample.gender}
+        </Descriptions.Item>
+        <Descriptions.Item label="Sample name" className="sample-name-cell" span={4}>
+          {currentSelectedSample.sampleName.length > 86 ? (
+            <Tooltip title={currentSelectedSample.sampleName}>
+              <span>
+                {currentSelectedSample.sampleName.substring(0, 86) + " ..."}
+              </span>
             </Tooltip>
           ) : (
-            addressText
+            currentSelectedSample.sampleName
+          )}
+        </Descriptions.Item>
+        <Descriptions.Item label="Address" className="address-cell" span={4}>
+          {currentSelectedSample.address.length > 86 ? (
+            <Tooltip title={currentSelectedSample.address}>
+              <span>
+                {currentSelectedSample.address.substring(0, 86) + " ..."}
+              </span>
+            </Tooltip>
+          ) : (
+            currentSelectedSample.address
           )}
         </Descriptions.Item>
       </Descriptions>
@@ -51,42 +65,29 @@ export default function SampleCard() {
         <div className="sample-card__diagnosis-result__result">
           <h3>Result</h3>
           <div>
-            <Tag icon={<CheckCircleOutlined />} color="success">
-              Normal
-            </Tag>
-            {/*
-            <Tag icon={<CloseCircleOutlined />} color="error">
-              Abnormal
-            </Tag>
-            */}
+            {currentSelectedSample.diagnosisResult.value === "normal" ? (
+              <Tag icon={<CheckCircleOutlined />} color="success">
+                Normal
+              </Tag>
+            ) : (
+              <Tag icon={<CloseCircleOutlined />} color="error">
+                Abnormal
+              </Tag>
+            )}
           </div>
           <Button type="primary" shape="round">
             Change
           </Button>
         </div>
 
-        <div className="sample-card__diagnosis-result__status">
-          <h3>Status</h3>
-          <div>
-            {/*
-            <Tag icon={<CheckCircleOutlined />} color="success">
-              Confirmed
-            </Tag>
-            */}
-            <Tag icon={<CloseCircleOutlined />} color="error">
-              Not confirmed
-            </Tag>
-          </div>
-        </div>
-
         <div className="sample-card__diagnosis-result__confirmed-by">
-          <h3>Confirmed By</h3>
-          <h2>Thai Phuc Hiep</h2>
+          <h3>Author</h3>
+          <h2>{currentSelectedSample.diagnosisResult.author}</h2>
         </div>
 
         <div className="sample-card__diagnosis-result__confirmed-by">
           <h3>Date Modified</h3>
-          <h2>29/03/2022</h2>
+          <h2>{currentSelectedSample.diagnosisResult.dateModified}</h2>
         </div>
       </div>
     </div>

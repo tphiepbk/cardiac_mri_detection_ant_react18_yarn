@@ -35,11 +35,8 @@ export default function SaveSampleRecordModal(props) {
       age: values.age,
       gender: values.gender,
       address: values.address,
-      avatar:
-        "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png?",
       diagnosisResult: {
         value: values.diagnosisResultValue,
-        confirmed: false,
         author: username,
         dateModified: values.dateModified.toDate(),
       },

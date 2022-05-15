@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require('bcryptjs')
+const bcrypt = require("bcryptjs");
 
 const CONNECTION_STRING =
   "mongodb+srv://tphiepbk:hiepit-2992@cluster0.bjhqp.mongodb.net/test?retryWrites=true&w=majority";
@@ -40,6 +40,40 @@ const sampleSchema = new mongoose.Schema(
 
 const sampleModel = mongoose.model("Sample", sampleSchema);
 
+const getAllSampleRecords = async () => {
+  console.log(
+    "============================= Fetching data ================================"
+  );
+
+  let returnValue;
+
+  const connectionResult = await startConnection();
+  if (connectionResult === "FAILED") {
+    returnValue = "FAILED";
+  } else {
+    const getAllSamplePromise = new Promise((resolve, reject) => {
+      sampleModel.find({}, (err, docs) => {
+        if (err) {
+          console.log(err);
+          resolve("FAILED");
+        } else {
+          resolve(docs);
+        }
+      });
+    });
+
+    returnValue = await getAllSamplePromise;
+
+    await closeConnection();
+  }
+
+  console.log(
+    "============================= Finished fetching data ================================"
+  );
+
+  return returnValue;
+};
+
 const saveSampleRecord = async (sampleObject) => {
   console.log(
     "============================= Saving sample record ================================"
@@ -57,10 +91,8 @@ const saveSampleRecord = async (sampleObject) => {
       age: sampleObject.age,
       gender: sampleObject.gender,
       address: sampleObject.address,
-      avatar: sampleObject.avatar,
       diagnosisResult: {
         value: sampleObject.diagnosisResult.value,
-        confirmed: sampleObject.diagnosisResult.confirmed,
         author: sampleObject.diagnosisResult.author,
         dateModified: sampleObject.diagnosisResult.dateModified,
       },
@@ -93,7 +125,7 @@ const userSchema = new mongoose.Schema(
   {
     username: String,
     password: String,
-    fullname: String,
+    fullName: String,
   },
   { collection: "users" }
 );
@@ -108,7 +140,7 @@ const checkCredentials = async (username, password) => {
   const salt = bcrypt.genSaltSync(10);
   const hashed = bcrypt.hashSync(password, salt);
 
-  console.log(hashed)
+  console.log(hashed);
 
   let returnValue;
 
@@ -124,12 +156,11 @@ const checkCredentials = async (username, password) => {
           resolve("FAILED");
         } else {
           if (docs.length !== 0) {
-            const hashedPasswordFromDB = docs[0].password
+            const hashedPasswordFromDB = docs[0].password;
             if (bcrypt.compareSync(password, hashedPasswordFromDB)) {
-              resolve(docs)
+              resolve(docs);
             } else {
-              console.log('here')
-              resolve([])
+              resolve([]);
             }
           } else {
             resolve(docs);
@@ -151,6 +182,7 @@ const checkCredentials = async (username, password) => {
 };
 
 module.exports = {
+  getAllSampleRecords,
   saveSampleRecord,
   checkCredentials,
 };

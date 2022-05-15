@@ -29,6 +29,9 @@ contextBridge.exposeInMainWorld('electronAPI',{
   // * Save sample's record
   saveSampleRecord: (sampleObject) => ipcRenderer.invoke('save-sample-record', sampleObject),
 
+  // * Get all sample's record
+  getAllSampleRecords: () => ipcRenderer.invoke('get-all-sample-records'),
+
   // * Check credentials 
   checkCredentials : (username, password) => ipcRenderer.invoke('check-credentials', username, password),
 })

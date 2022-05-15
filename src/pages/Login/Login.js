@@ -39,7 +39,7 @@ export default function Login() {
       dispatch(
         loginSlice.actions.login({
           username: response.username,
-          userFullName: response.fullname,
+          userFullName: response.fullName,
         })
       );
     }

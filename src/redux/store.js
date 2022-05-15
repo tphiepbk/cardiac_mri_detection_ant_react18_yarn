@@ -7,11 +7,13 @@ import npyDiagnosisSlice from "../pages/NPYDiagnosis/npyDiagnosisSlice";
 import multiNpyDiagnosisSlice from "../pages/MultiNPYDiagnosis/multiNpyDiagnosisSlice";
 import mainPageSlice from "../pages/MainPage/mainPageSlice";
 import loginSlice from "../pages/Login/loginSlice";
+import dashboardSlice from "../pages/Dashboard/dashboardSlice";
 
 const store = configureStore({
   reducer: {
     login: loginSlice.reducer,
     mainPage: mainPageSlice.reducer,
+    dashboard: dashboardSlice.reducer,
     alerts: alertsSlice.reducer,
     progressBar: progressBarSlice.reducer,
     videoDiagnosis: videoDiagnosisSlice.reducer,
