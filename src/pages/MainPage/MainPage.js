@@ -1,6 +1,6 @@
 import React from "react";
 import "./MainPage.css";
-import hcmutLogo from "../../images/hcmut.png"
+import hcmutLogo from "../../images/hcmut.png";
 import { useSelector, useDispatch } from "react-redux";
 import { progressBarSelector } from "../../components/ProgressBar/progressBarSelector";
 import {
@@ -70,15 +70,44 @@ export default function MainPage() {
   }
 
   const logoutButtonClickHandler = () => {
-    dispatch(loginSlice.actions.logout())
-  }
+    dispatch(loginSlice.actions.logout());
+  };
 
   const loadingIcon = <LoadingOutlined style={{ fontSize: 100 }} spin />;
 
+  const getItem = (label, key, icon, children, type) => ({
+    key,
+    icon,
+    children,
+    label,
+    type,
+  });
+
+  const menuItems = [
+    getItem("Dashboard", "1", <DashboardOutlined />),
+    getItem("Diagnosis", "sub1", <FundOutlined />, [
+      getItem("Video format", "2"),
+      getItem("NPY format", "3"),
+    ]),
+    getItem("Multi-Diagnosis", "sub2", <UnorderedListOutlined />, [
+      getItem("Video format", "4"),
+      getItem("NPY format", "5"),
+    ]),
+  ];
+
   return (
-    <div className={`main-page ${appInteractive === true ? '' : 'non-interactive'}`} >
-      <Spin tip={'Files are being processed. Please wait...'} size="large" spinning={appLoadingScreen} indicator={loadingIcon}>
-        <Layout style={{height: "100%" }}>
+    <div
+      className={`main-page ${
+        appInteractive === true ? "" : "non-interactive"
+      }`}
+    >
+      <Spin
+        tip={"Files are being processed. Please wait..."}
+        size="large"
+        spinning={appLoadingScreen}
+        indicator={loadingIcon}
+      >
+        <Layout style={{ height: "100%" }}>
           <Alerts />
           <Sider>
             <div className="sidebar__logo-container">
@@ -93,28 +122,9 @@ export default function MainPage() {
               theme="dark"
               defaultSelectedKeys={[currentSelectedPage]}
               mode="inline"
+              items={menuItems}
               onSelect={(key) => changePage(key.key)}
-            >
-              <Menu.Item key="1" icon={<DashboardOutlined />}>
-                Dashboard
-              </Menu.Item>
-              <Menu.SubMenu
-                key="sub1"
-                icon={<FundOutlined />}
-                title="Diagnosis"
-              >
-                <Menu.Item key="2">Video format</Menu.Item>
-                <Menu.Item key="3">NPY format</Menu.Item>
-              </Menu.SubMenu>
-              <Menu.SubMenu
-                key="sub2"
-                icon={<UnorderedListOutlined />}
-                title="Multi-Diagnosis"
-              >
-                <Menu.Item key="4">Video format</Menu.Item>
-                <Menu.Item key="5">NPY format</Menu.Item>
-              </Menu.SubMenu>
-            </Menu>
+            />
           </Sider>
 
           <Layout className="site-layout">
