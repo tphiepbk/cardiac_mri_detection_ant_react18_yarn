@@ -8,6 +8,8 @@ if (require("electron-squirrel-startup")) {
 
 const { execFile } = require("child_process");
 
+const { PythonShell } = require("python-shell");
+
 const path = require("path");
 
 const fs = require("fs");
@@ -352,10 +354,6 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
               parseInt(b.slice(0, b.length - 4))
           );
 
-          const npyProcessingModuleExecutablePath = path.resolve(
-            __dirname + "/resources/npy_processor/npy_processor.exe"
-          );
-
           const ultralyticsYoloV5Path = path.resolve(
             __dirname + "/resources/ultralytics_yolov5_master/"
           );
@@ -364,6 +362,11 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
             __dirname + "/resources/pretrained_models/best.pt"
           );
 
+          /*
+
+          const npyProcessingModuleExecutablePath = path.resolve(
+            __dirname + "/resources/npy_processor/npy_processor.exe"
+          );
           const npyProcessingPromise = new Promise((resolve, _reject) => {
             execFile(
               npyProcessingModuleExecutablePath,
@@ -383,18 +386,46 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
               }
             );
           });
+          */
 
+          const npyProcessorScript = path.resolve(
+            __dirname + "/extra/npy_processor.py"
+          );
+
+          const options = {
+            mode: "text",
+            pythonOptions: ["-u"],
+            args: [
+              ultralyticsYoloV5Path,
+              detectorPath,
+              userDataPath_temp,
+              samplePath,
+            ],
+          };
+
+          const npyProcessingPromise = new Promise((resolve, _reject) => {
+            PythonShell.run(npyProcessorScript, options, (err, results) => {
+              if (err) {
+                resolve("FAILED");
+              } else {
+                resolve("SUCCESS");
+              }
+            });
+          });
+
+          console.time("npy processor");
           const npyProcessingResult = await npyProcessingPromise;
+          console.timeEnd("npy processor");
 
           if (npyProcessingResult === "FAILED") {
             returnValue.result = "FAILED";
           } else {
             const inputDir = path.resolve(
-              `${userDataPath_temp}/${sampleName}.avi`
+              `${userDataPath_temp}/${sampleName}/${sampleName}.avi`
             );
 
             const outputDir = path.resolve(
-              `${userDataPath_temp}/${sampleName}_converted.mp4`
+              `${userDataPath_temp}/${sampleName}/${sampleName}_converted.mp4`
             );
             const ffmpegPromise = new Promise((resolve, _reject) => {
               ffmpeg(inputDir)
@@ -409,11 +440,13 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
             });
 
             const inputDirBbox = path.resolve(
-              path.resolve(`${userDataPath_temp}/${sampleName}_bbox.avi`)
+              path.resolve(
+                `${userDataPath_temp}/${sampleName}/${sampleName}_bbox.avi`
+              )
             );
 
             const outputDirBbox = path.resolve(
-              `${userDataPath_temp}/${sampleName}__bbox_converted.mp4`
+              `${userDataPath_temp}/${sampleName}/${sampleName}__bbox_converted.mp4`
             );
             const ffmpegPromiseBbox = new Promise((resolve, _reject) => {
               ffmpeg(inputDirBbox)
@@ -523,9 +556,8 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
       if (validNpySamples.length === 0) {
         returnValue.result = "FAILED";
       } else {
-        const npyProcessingModuleExecutablePath = path.resolve(
-          __dirname + "/resources/npy_processor/npy_processor.exe"
-        );
+
+        console.time("multi npy processor")
 
         const detectorPath = path.resolve(
           __dirname + "/resources/pretrained_models/best.pt"
@@ -533,6 +565,11 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
 
         const ultralyticsYoloV5Path = path.resolve(
           __dirname + "/resources/ultralytics_yolov5_master/"
+        );
+
+        /*
+        const npyProcessingModuleExecutablePath = path.resolve(
+          __dirname + "/resources/npy_processor/npy_processor.exe"
         );
 
         const npyProcessingPromise = new Promise((resolve, _reject) => {
@@ -553,6 +590,32 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
             }
           );
         });
+        */
+
+        const npyProcessorScript = path.resolve(
+          __dirname + "/extra/npy_processor.py"
+        );
+
+        const options = {
+          mode: "text",
+          pythonOptions: ["-u"],
+          args: [
+            ultralyticsYoloV5Path,
+            detectorPath,
+            userDataPath_temp,
+            ...validNpySamples,
+          ],
+        };
+
+        const npyProcessingPromise = new Promise((resolve, _reject) => {
+          PythonShell.run(npyProcessorScript, options, (err, results) => {
+            if (err) {
+              resolve("FAILED");
+            } else {
+              resolve("SUCCESS");
+            }
+          });
+        });
 
         const npyProcessingResult = await npyProcessingPromise;
 
@@ -566,19 +629,19 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
             const currentNpySampleName = path.basename(currentNpySamplePath);
 
             const inputDir = path.resolve(
-              `${userDataPath_temp}/${currentNpySampleName}.avi`
+              `${userDataPath_temp}/${currentNpySampleName}/${currentNpySampleName}.avi`
             );
 
             const outputDir = path.resolve(
-              `${userDataPath_temp}/${currentNpySampleName}_converted.mp4`
+              `${userDataPath_temp}/${currentNpySampleName}/${currentNpySampleName}_converted.mp4`
             );
 
             const inputDirBbox = path.resolve(
-              `${userDataPath_temp}/${currentNpySampleName}_bbox.avi`
+              `${userDataPath_temp}/${currentNpySampleName}/${currentNpySampleName}_bbox.avi`
             );
 
             const outputDirBbox = path.resolve(
-              `${userDataPath_temp}/${currentNpySampleName}_bbox_converted.mp4`
+              `${userDataPath_temp}/${currentNpySampleName}/${currentNpySampleName}_bbox_converted.mp4`
             );
 
             const ffmpegPromise = new Promise((resolve, _reject) => {
@@ -643,6 +706,9 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
             returnValue.npyObjectList = returnNPYSamples;
           }
         }
+
+        console.timeEnd("multi npy processor")
+
       }
     }
   }

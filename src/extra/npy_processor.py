@@ -1,3 +1,5 @@
+from genericpath import exists
+from importlib.resources import path
 import numpy as np
 import glob
 import cv2
@@ -119,11 +121,15 @@ def get_bounding_box(npy_sample_path, detection_model_path):
 
 # * ==================================================================================================================
 
-results = []
-
 for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
     VIDEO_NAME = os.path.basename(NPY_FOLDER_PATH)
-    TEMP_FILE_NAME = TEMP_FOLDER_PATH + '/' + '{}.png'.format(VIDEO_NAME)
+
+    TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE = os.path.abspath(TEMP_FOLDER_PATH + '/' + VIDEO_NAME + '/')
+
+    if not os.path.exists(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE):
+        os.mkdir(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE)
+
+    TEMP_FILE_NAME = os.path.abspath(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE + '/' + '{}_temp.png'.format(VIDEO_NAME))
 
     NPY_LIST_FILEDIR = glob.glob(os.path.abspath(NPY_FOLDER_PATH + '/*.npy'))
     NPY_LIST_FILEDIR.sort(key = lambda x: int(os.path.basename(x).split('.')[0]))
@@ -149,6 +155,14 @@ for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
         videoArr = videoArr[0]
 
         npy_slices += [videoArr]
+
+        current_slice_temp_path = os.path.abspath(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE + '/' + 'slice_{}/'.format(filename))
+
+        if not os.path.exists(current_slice_temp_path):
+            os.mkdir(current_slice_temp_path)
+
+        for i in range(len(videoArr)):
+            cv2.imwrite(os.path.abspath('{}/{}.png'.format(current_slice_temp_path, i)), videoArr[i])
 
     NUMBER_OF_FRAMES = len(npy_slices[0])
 
@@ -243,14 +257,14 @@ for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
 
     height, width, layers = concatenated_frames[0].shape
 
-    video_avi = cv2.VideoWriter(os.path.abspath('{}/{}.avi'.format(TEMP_FOLDER_PATH, VIDEO_NAME)), 0, NUMBER_OF_FRAMES, (width,height))
+    video_avi = cv2.VideoWriter(os.path.abspath('{}/{}.avi'.format(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE, VIDEO_NAME)), 0, NUMBER_OF_FRAMES, (width,height))
 
     for frame in concatenated_frames:
         cv2.imwrite(TEMP_FILE_NAME, frame)
         video_avi.write(cv2.imread(TEMP_FILE_NAME))
     video_avi.release()
 
-    video_avi_bbox = cv2.VideoWriter(os.path.abspath('{}/{}_bbox.avi'.format(TEMP_FOLDER_PATH, VIDEO_NAME)), 0, NUMBER_OF_FRAMES, (width,height))
+    video_avi_bbox = cv2.VideoWriter(os.path.abspath('{}/{}_bbox.avi'.format(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE, VIDEO_NAME)), 0, NUMBER_OF_FRAMES, (width,height))
 
     for frame in concatenated_frames_bbox:
         cv2.imwrite(TEMP_FILE_NAME, frame)
