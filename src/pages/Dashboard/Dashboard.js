@@ -3,7 +3,7 @@ import "./Dashboard.css"
 
 import { Table, Tag } from 'antd';
 
-import PatientCard from '../../components/PatientCard/PatientCard'
+import SampleCard from "../../components/SampleCard/SampleCard";
 import { nanoid } from "nanoid";
 
 export default function Dashboard() {
@@ -96,7 +96,7 @@ export default function Dashboard() {
   const yyyy = today.getFullYear();
   today = dd + '/' + mm + '/' + yyyy;
 
-  for (let i = 0 ;  i <= 100 ; i++) {
+  for (let i = 0 ;  i <= 10 ; i++) {
     data.push({
       ...dataSample,
       key: `${i}`,
@@ -107,8 +107,8 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <PatientCard />
-      <Table columns={columns} dataSource={data} pagination={{ pageSize: 10 }} scroll={{ y: "47vh" }} className="dashboard__patient-table"/>
+      <SampleCard />
+      <Table columns={columns} dataSource={data} pagination={{ pageSize: 10 }} scroll={{ y: "47vh" }} className="dashboard__sample-table"/>
     </div>
   )  
 }

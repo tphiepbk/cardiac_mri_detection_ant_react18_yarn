@@ -1,16 +1,16 @@
 import React from "react";
-import "./PatientCard.css";
+import "./SampleCard.css";
 
 import { Image, Button, Descriptions, Tag, Tooltip } from "antd";
 
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
-export default function PatientCard() {
+export default function SampleCard() {
   const addressText =
     "F4/27C, to 4, ap 6, xa Le Minh Xuan, huyen Binh Chanh, Thanh pho Ho Chi Minh, Viet Nam";
 
   return (
-    <div className="patient-card">
+    <div className="sample-card">
       <Image
         width={150}
         preview={false}
@@ -27,7 +27,7 @@ export default function PatientCard() {
       />
 
       <Descriptions
-        title="Patient's Information"
+        title="Sample's Information"
         bordered
         column={4}
         size={"default"}
@@ -47,8 +47,8 @@ export default function PatientCard() {
         </Descriptions.Item>
       </Descriptions>
 
-      <div className="patient-card__diagnosis-result">
-        <div className="patient-card__diagnosis-result__result">
+      <div className="sample-card__diagnosis-result">
+        <div className="sample-card__diagnosis-result__result">
           <h3>Result</h3>
           <div>
             <Tag icon={<CheckCircleOutlined />} color="success">
@@ -65,7 +65,7 @@ export default function PatientCard() {
           </Button>
         </div>
 
-        <div className="patient-card__diagnosis-result__status">
+        <div className="sample-card__diagnosis-result__status">
           <h3>Status</h3>
           <div>
             {/*
@@ -79,12 +79,12 @@ export default function PatientCard() {
           </div>
         </div>
 
-        <div className="patient-card__diagnosis-result__confirmed-by">
+        <div className="sample-card__diagnosis-result__confirmed-by">
           <h3>Confirmed By</h3>
           <h2>Thai Phuc Hiep</h2>
         </div>
 
-        <div className="patient-card__diagnosis-result__confirmed-by">
+        <div className="sample-card__diagnosis-result__confirmed-by">
           <h3>Date Modified</h3>
           <h2>29/03/2022</h2>
         </div>

@@ -26,8 +26,8 @@ contextBridge.exposeInMainWorld('electronAPI',{
   // * Make multiple prediction
   makeMultiplePrediction : (sampleObjectList) => ipcRenderer.invoke('make-multiple-prediction', sampleObjectList),
 
-  // * Save patient's record
-  savePatientDiagnosisResult : (patientObject) => ipcRenderer.invoke('save-patient-record', patientObject),
+  // * Save sample's record
+  saveSampleRecord: (sampleObject) => ipcRenderer.invoke('save-sample-record', sampleObject),
 
   // * Check credentials 
   checkCredentials : (username, password) => ipcRenderer.invoke('check-credentials', username, password),

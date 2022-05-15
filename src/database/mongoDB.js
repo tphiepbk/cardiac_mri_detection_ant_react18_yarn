@@ -20,7 +20,7 @@ const closeConnection = async () => {
   return result;
 };
 
-const patientSchema = new mongoose.Schema(
+const sampleSchema = new mongoose.Schema(
   {
     sampleName: String,
     fullName: String,
@@ -35,14 +35,14 @@ const patientSchema = new mongoose.Schema(
       dateModified: Date,
     },
   },
-  { collection: "patients" }
+  { collection: "samples" }
 );
 
-const patientModel = mongoose.model("Patient", patientSchema);
+const sampleModel = mongoose.model("Sample", sampleSchema);
 
-const savePatientRecord = async (patientObject) => {
+const saveSampleRecord = async (sampleObject) => {
   console.log(
-    "============================= Saving patient record ================================"
+    "============================= Saving sample record ================================"
   );
 
   let returnValue;
@@ -51,23 +51,23 @@ const savePatientRecord = async (patientObject) => {
   if (connectionResult === "FAILED") {
     returnValue = "FAILED";
   } else {
-    const patientInstance = new patientModel({
-      sampleName: patientObject.sampleName,
-      fullName: patientObject.fullName,
-      age: patientObject.age,
-      gender: patientObject.gender,
-      address: patientObject.address,
-      avatar: patientObject.avatar,
+    const sampleInstance = new sampleModel({
+      sampleName: sampleObject.sampleName,
+      fullName: sampleObject.fullName,
+      age: sampleObject.age,
+      gender: sampleObject.gender,
+      address: sampleObject.address,
+      avatar: sampleObject.avatar,
       diagnosisResult: {
-        value: patientObject.diagnosisResult.value,
-        confirmed: patientObject.diagnosisResult.confirmed,
-        author: patientObject.diagnosisResult.author,
-        dateModified: patientObject.diagnosisResult.dateModified,
+        value: sampleObject.diagnosisResult.value,
+        confirmed: sampleObject.diagnosisResult.confirmed,
+        author: sampleObject.diagnosisResult.author,
+        dateModified: sampleObject.diagnosisResult.dateModified,
       },
     });
 
-    const savePatientPromise = new Promise((resolve, reject) => {
-      patientInstance.save((err, data) => {
+    const saveSamplePromise = new Promise((resolve, reject) => {
+      sampleInstance.save((err, data) => {
         if (err) {
           console.log(err);
           resolve("FAILED");
@@ -77,13 +77,13 @@ const savePatientRecord = async (patientObject) => {
       });
     });
 
-    returnValue = await savePatientPromise;
+    returnValue = await saveSamplePromise;
 
     await closeConnection();
   }
 
   console.log(
-    "============================= Finished saving patient record ================================"
+    "============================= Finished saving sample record ================================"
   );
 
   return returnValue;
@@ -151,6 +151,6 @@ const checkCredentials = async (username, password) => {
 };
 
 module.exports = {
-  savePatientRecord,
+  saveSampleRecord,
   checkCredentials,
 };

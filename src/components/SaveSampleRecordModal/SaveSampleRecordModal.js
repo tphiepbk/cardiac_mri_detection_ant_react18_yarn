@@ -1,5 +1,5 @@
 import React from "react";
-import "./SavePatientRecordModal.css";
+import "./SaveSampleRecordModal.css";
 import { usernameSelector } from "../../pages/Login/loginSelector";
 import {
   Modal,
@@ -14,20 +14,20 @@ import {
 import moment from "moment";
 import { useSelector } from "react-redux";
 
-export default function SavePatientRecordModal(props) {
+export default function SaveSampleRecordModal(props) {
   const username = useSelector(usernameSelector)
   console.log(username)
 
   const {
-    savePatientRecord,
-    closeSavePatientRecordModalHandler,
+    saveSampleRecord,
+    closeSaveSampleRecordModalHandler,
     sampleName,
     diagnosisResult,
     today,
   } = props;
 
   const onFinish = (values) => {
-    closeSavePatientRecordModalHandler();
+    closeSaveSampleRecordModalHandler();
 
     const record = {
       sampleName: sampleName,
@@ -45,7 +45,7 @@ export default function SavePatientRecordModal(props) {
       },
     };
 
-    savePatientRecord(record);
+    saveSampleRecord(record);
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -56,11 +56,11 @@ export default function SavePatientRecordModal(props) {
 
   return (
     <Modal
-      title="Save patient's record"
+      title="Save sample's record"
       visible={true}
-      onCancel={closeSavePatientRecordModalHandler}
+      onCancel={closeSaveSampleRecordModalHandler}
       footer={null}
-      className="save-patient-record-modal"
+      className="save-sample-record-modal"
     >
       <Form
         labelCol={{

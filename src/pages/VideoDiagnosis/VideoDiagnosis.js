@@ -23,7 +23,7 @@ import {
 
 import SliceCard from "../../components/SliceCard/SliceCard";
 import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
-import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
+import SaveSampleRecordModal from "../../components/SaveSampleRecordModal/SaveSampleRecordModal";
 
 import "./VideoDiagnosis.css";
 import alertsSlice from "../../components/Alerts/alertsSlice";
@@ -47,7 +47,7 @@ export default function VideoDiagnosis() {
   const processRunning = useSelector(appProcessRunningSelector);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
-  const [isSavePatientRecordModalVisible, setIsSavePatientRecordModalVisible] =
+  const [isSaveSampleRecordModalVisible, setIsSaveSampleRecordModalVisible] =
     React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
@@ -88,17 +88,17 @@ export default function VideoDiagnosis() {
     }, alertTimeout);
   };
 
-  const triggerSavePatientRecordSucceededAlert = () => {
-    dispatch(alertsSlice.actions.openSavePatientRecordSucceededAlert());
+  const triggerSaveSampleRecordSucceededAlert = () => {
+    dispatch(alertsSlice.actions.openSaveSampleRecordSucceededAlert());
     setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSavePatientRecordSucceededAlert());
+      dispatch(alertsSlice.actions.closeSaveSampleRecordSucceededAlert());
     }, alertTimeout);
   };
 
-  const triggerSavePatientRecordFailedAlert = () => {
-    dispatch(alertsSlice.actions.openSavePatientRecordFailedAlert());
+  const triggerSaveSampleRecordFailedAlert = () => {
+    dispatch(alertsSlice.actions.openSaveSampleRecordFailedAlert());
     setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
+      dispatch(alertsSlice.actions.closeSaveSampleRecordFailedAlert());
     }, alertTimeout);
   };
 
@@ -116,23 +116,23 @@ export default function VideoDiagnosis() {
     setIsModalVisible(false);
   };
 
-  const showSavePatientRecordModal = () => {
-    setIsSavePatientRecordModalVisible(true);
+  const showSaveSampleRecordModal = () => {
+    setIsSaveSampleRecordModalVisible(true);
   };
 
-  const closeSavePatientRecordModalHandler = () => {
-    setIsSavePatientRecordModalVisible(false);
+  const closeSaveSampleRecordModalHandler = () => {
+    setIsSaveSampleRecordModalVisible(false);
   };
 
-  const savePatientRecord = async (patientRecord) => {
+  const saveSampleRecord = async (sampleRecord) => {
     console.log("Saving record...");
-    const response = await window.electronAPI.savePatientDiagnosisResult(
-      patientRecord
+    const response = await window.electronAPI.saveSampleRecord(
+      sampleRecord
     );
     if (response.result === "SUCCESS") {
-      triggerSavePatientRecordSucceededAlert();
+      triggerSaveSampleRecordSucceededAlert();
     } else {
-      triggerSavePatientRecordFailedAlert();
+      triggerSaveSampleRecordFailedAlert();
     }
   };
 
@@ -439,20 +439,20 @@ export default function VideoDiagnosis() {
                 style={{ marginTop: "5px" }}
                 icon={<UserAddOutlined />}
                 size={10}
-                onClick={showSavePatientRecordModal}
+                onClick={showSaveSampleRecordModal}
               >
                 Proceed
               </Button>
             )}
 
-            {isSavePatientRecordModalVisible && (
-              <SavePatientRecordModal
+            {isSaveSampleRecordModalVisible && (
+              <SaveSampleRecordModal
                 diagnosisResult={diagnosisResult}
-                closeSavePatientRecordModalHandler={
-                  closeSavePatientRecordModalHandler
+                closeSaveSampleRecordModalHandler={
+                  closeSaveSampleRecordModalHandler
                 }
                 sampleName={videoMetadata.name}
-                savePatientRecord={savePatientRecord}
+                saveSampleRecord={saveSampleRecord}
                 today={today}
               />
             )}

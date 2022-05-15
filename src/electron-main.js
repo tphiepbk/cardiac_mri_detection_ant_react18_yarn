@@ -770,6 +770,7 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
     __dirname + "/resources/pretrained_models/classify5.h5"
   );
 
+  /*
   const predictionModuleExecutable = path.resolve(
     __dirname + "/resources/prediction_module/prediction_module.exe"
   );
@@ -802,6 +803,40 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
       }
     );
   });
+  */
+
+  const predictionScript = path.resolve(__dirname + "/extra/prediction_module.py")
+
+  const options = {
+    mode: "text",
+    pythonOptions: ["-u"],
+    args: [
+      unetPretrainPath,
+      checkColNumPretrainPath,
+      classifyPretrainPath,
+      filepath,
+    ],
+  };
+
+  const predictionPromise = new Promise((resolve, _reject) => {
+    PythonShell.run(predictionScript, options, (err, results) => {
+      if (err) {
+        const returnValue = {
+          description: "MAKE SINGLE PREDICTION",
+          result: "FAILED",
+        };
+        resolve(returnValue);
+      } else {
+        const predictionResult = JSON.parse(results.replaceAll("'", '"'));
+        const returnValue = {
+          description: "MAKE SINGLE PREDICTION",
+          result: "SUCCESS",
+          value: predictionResult[0].result.toString(),
+        };
+        resolve(returnValue);
+      }
+    });
+  });
 
   const returnValue = await predictionPromise;
 
@@ -826,11 +861,6 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
     __dirname + "/resources/pretrained_models/classify5.h5"
   );
 
-  const predictionModuleExecutablePath = path.resolve(
-    __dirname +
-      "/resources/multiple_prediction_module/multiple_prediction_module.exe"
-  );
-
   const isNpySample = sampleObjectList[0].hasOwnProperty("videoPath");
   let listVideoPath;
   if (isNpySample) {
@@ -840,6 +870,12 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   } else {
     listVideoPath = sampleObjectList.map((sampleObject) => sampleObject.path);
   }
+
+  /*
+  const predictionModuleExecutablePath = path.resolve(
+    __dirname +
+    "/resources/prediction_module/prediction_module.exe"
+  );
 
   const multiplePredictionPromise = new Promise((resolve, _reject) => {
     execFile(
@@ -859,6 +895,30 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
       }
     );
   });
+  */
+
+  const predictionScript = path.resolve(__dirname + "/extra/prediction_module.py")
+
+  const options = {
+    mode: "text",
+    pythonOptions: ["-u"],
+    args: [
+      unetPretrainPath,
+      checkColNumPretrainPath,
+      classifyPretrainPath,
+      ...listVideoPath,
+    ],
+  };
+
+  const multiplePredictionPromise = new Promise((resolve, _reject) => {
+    PythonShell.run(predictionScript, options, (err, results) => {
+      if (err) {
+        resolve("FAILED");
+      } else {
+        resolve(results.toString());
+      }
+    });
+  });
 
   const rawPredictionResults = await multiplePredictionPromise;
 
@@ -877,7 +937,7 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
       returnValue.result = "SUCCESS";
       const returnedSampleObjectList = [];
       for (let i = 0; i < predictionResults.length; i++) {
-        if (predictionResults[i].filepath === sampleObjectList[i].path) {
+        if (predictionResults[i].filePath === sampleObjectList[i].path) {
           if (isNpySample) {
             returnedSampleObjectList.push({
               index: i,
@@ -947,11 +1007,11 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
   return returnValue;
 });
 
-ipcMain.handle("save-patient-record", async (_event, patientObject) => {
-  const result = await database.savePatientRecord(patientObject);
-  console.log("Save patient's record = ", result);
+ipcMain.handle("save-sample-record", async (_event, sampleObject) => {
+  const result = await database.saveSampleRecord(sampleObject);
+  console.log("Save sample's record = ", result);
   const returnValue = {
-    description: "SAVE PATIENT RECORD",
+    description: "SAVE SAMPLE RECORD",
     result: result,
   };
   return returnValue;

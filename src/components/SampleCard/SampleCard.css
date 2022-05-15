@@ -1,10 +1,10 @@
-.patient-card {
+.sample-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.patient-card__info {
+.sample-card__info {
   display: flex;
   justify-content: space-between;
 }
@@ -21,14 +21,14 @@
   overflow: auto;
 }
 
-.patient-card__divider {
+.sample-card__divider {
   background-color: #F5F5F5;
   height: 15vh;
   width: 5px;
   border-radius: 10px;
 }
 
-.patient-card__diagnosis-result {
+.sample-card__diagnosis-result {
   padding: 15px 20px;
   border-radius: 10px;
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
@@ -38,16 +38,16 @@
   gap: 40px;
 }
 
-.patient-card__diagnosis-result > * > h3{
+.sample-card__diagnosis-result > * > h3{
   font-weight: bold;
   margin: 0;
 }
 
-.patient-card__diagnosis-result > * > h2{
+.sample-card__diagnosis-result > * > h2{
   margin: 0;
 }
 
-.patient-card__diagnosis-result > div {
+.sample-card__diagnosis-result > div {
   display: flex;
   flex-direction: column;
   gap: 10px;
