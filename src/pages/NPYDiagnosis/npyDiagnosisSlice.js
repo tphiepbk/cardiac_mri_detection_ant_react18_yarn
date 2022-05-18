@@ -62,7 +62,7 @@ const npyDiagnosisSlice = createSlice({
     setListSlices: (state, action) => {
       state.listSlices = action.payload;
     },
-    resetAllStates: (state, action) => {
+    clearContent: (state, _action) => {
       state.samplePath = "";
       state.npyFileNames = [];
       state.videoPath.avi = "";

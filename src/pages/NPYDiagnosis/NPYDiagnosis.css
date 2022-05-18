@@ -118,7 +118,7 @@
   padding: 15px 20px;
   border-radius: 10px;
   overflow: auto;
-  height: 69vh;
+  height: 68vh;
   display: grid;
   grid-template-columns: 49% 49%;
   gap: 10px;
@@ -129,7 +129,7 @@
   padding: 15px 20px;
   border-radius: 10px;
   overflow: auto;
-  height: 69vh;
+  height: 68vh;
   display: flex;
   justify-content: center;
   align-items: center;

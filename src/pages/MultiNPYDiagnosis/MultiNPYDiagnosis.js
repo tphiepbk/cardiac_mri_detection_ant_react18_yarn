@@ -16,7 +16,6 @@ import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
 import MiniNpySampleModal from "../../components/MiniNpySampleModal/MiniNpySampleModal";
 import { useDispatch, useSelector } from "react-redux";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
-import alertsSlice from "../../components/Alerts/alertsSlice";
 import mainPageSlice from "../MainPage/mainPageSlice";
 import multiNpyDiagnosisSlice from "./multiNpyDiagnosisSlice";
 import SaveSampleRecordModal from "../../components/SaveSampleRecordModal/SaveSampleRecordModal";
@@ -27,6 +26,16 @@ import {
   listPredictionResultSelector,
   multiVideoListSlicesSelector,
 } from "./multiNpyDiagnosisSelector";
+
+import {
+  triggerTaskSucceededAlert,
+  triggerTaskFailedAlert,
+  triggerNoVideoAlert,
+  triggerSaveSampleRecordSucceededAlert,
+  triggerSaveSampleRecordFailedAlert,
+  triggerTaskRunningAlert,
+  triggerUploadFailedAlert,
+} from "../../components/Alerts/alertsTrigger";
 
 export default function MultiNPYDiagnosis() {
   const dispatch = useDispatch();
@@ -42,57 +51,6 @@ export default function MultiNPYDiagnosis() {
 
   const [isSaveSampleRecordModalVisible, setIsSaveSampleRecordModalVisible] =
     React.useState(false);
-
-  const alertTimeout = 2000;
-
-  const triggerTaskSucceededAlert = () => {
-    dispatch(alertsSlice.actions.openTaskSucceededAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskSucceededAlert());
-    }, alertTimeout);
-  };
-
-  const triggerTaskFailedAlert = () => {
-    dispatch(alertsSlice.actions.openTaskFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskFailedAlert());
-    }, alertTimeout);
-  };
-
-  const triggerTaskRunningAlert = () => {
-    dispatch(alertsSlice.actions.openTaskRunningAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskRunningAlert());
-    }, alertTimeout);
-  };
-
-  const triggerNoVideoAlert = () => {
-    dispatch(alertsSlice.actions.openNoVideoAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeNoVideoAlert());
-    }, alertTimeout);
-  };
-
-  const triggerUploadFailedAlert = () => {
-    dispatch(alertsSlice.actions.openUploadFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeUploadFailedAlert());
-    }, alertTimeout);
-  };
-
-  const triggerSaveSampleRecordSucceededAlert = () => {
-    dispatch(alertsSlice.actions.openSaveSampleRecordSucceededAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSaveSampleRecordSucceededAlert());
-    }, alertTimeout);
-  };
-
-  const triggerSaveSampleRecordFailedAlert = () => {
-    dispatch(alertsSlice.actions.openSaveSampleRecordFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSaveSampleRecordFailedAlert());
-    }, alertTimeout);
-  };
 
   const showSaveSampleRecordModal = () => {
     setIsSaveSampleRecordModalVisible(true);

@@ -93,7 +93,7 @@
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   padding: 15px 20px;
   border-radius: 10px;
-  height: 69vh;
+  height: 68vh;
   overflow: auto;
   display: grid;
   grid-template-columns: 49% 49%;
@@ -104,7 +104,7 @@
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   padding: 15px 20px;
   border-radius: 10px;
-  height: 69vh;
+  height: 68vh;
   display: flex;
   justify-content: center;
   align-items: center;

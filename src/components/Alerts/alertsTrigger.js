@@ -1,4 +1,4 @@
-import alertsSlice from "../../components/Alerts/alertsSlice";
+import alertsSlice from "./alertsSlice";
 import store from "../../redux/store"
 
 const ALERT_TIMEOUT = 2000;
