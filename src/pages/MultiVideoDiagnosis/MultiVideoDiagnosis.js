@@ -114,22 +114,20 @@ export default function MultiVideoDiagnosis() {
 
   const showVideoModal = async (videoIndex) => {
     await getVideoMetadata(
-      listInputVideo[videoIndex].videoName,
       listInputVideo[videoIndex].videoInputPath
     );
     setIsVideoModalVisible(true);
   };
 
-  const getVideoMetadata = async (videoName, videoPath, callback) => {
+  const getVideoMetadata = async (videoPath) => {
     const response = await window.electronAPI.getFileMetadata(videoPath);
     console.log(response);
 
     if (response.result === "SUCCESS") {
-      const { format_long_name, duration } = response.target.format;
-      const { height, width } = response.target.streams[0];
+      const { filename, format_long_name, duration, height, width } = response.target;
 
       setCurrentVideoMetadata({
-        name: videoName,
+        name: filename,
         format: format_long_name,
         duration: duration,
         height: height,
