@@ -65,9 +65,7 @@ export default function MultiVideoDiagnosis() {
 
   const saveSampleRecord = async (sampleRecord) => {
     console.log("Saving record...");
-    const response = await window.electronAPI.saveSampleRecord(
-      sampleRecord
-    );
+    const response = await window.electronAPI.saveSampleRecord(sampleRecord);
     if (response.result === "SUCCESS") {
       triggerSaveSampleRecordSucceededAlert();
     } else {
@@ -141,9 +139,9 @@ export default function MultiVideoDiagnosis() {
   };
 
   const uploadMultiVideos = async () => {
-    dispatch(mainPageSlice.actions.enableLoadingScreen())
+    dispatch(mainPageSlice.actions.enableLoadingScreen());
     const filesOpenResponse = await window.electronAPI.openMultiFilesDialog();
-    dispatch(mainPageSlice.actions.disableLoadingScreen())
+    dispatch(mainPageSlice.actions.disableLoadingScreen());
     console.log(filesOpenResponse);
 
     if (filesOpenResponse.result === "SUCCESS") {
@@ -164,9 +162,7 @@ export default function MultiVideoDiagnosis() {
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
-
-    dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
+    dispatch(multiVideoDiagnosisSlice.actions.clearContent());
 
     if (!processRunning) {
       dispatch(progressBarSlice.actions.clearProgressBar());

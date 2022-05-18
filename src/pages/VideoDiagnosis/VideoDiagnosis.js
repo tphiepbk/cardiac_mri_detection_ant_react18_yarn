@@ -136,30 +136,11 @@ export default function VideoDiagnosis() {
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(
-      videoDiagnosisSlice.actions.setVideoPath({
-        avi: "",
-        mp4: "",
-      })
-    );
-
-    dispatch(
-      videoDiagnosisSlice.actions.setVideoMetadata({
-        name: "",
-        format: "",
-        duration: "",
-        height: "",
-        width: "",
-      })
-    );
+    dispatch(videoDiagnosisSlice.actions.clearContent());
 
     if (!processRunning) {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
-
-    dispatch(
-      videoDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT)
-    );
 
     dispatch(mainPageSlice.actions.disableAppInteractive());
 

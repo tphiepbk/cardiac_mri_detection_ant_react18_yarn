@@ -62,9 +62,7 @@ export default function MultiNPYDiagnosis() {
 
   const saveSampleRecord = async (sampleRecord) => {
     console.log("Saving record...");
-    const response = await window.electronAPI.saveSampleRecord(
-      sampleRecord
-    );
+    const response = await window.electronAPI.saveSampleRecord(sampleRecord);
     if (response.result === "SUCCESS") {
       triggerSaveSampleRecordSucceededAlert();
     } else {
@@ -159,14 +157,17 @@ export default function MultiNPYDiagnosis() {
         )
       );
 
-      const crawledMultiVideoListSlices = npySamplesOpenResponse.npyObjectList.map(npyObject => {
-        const crawledListSlices = npyObject.sliceTempPaths.map((slice, index) => ({
-          sliceNumber: index,
-          sliceImageUrl: slice[0],
-          sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-        }))
-        return crawledListSlices
-      })
+      const crawledMultiVideoListSlices =
+        npySamplesOpenResponse.npyObjectList.map((npyObject) => {
+          const crawledListSlices = npyObject.sliceTempPaths.map(
+            (slice, index) => ({
+              sliceNumber: index,
+              sliceImageUrl: slice[0],
+              sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+            })
+          );
+          return crawledListSlices;
+        });
 
       dispatch(
         multiNpyDiagnosisSlice.actions.setMultiVideoListSlices(
@@ -180,9 +181,7 @@ export default function MultiNPYDiagnosis() {
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(multiNpyDiagnosisSlice.actions.setListInputNpyObject([]));
-
-    dispatch(multiNpyDiagnosisSlice.actions.setListPredictionResult([]));
+    dispatch(multiNpyDiagnosisSlice.actions.clearContent());
 
     if (!processRunning) {
       dispatch(progressBarSlice.actions.clearProgressBar());
@@ -462,10 +461,14 @@ export default function MultiNPYDiagnosis() {
                 closeModalHandler={closeSliceModal}
                 sliceNumber={currentSliceSelected}
                 sliceImageUrl={
-                  multiVideoListSlices[currentVideoSelected][currentSliceSelected].sliceImageUrl
+                  multiVideoListSlices[currentVideoSelected][
+                    currentSliceSelected
+                  ].sliceImageUrl
                 }
                 sliceVideoPath={
-                  multiVideoListSlices[currentVideoSelected][currentSliceSelected].sliceVideoPath
+                  multiVideoListSlices[currentVideoSelected][
+                    currentSliceSelected
+                  ].sliceVideoPath
                 }
               />
             )}

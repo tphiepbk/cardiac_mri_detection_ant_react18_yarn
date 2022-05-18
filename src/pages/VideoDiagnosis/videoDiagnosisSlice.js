@@ -38,13 +38,24 @@ const videoDiagnosisSlice = createSlice({
       state.diagnosisResult = action.payload;
     },
     enableButton: (state, _action) => {
-      state.disabledButton = false; 
+      state.disabledButton = false;
     },
     disableButton: (state, _action) => {
-      state.disabledButton = true; 
+      state.disabledButton = true;
     },
     setListSlices: (state, action) => {
       state.listSlices = action.payload;
+    },
+    clearContent: (state, _action) => {
+      state.videoPath.avi = "";
+      state.videoPath.mp4 = "";
+      state.videoMetadata.name = "";
+      state.videoMetadata.format = "";
+      state.videoMetadata.duration = 0;
+      state.videoMetadata.height = 0;
+      state.videoMetadata.width = 0;
+      state.diagnosisResult = NO_DIAGNOSIS_RESULT;
+      state.listSlices = [];
     },
   },
 });

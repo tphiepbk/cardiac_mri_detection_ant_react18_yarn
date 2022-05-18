@@ -42,6 +42,19 @@ const dashboardSlice = createSlice({
     setCurrentDataPage: (state, action) => {
       state.currentDataPage = action.payload;
     },
+    clearContent: (state, _action) => {
+      state.currentSelectedSample.id = "N/A";
+      state.currentSelectedSample.sampleName = "N/A";
+      state.currentSelectedSample.fullName = "N/A";
+      state.currentSelectedSample.age = "N/A";
+      state.currentSelectedSample.gender = "N/A";
+      state.currentSelectedSample.address = "N/A";
+      state.currentSelectedSample.diagnosisResult.value = "N/A";
+      state.currentSelectedSample.diagnosisResult.author = "N/A";
+      state.currentSelectedSample.diagnosisResult.dateModified = "N/A";
+      state.allSamples = [];
+      state.currentDataPage = 1;
+    },
   },
 });
 

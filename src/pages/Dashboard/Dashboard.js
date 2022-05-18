@@ -7,25 +7,27 @@ import SampleCard from "../../components/SampleCard/SampleCard";
 import { nanoid } from "nanoid";
 import dashboardSlice from "./dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { currentDataPageSelector, allSamplesSelector } from "./dashboardSelector";
+import {
+  currentDataPageSelector,
+  allSamplesSelector,
+} from "./dashboardSelector";
 
 export default function Dashboard() {
+  const dispatch = useDispatch();
 
-  const dispatch = useDispatch()
-
-  const currentDataPage = useSelector(currentDataPageSelector)
+  const currentDataPage = useSelector(currentDataPageSelector);
 
   React.useEffect(() => {
     const getAllSamples = async () => {
-      const response = await window.electronAPI.getAllSampleRecords()
-      const allSamples = response.result
-      const allProcessedSamples = allSamples.map(element => {
-        const date = new Date(element._doc.diagnosisResult.dateModified)
+      const response = await window.electronAPI.getAllSampleRecords();
+      const allSamples = response.result;
+      const allProcessedSamples = allSamples.map((element) => {
+        const date = new Date(element._doc.diagnosisResult.dateModified);
         const dd = String(date.getDate()).padStart(2, "0");
         const mm = String(date.getMonth() + 1).padStart(2, "0");
         const yyyy = date.getFullYear();
         const processedDate = dd + "/" + mm + "/" + yyyy;
-        return  {
+        return {
           key: nanoid(),
           id: nanoid(),
           sampleName: element._doc.sampleName,
@@ -35,18 +37,18 @@ export default function Dashboard() {
           address: element._doc.address,
           diagnosisResult_value: element._doc.diagnosisResult.value,
           diagnosisResult_author: element._doc.diagnosisResult.author,
-          diagnosisResult_dateModified: processedDate
-        }
-      }) 
-      dispatch(dashboardSlice.actions.setAllSamples(allProcessedSamples))
-    }
+          diagnosisResult_dateModified: processedDate,
+        };
+      });
+      dispatch(dashboardSlice.actions.setAllSamples(allProcessedSamples));
+    };
 
-    getAllSamples()
-  }, [currentDataPage, dispatch])
+    getAllSamples();
+  }, [currentDataPage, dispatch]);
 
-  const allSamples = useSelector(allSamplesSelector)
+  const allSamples = useSelector(allSamplesSelector);
 
-  console.log(allSamples)
+  console.log(allSamples);
 
   const columns = [
     {
@@ -54,48 +56,48 @@ export default function Dashboard() {
       dataIndex: "id",
       key: "id",
       width: 150,
-      align: 'center',
+      align: "center",
     },
     {
       title: "Sample name",
       dataIndex: "sampleName",
       key: "sampleName",
-      align: 'center',
+      align: "center",
     },
     {
       title: "Full name",
       dataIndex: "fullName",
       key: "fullName",
       width: 150,
-      align: 'center',
+      align: "center",
     },
     {
       title: "Age",
       dataIndex: "age",
       key: "age",
       width: 60,
-      align: 'center',
+      align: "center",
     },
     {
       title: "Gender",
       dataIndex: "gender",
       key: "gender",
       width: 80,
-      align: 'center',
+      align: "center",
     },
     {
       title: "Address",
       dataIndex: "address",
       key: "address",
       width: 300,
-      align: 'center',
+      align: "center",
     },
     {
       title: "Result",
       key: "diagnosisResult_value",
       dataIndex: "diagnosisResult_value",
       width: 100,
-      align: 'center',
+      align: "center",
       render: (result) => (
         <>
           <Tag color={result === "normal" ? "success" : "error"}>
@@ -109,14 +111,14 @@ export default function Dashboard() {
       dataIndex: "diagnosisResult_author",
       key: "author",
       width: 150,
-      align: 'center'
+      align: "center",
     },
     {
       title: "Date modified",
       dataIndex: "diagnosisResult_dateModified",
       key: "diagnosisResult_dateModified",
       width: 150,
-      align: 'center'
+      align: "center",
     },
   ];
 
@@ -153,13 +155,13 @@ export default function Dashboard() {
   */
 
   const paginationChangeHandler = (e) => {
-    dispatch(dashboardSlice.actions.setCurrentDataPage(e.current))
-  }
+    dispatch(dashboardSlice.actions.setCurrentDataPage(e.current));
+  };
 
   const rowSelectHandler = (record) => {
-    console.log(record)
-    dispatch(dashboardSlice.actions.setCurrentSelectedSample(record))
-  }
+    console.log(record);
+    dispatch(dashboardSlice.actions.setCurrentSelectedSample(record));
+  };
 
   return (
     <div className="dashboard">
@@ -168,7 +170,9 @@ export default function Dashboard() {
         <Table
           onRow={(record, _rowIndex) => {
             return {
-              onClick: event => {rowSelectHandler(record)}
+              onClick: (event) => {
+                rowSelectHandler(record);
+              },
             };
           }}
           className="dashboard__sample-table"

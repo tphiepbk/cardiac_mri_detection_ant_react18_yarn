@@ -173,7 +173,7 @@ export default function VideoDiagnosis() {
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(npyDiagnosisSlice.actions.resetAllStates());
+    dispatch(npyDiagnosisSlice.actions.clearContent());
 
     if (!processRunning) {
       dispatch(progressBarSlice.actions.clearProgressBar());

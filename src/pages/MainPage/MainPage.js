@@ -29,6 +29,11 @@ import {
 import Alerts from "../../components/Alerts/Alerts";
 import mainPageSlice from "./mainPageSlice";
 import loginSlice from "../Login/loginSlice";
+import dashboardSlice from "../Dashboard/dashboardSlice";
+import videoDiagnosisSlice from "../VideoDiagnosis/videoDiagnosisSlice";
+import npyDiagnosisSlice from "../NPYDiagnosis/npyDiagnosisSlice";
+import multiVideoDiagnosisSlice from "../MultiVideoDiagnosis/multiVideoDiagnosisSlice";
+import multiNpyDiagnosisSlice from "../MultiNPYDiagnosis/multiNpyDiagnosisSlice";
 import { userFullNameSelector } from "../Login/loginSelector";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -70,6 +75,11 @@ export default function MainPage() {
   }
 
   const logoutButtonClickHandler = () => {
+    dispatch(dashboardSlice.actions.clearContent());
+    dispatch(videoDiagnosisSlice.actions.clearContent());
+    dispatch(multiVideoDiagnosisSlice.actions.clearContent());
+    dispatch(npyDiagnosisSlice.actions.clearContent());
+    dispatch(multiNpyDiagnosisSlice.actions.clearContent());
     dispatch(loginSlice.actions.logout());
   };
 
