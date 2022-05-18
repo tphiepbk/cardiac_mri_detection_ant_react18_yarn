@@ -3,9 +3,14 @@ import "./TitleBar.css"
 import {
   MinusOutlined,
   CloseOutlined,
+  BorderOutlined,
+  BlockOutlined
 } from "@ant-design/icons"
 
 export default function TitleBar() {
+
+  const [maximize, setMaximize] = React.useState(false)
+
   return (
     <div className="title-bar">
       <img className="title-bar__icon" src="./favicon.ico" alt="favicon logo"/>
@@ -16,6 +21,15 @@ export default function TitleBar() {
           onClick={() => window.electronAPI.minimizeApp()}
         >
           <MinusOutlined/>
+        </div>
+        <div 
+          className="title-bar__controls__maximize"
+          onClick={() => {
+            setMaximize((prevState) => !prevState)
+            window.electronAPI.maximizeApp()
+          }}
+        >
+          {maximize ? <BlockOutlined/> : <BorderOutlined />}
         </div>
         <div 
           className="title-bar__controls__close"

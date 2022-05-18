@@ -107,7 +107,13 @@ app.on("window-all-closed", function () {
 
 const controlApp = (arg) => {
   if (arg === "minimize") mainWindow.minimize();
-  else mainWindow.close();
+  else if (arg === "maximize") {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  } else mainWindow.close();
 };
 
 ipcMain.on("app:control", (_event, arg) => {
@@ -126,7 +132,7 @@ ipcMain.handle("open-file-dialog", async (event, _arg) => {
     title: "Select files to be uploaded",
     defaultPath: path.join(__dirname, "../assets/"),
     buttonLabel: "Open",
-    filters: [{ name: "MRI Videos", extensions: ["avi", "npy"] }],
+    filters: [{ name: "MRI Videos", extensions: ["avi"] }],
     properties: properties,
   });
   if (!file) {
@@ -212,7 +218,7 @@ ipcMain.handle("open-multi-files-dialog", async (_event, _arg) => {
     title: "Select files to be uploaded",
     defaultPath: path.join(__dirname, "../assets/"),
     buttonLabel: "Open",
-    filters: [{ name: "MRI Videos", extensions: ["avi", "npy"] }],
+    filters: [{ name: "MRI Videos", extensions: ["avi"] }],
     properties: properties,
   });
   if (!files) {
@@ -468,35 +474,52 @@ ipcMain.handle("open-npy-sample-dialog", async (_event, _arg) => {
             if (ffmpegResult.includes("FAILED")) {
               returnValue.result = "FAILED";
             } else {
+              const currentSampleTempPath = path.resolve(
+                `${userDataPath_temp}/${sampleName}/`
+              );
 
-              const currentSampleTempPath = path.resolve(`${userDataPath_temp}/${sampleName}/`)
+              let sliceTempPaths = fs.readdirSync(currentSampleTempPath);
 
-              let sliceTempPaths = fs.readdirSync(currentSampleTempPath)
-
-              sliceTempPaths = sliceTempPaths.filter(element => element.substring(0, 5) === 'slice')
+              sliceTempPaths = sliceTempPaths.filter(
+                (element) => element.substring(0, 5) === "slice"
+              );
               sliceTempPaths.sort(
                 (a, b) =>
                   parseInt(a.substring(6, a.length)) -
                   parseInt(b.substring(6, b.length))
-              )
+              );
 
-              const numberOfFrames = fs.readdirSync(`${currentSampleTempPath}/${sliceTempPaths[0]}/`).length
+              const numberOfFrames = fs.readdirSync(
+                `${currentSampleTempPath}/${sliceTempPaths[0]}/`
+              ).length;
 
-              const returnedSlicesTempPaths = []
+              const returnedSlicesTempPaths = [];
 
-              for (let sliceNumber = 0 ; sliceNumber < sliceTempPaths.length ; sliceNumber++) {
-                const temp = []
-                for (let frameNumber = 0 ; frameNumber < numberOfFrames ; frameNumber++) {
-                  temp.push(path.resolve(`${currentSampleTempPath}/slice_${sliceNumber}/${frameNumber}.png`))
+              for (
+                let sliceNumber = 0;
+                sliceNumber < sliceTempPaths.length;
+                sliceNumber++
+              ) {
+                const temp = [];
+                for (
+                  let frameNumber = 0;
+                  frameNumber < numberOfFrames;
+                  frameNumber++
+                ) {
+                  temp.push(
+                    path.resolve(
+                      `${currentSampleTempPath}/slice_${sliceNumber}/${frameNumber}.png`
+                    )
+                  );
                 }
-                returnedSlicesTempPaths.unshift(temp)
+                returnedSlicesTempPaths.unshift(temp);
               }
 
               returnValue.result = "SUCCESS";
+              returnValue.samplePath = samplePath;
+              returnValue.sampleName = sampleName;
               returnValue.npyFileNames = filesInFolder;
               returnValue.sliceTempPaths = returnedSlicesTempPaths;
-              returnValue.numberOfFrames = numberOfFrames
-              returnValue.videoName = sampleName;
               returnValue.videoInputPath = inputDir;
               returnValue.videoOutputPath =
                 process.platform === "linux"
@@ -582,8 +605,7 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
       if (validNpySamples.length === 0) {
         returnValue.result = "FAILED";
       } else {
-
-        console.time("multi npy processor")
+        console.time("multi npy processor");
 
         const detectorPath = path.resolve(
           __dirname + "/resources/pretrained_models/best.pt"
@@ -711,28 +733,45 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
             if (ffmpegResult.includes("FAILED")) {
               returnNPYSamples.push("FAILED");
             } else {
+              const currentSampleTempPath = path.resolve(
+                `${userDataPath_temp}/${currentNpySampleName}/`
+              );
 
-              const currentSampleTempPath = path.resolve(`${userDataPath_temp}/${currentNpySampleName}/`)
+              let sliceTempPaths = fs.readdirSync(currentSampleTempPath);
 
-              let sliceTempPaths = fs.readdirSync(currentSampleTempPath)
-
-              sliceTempPaths = sliceTempPaths.filter(element => element.substring(0, 5) === 'slice')
+              sliceTempPaths = sliceTempPaths.filter(
+                (element) => element.substring(0, 5) === "slice"
+              );
               sliceTempPaths.sort(
                 (a, b) =>
                   parseInt(a.substring(6, a.length)) -
                   parseInt(b.substring(6, b.length))
-              )
+              );
 
-              const numberOfFrames = fs.readdirSync(`${currentSampleTempPath}/${sliceTempPaths[0]}/`).length
+              const numberOfFrames = fs.readdirSync(
+                `${currentSampleTempPath}/${sliceTempPaths[0]}/`
+              ).length;
 
-              const returnedSlicesTempPaths = []
+              const returnedSlicesTempPaths = [];
 
-              for (let sliceNumber = 0 ; sliceNumber < sliceTempPaths.length ; sliceNumber++) {
-                const temp = []
-                for (let frameNumber = 0 ; frameNumber < numberOfFrames ; frameNumber++) {
-                  temp.push(path.resolve(`${currentSampleTempPath}/slice_${sliceNumber}/${frameNumber}.png`))
+              for (
+                let sliceNumber = 0;
+                sliceNumber < sliceTempPaths.length;
+                sliceNumber++
+              ) {
+                const temp = [];
+                for (
+                  let frameNumber = 0;
+                  frameNumber < numberOfFrames;
+                  frameNumber++
+                ) {
+                  temp.push(
+                    path.resolve(
+                      `${currentSampleTempPath}/slice_${sliceNumber}/${frameNumber}.png`
+                    )
+                  );
                 }
-                returnedSlicesTempPaths.unshift(temp)
+                returnedSlicesTempPaths.unshift(temp);
               }
 
               returnNPYSamples.push({
@@ -759,8 +798,7 @@ ipcMain.handle("open-multi-npy-samples-dialog", async (_event, _arg) => {
           }
         }
 
-        console.timeEnd("multi npy processor")
-
+        console.timeEnd("multi npy processor");
       }
     }
   }
@@ -787,10 +825,18 @@ ipcMain.handle("get-video-metadata", async (event, data) => {
           result: "FAILED",
         });
       } else {
+        const { format_long_name, duration, filename } = metadata.format;
+        const { height, width } = metadata.streams[0];
         resolve({
           description: "GET VIDEO METADATA",
           result: "SUCCESS",
-          target: metadata,
+          target: {
+            filename : path.basename(filename, path.extname(filename)),
+            format_long_name,
+            duration,
+            height,
+            width,
+          },
         });
       }
     });
@@ -857,7 +903,9 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
   });
   */
 
-  const predictionScript = path.resolve(__dirname + "/extra/prediction_module.py")
+  const predictionScript = path.resolve(
+    __dirname + "/extra/prediction_module.py"
+  );
 
   const options = {
     mode: "text",
@@ -873,14 +921,16 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
   const predictionPromise = new Promise((resolve, _reject) => {
     PythonShell.run(predictionScript, options, (err, results) => {
       if (err) {
-        console.log(err)
+        console.log(err);
         const returnValue = {
           description: "MAKE SINGLE PREDICTION",
           result: "FAILED",
         };
         resolve(returnValue);
       } else {
-        const predictionResult = JSON.parse(results.toString().replaceAll("'", '"'));
+        const predictionResult = JSON.parse(
+          results.toString().replaceAll("'", '"')
+        );
         const returnValue = {
           description: "MAKE SINGLE PREDICTION",
           result: "SUCCESS",
@@ -901,7 +951,9 @@ ipcMain.handle("make-single-prediction", async (event, filepath) => {
 });
 
 ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
-  console.log("=================== Making multiple prediction =====================");
+  console.log(
+    "=================== Making multiple prediction ====================="
+  );
 
   const unetPretrainPath = path.resolve(
     __dirname + "/resources/pretrained_models/unet3.h5"
@@ -956,7 +1008,9 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   });
   */
 
-  const predictionScript = path.resolve(__dirname + "/extra/prediction_module.py")
+  const predictionScript = path.resolve(
+    __dirname + "/extra/prediction_module.py"
+  );
 
   const options = {
     mode: "text",
@@ -972,6 +1026,7 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   const multiplePredictionPromise = new Promise((resolve, _reject) => {
     PythonShell.run(predictionScript, options, (err, results) => {
       if (err) {
+        console.log(err);
         resolve("FAILED");
       } else {
         resolve(results.toString());
@@ -998,7 +1053,9 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
       returnValue.result = "SUCCESS";
       const returnedSampleObjectList = [];
       for (let i = 0; i < predictionResults.length; i++) {
-        if (predictionResults[i].filePath === sampleObjectList[i].videoInputPath) {
+        if (
+          predictionResults[i].filePath === sampleObjectList[i].videoInputPath
+        ) {
           returnedSampleObjectList.push({
             index: i,
             videoName: sampleObjectList[i].videoName,
@@ -1012,7 +1069,9 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
     }
   }
 
-  console.log("=============== Finished making multiple prediction ================");
+  console.log(
+    "=============== Finished making multiple prediction ================"
+  );
 
   console.log(returnValue);
 
@@ -1057,7 +1116,7 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
 });
 
 ipcMain.handle("get-all-sample-records", async (_event, _data) => {
-  const result = await database.getAllSampleRecords()
+  const result = await database.getAllSampleRecords();
   const returnValue = {
     description: "GET ALL SAMPLE RECORDS",
     result: result,

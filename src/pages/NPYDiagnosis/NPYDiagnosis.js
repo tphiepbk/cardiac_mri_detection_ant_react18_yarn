@@ -10,9 +10,10 @@ import {
   listSlicesSelector,
   npyFileNamesSelector,
   videoBboxPathSelector,
+  samplePathSelector,
 } from "./npyDiagnosisSelector";
 
-import { Button, Descriptions, Empty, Skeleton, Tabs, List } from "antd";
+import { Button, Descriptions, Empty, Skeleton, Tabs, List, Input } from "antd";
 
 import {
   UploadOutlined,
@@ -29,6 +30,7 @@ import SaveSampleRecordModal from "../../components/SaveSampleRecordModal/SaveSa
 
 import "./NPYDiagnosis.css";
 import alertsSlice from "../../components/Alerts/alertsSlice";
+import { triggerTaskSucceededAlert } from "../../components/Alerts/alertTrigger";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import mainPageSlice from "../MainPage/mainPageSlice";
 import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
@@ -37,9 +39,12 @@ const NO_DIAGNOSIS_RESULT = 0;
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
+const AVERAGE_DIAGNOSE_TIME = 250;
+
 export default function VideoDiagnosis() {
   const dispatch = useDispatch();
 
+  const samplePath = useSelector(samplePathSelector);
   const npyFileNames = useSelector(npyFileNamesSelector);
   const videoPath = useSelector(videoPathSelector);
   const videoBboxPath = useSelector(videoBboxPathSelector);
@@ -57,12 +62,14 @@ export default function VideoDiagnosis() {
 
   const alertTimeout = 2000;
 
+  /*
   const triggerTaskSucceededAlert = () => {
     dispatch(alertsSlice.actions.openTaskSucceededAlert());
     setTimeout(() => {
       dispatch(alertsSlice.actions.closeTaskSucceededAlert());
     }, alertTimeout);
   };
+  */
 
   const triggerTaskFailedAlert = () => {
     dispatch(alertsSlice.actions.openTaskFailedAlert());
@@ -130,9 +137,7 @@ export default function VideoDiagnosis() {
 
   const saveSampleRecord = async (sampleRecord) => {
     console.log("Saving record...");
-    const response = await window.electronAPI.saveSampleRecord(
-      sampleRecord
-    );
+    const response = await window.electronAPI.saveSampleRecord(sampleRecord);
     if (response.result === "SUCCESS") {
       triggerSaveSampleRecordSucceededAlert();
     } else {
@@ -144,17 +149,16 @@ export default function VideoDiagnosis() {
     console.log("Changed to tab ", key);
   };
 
-  const getVideoMetadata = async (videoName, videoPath) => {
+  const getVideoMetadata = async (videoPath) => {
     const response = await window.electronAPI.getFileMetadata(videoPath);
     console.log(response);
 
     if (response.result === "SUCCESS") {
-      const { format_long_name, duration } = response.target.format;
-      const { height, width } = response.target.streams[0];
+      const { filename, format_long_name, duration, height, width } = response.target;
 
       dispatch(
         npyDiagnosisSlice.actions.setVideoMetadata({
-          name: videoName,
+          name: filename,
           format: format_long_name,
           duration: duration,
           height: height,
@@ -172,15 +176,16 @@ export default function VideoDiagnosis() {
 
     if (response.result === "SUCCESS") {
       const {
+        samplePath,
         npyFileNames,
-        videoName,
         sliceTempPaths,
-        numberOfFrames,
         videoInputPath,
         videoOutputPath,
         videoInputBboxPath,
         videoOutputBboxPath,
       } = response;
+
+      dispatch(npyDiagnosisSlice.actions.setSamplePath(samplePath));
 
       dispatch(
         npyDiagnosisSlice.actions.setVideoPath({
@@ -199,11 +204,11 @@ export default function VideoDiagnosis() {
         sliceNumber: index,
         sliceImageUrl: slice[0],
         sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-      }))
+      }));
 
       dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
-      getVideoMetadata(videoName, videoInputPath);
+      getVideoMetadata(videoInputPath);
       dispatch(npyDiagnosisSlice.actions.setNpyFileNames(npyFileNames));
     } else {
       triggerUploadFailedAlert();
@@ -213,38 +218,11 @@ export default function VideoDiagnosis() {
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(npyDiagnosisSlice.actions.setNpyFileNames([]));
-    dispatch(npyDiagnosisSlice.actions.setNpyFilePaths([]));
-
-    dispatch(
-      npyDiagnosisSlice.actions.setVideoPath({
-        avi: "",
-        mp4: "",
-      })
-    );
-
-    dispatch(
-      npyDiagnosisSlice.actions.setVideoBboxPath({
-        avi: "",
-        mp4: "",
-      })
-    );
-
-    dispatch(
-      npyDiagnosisSlice.actions.setVideoMetadata({
-        name: "",
-        format: "",
-        duration: "",
-        height: "",
-        width: "",
-      })
-    );
+    dispatch(npyDiagnosisSlice.actions.resetAllStates())
 
     if (!processRunning) {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
-
-    dispatch(npyDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
 
     dispatch(mainPageSlice.actions.disableAppInteractive());
 
@@ -262,7 +240,7 @@ export default function VideoDiagnosis() {
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
-    }, 250);
+    }, AVERAGE_DIAGNOSE_TIME);
 
     const predictionResponse = await window.electronAPI.makeSinglePrediction(
       videoPath.avi
@@ -351,6 +329,12 @@ export default function VideoDiagnosis() {
           )}
         </div>
 
+        <Input
+          className="npy-diagnosis__upload-container__npy-path-box"
+          placeholder={samplePath === "" ? "N/A" : samplePath}
+          disabled
+        />
+
         <div className="npy-diagnosis__upload-container__list-npy-video-wrapper">
           <div className="npy_diagnosis_upload-container__npy-list--overflow">
             <List
@@ -386,10 +370,13 @@ export default function VideoDiagnosis() {
                 />
               )}
             </Tabs.TabPane>
-            {videoBboxPath.mp4 === "" ? (
-              <Tabs.TabPane tab="Cropped" key="2" disabled />
-            ) : (
-              <Tabs.TabPane tab="Cropped" key="2">
+            <Tabs.TabPane tab="Cropped" key="2">
+              {videoBboxPath.mp4 === "" ? (
+                <Empty
+                  className="npy-diagnosis__upload-container__no-video"
+                  description="No video uploaded"
+                />
+              ) : (
                 <ReactPlayer
                   className="npy-diagnosis__upload-container__video"
                   url={videoBboxPath.mp4}
@@ -397,8 +384,8 @@ export default function VideoDiagnosis() {
                   controls={true}
                   loop={true}
                 />
-              </Tabs.TabPane>
-            )}
+              )}
+            </Tabs.TabPane>
           </Tabs>
         </div>
 

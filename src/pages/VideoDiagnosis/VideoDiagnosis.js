@@ -10,7 +10,7 @@ import {
   listSlicesSelector,
 } from "./videoDiagnosisSelector";
 
-import { Button, Descriptions, Empty, Skeleton } from "antd";
+import { Button, Descriptions, Empty, Skeleton, Input } from "antd";
 
 import {
   UploadOutlined,
@@ -27,6 +27,7 @@ import SaveSampleRecordModal from "../../components/SaveSampleRecordModal/SaveSa
 
 import "./VideoDiagnosis.css";
 import alertsSlice from "../../components/Alerts/alertsSlice";
+import { triggerTaskSucceededAlert } from "../../components/Alerts/alertTrigger";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import mainPageSlice from "../MainPage/mainPageSlice";
 import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
@@ -53,12 +54,14 @@ export default function VideoDiagnosis() {
 
   const alertTimeout = 2000;
 
+  /*
   const triggerTaskSucceededAlert = () => {
     dispatch(alertsSlice.actions.openTaskSucceededAlert());
     setTimeout(() => {
       dispatch(alertsSlice.actions.closeTaskSucceededAlert());
     }, alertTimeout);
   };
+  */
 
   const triggerTaskFailedAlert = () => {
     dispatch(alertsSlice.actions.openTaskFailedAlert());
@@ -126,9 +129,7 @@ export default function VideoDiagnosis() {
 
   const saveSampleRecord = async (sampleRecord) => {
     console.log("Saving record...");
-    const response = await window.electronAPI.saveSampleRecord(
-      sampleRecord
-    );
+    const response = await window.electronAPI.saveSampleRecord(sampleRecord);
     if (response.result === "SUCCESS") {
       triggerSaveSampleRecordSucceededAlert();
     } else {
@@ -136,17 +137,16 @@ export default function VideoDiagnosis() {
     }
   };
 
-  const getVideoMetadata = async (videoName, videoPath) => {
+  const getVideoMetadata = async (videoPath) => {
     const response = await window.electronAPI.getFileMetadata(videoPath);
     console.log(response);
 
     if (response.result === "SUCCESS") {
-      const { format_long_name, duration } = response.target.format;
-      const { height, width } = response.target.streams[0];
+      const { filename, format_long_name, duration, height, width } = response.target
 
       dispatch(
         videoDiagnosisSlice.actions.setVideoMetadata({
-          name: videoName,
+          name: filename,
           format: format_long_name,
           duration: duration,
           height: height,
@@ -157,13 +157,13 @@ export default function VideoDiagnosis() {
   };
 
   const uploadVideo = async () => {
-    dispatch(mainPageSlice.actions.enableLoadingScreen())
+    dispatch(mainPageSlice.actions.enableLoadingScreen());
     const response = await window.electronAPI.openFileDialog();
-    dispatch(mainPageSlice.actions.disableLoadingScreen())
+    dispatch(mainPageSlice.actions.disableLoadingScreen());
     console.log(response);
 
     if (response.result === "SUCCESS") {
-      const { videoName, videoInputPath, videoOutputPath } = response;
+      const { videoInputPath, videoOutputPath } = response;
 
       dispatch(
         videoDiagnosisSlice.actions.setVideoPath({
@@ -172,7 +172,7 @@ export default function VideoDiagnosis() {
         })
       );
 
-      getVideoMetadata(videoName, videoInputPath);
+      getVideoMetadata(videoInputPath);
     } else {
       triggerUploadFailedAlert();
     }
@@ -298,7 +298,7 @@ export default function VideoDiagnosis() {
               size={10}
               disabled
             >
-              Upload video 
+              Upload video
             </Button>
           ) : (
             <Button
@@ -312,6 +312,12 @@ export default function VideoDiagnosis() {
             </Button>
           )}
         </div>
+
+        <Input
+          className="video-diagnosis__upload-container__video-path-box"
+          placeholder={videoPath.avi === "" ? "N/A" : videoPath.avi}
+          disabled
+        />
 
         {videoPath.mp4 === "" ? (
           <Empty

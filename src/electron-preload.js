@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI',{
   // * App control
   minimizeApp: () => ipcRenderer.send('app:control', "minimize"),
+  maximizeApp: () => ipcRenderer.send('app:control', "maximize"),
   closeApp: () => ipcRenderer.send('app:control', "close"),
 
   // * Open file dialog

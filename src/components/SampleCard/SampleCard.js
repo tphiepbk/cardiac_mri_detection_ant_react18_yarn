@@ -29,7 +29,7 @@ export default function SampleCard() {
           {currentSelectedSample.id}
         </Descriptions.Item>
         <Descriptions.Item label="Name">
-          {currentSelectedSample.name}
+          {currentSelectedSample.fullName}
         </Descriptions.Item>
         <Descriptions.Item label="Age">
           {currentSelectedSample.age}

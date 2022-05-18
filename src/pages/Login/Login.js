@@ -51,7 +51,7 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <h1 className="login-container__title">Authentication</h1>
+      <h1 className="login-container__title">Login</h1>
       <Form
         className="login-container__form"
         name="basic"

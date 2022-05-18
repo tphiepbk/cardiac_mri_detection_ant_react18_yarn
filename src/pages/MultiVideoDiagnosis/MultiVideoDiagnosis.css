@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 60vw;
+  width: 60%;
   height: 100%;
   gap: 25px;
 }
@@ -52,7 +52,6 @@
 }
 
 .multi-video-diagnosis__upload-container__diagnose-button {
-  margin-top: 10px;
   align-self: flex-end;
 }
 
@@ -65,7 +64,7 @@
 .multi-video-diagnosis__diagnosis-result {
   display: flex;
   flex-direction: column;
-  width: 45vw;
+  width: 40%;
   height: 100%;
 }
 
@@ -86,7 +85,7 @@
   padding: 15px 20px;
   border-radius: 10px;
   overflow: auto;
-  height: 63vh;
+  height: 69vh;
   margin-top: auto;
   display: grid;
   grid-template-columns: 49% 49%;
@@ -98,7 +97,7 @@
   padding: 15px 20px;
   border-radius: 10px;
   overflow: auto;
-  height: 63vh;
+  height: 69vh;
   margin-top: auto;
   display: flex;
   justify-content: center;

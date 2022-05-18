@@ -145,7 +145,7 @@ export default function MainPage() {
               </Space>
             </Header>
 
-            <Content style={{ margin: "0 16px" }}>
+            <Content style={{ margin: "10px 10px" }}>
               <div className="site-layout-background main-content">
                 {renderedPage}
               </div>
