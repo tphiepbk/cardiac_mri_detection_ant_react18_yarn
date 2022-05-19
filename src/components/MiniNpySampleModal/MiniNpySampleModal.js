@@ -1,19 +1,30 @@
 import React from "react";
 import ReactPlayer from "react-player";
-import './MiniNpySampleModal.css'
+import "./MiniNpySampleModal.css";
 import { Modal, Descriptions, List, Tabs } from "antd";
 
 export default function MiniNpySampleModal(props) {
-
-  const { closeVideoModalHandler, npyFileNames, videoMetadata, videoConvertedPath, videoBboxConvertedPath } = props
+  const {
+    closeVideoModalHandler,
+    sampleName,
+    npyFileNames,
+    videoMetadata: { format_long_name, duration, height, width },
+    videoConvertedPath,
+    videoBboxConvertedPath,
+  } = props;
 
   const tabChangeHandler = (key) => {
     console.log("Changed to tab ", key);
   };
 
   return (
-    <Modal title={videoMetadata.name} visible={true} onCancel={closeVideoModalHandler} footer={null} className='mini-npy-sample-modal'>
-
+    <Modal
+      title={sampleName}
+      visible={true}
+      onCancel={closeVideoModalHandler}
+      footer={null}
+      className="mini-npy-sample-modal"
+    >
       <div className="mini-npy-sample-modal__list-npy-video-wrapper">
         <div className="mini-npy-sample-modal__npy-list--overflow">
           <List
@@ -52,7 +63,7 @@ export default function MiniNpySampleModal(props) {
         </Tabs>
       </div>
 
-      <Descriptions 
+      <Descriptions
         className="mini-npy-sample-modal__description"
         title="Description"
         bordered
@@ -60,11 +71,15 @@ export default function MiniNpySampleModal(props) {
         layout="vertical"
         column={4}
       >
-        <Descriptions.Item label="Name" span={4}>{videoMetadata.name}</Descriptions.Item>
-        <Descriptions.Item label="Format">{videoMetadata.format}</Descriptions.Item>
-        <Descriptions.Item label="Duration">{`${videoMetadata.duration} s`}</Descriptions.Item>
-        <Descriptions.Item label="Size">{`${videoMetadata.width} x ${videoMetadata.height}`}</Descriptions.Item>
+        <Descriptions.Item label="Name" span={4}>
+          {sampleName}
+        </Descriptions.Item>
+        <Descriptions.Item label="Format">
+          {format_long_name}
+        </Descriptions.Item>
+        <Descriptions.Item label="Duration">{`${duration} s`}</Descriptions.Item>
+        <Descriptions.Item label="Size">{`${width} x ${height}`}</Descriptions.Item>
       </Descriptions>
     </Modal>
-  )
+  );
 }

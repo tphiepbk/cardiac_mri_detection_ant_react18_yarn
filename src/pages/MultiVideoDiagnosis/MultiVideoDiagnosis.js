@@ -89,13 +89,6 @@ export default function MultiVideoDiagnosis() {
 
   const [isVideoModalVisible, setIsVideoModalVisible] = React.useState(false);
   const [currentVideoSelected, setCurrentVideoSelected] = React.useState(0);
-  const [currentVideoMetadata, setCurrentVideoMetadata] = React.useState({
-    name: "",
-    format: "",
-    duration: 0,
-    height: 0,
-    width: 0,
-  });
 
   const closeVideoModal = () => {
     setIsVideoModalVisible(false);
@@ -109,49 +102,19 @@ export default function MultiVideoDiagnosis() {
   const inspectClickHandler = (videoIndex) => {
     console.log("Selected Video Inspect", videoIndex);
     setCurrentVideoSelected(videoIndex);
-    showVideoModal(videoIndex);
-  };
-
-  const showVideoModal = async (videoIndex) => {
-    await getVideoMetadata(
-      listInputVideo[videoIndex].videoInputPath
-    );
     setIsVideoModalVisible(true);
-  };
-
-  const getVideoMetadata = async (videoPath) => {
-    const response = await window.electronAPI.getFileMetadata(videoPath);
-    console.log(response);
-
-    if (response.result === "SUCCESS") {
-      const { filename, format_long_name, duration, height, width } = response.target;
-
-      setCurrentVideoMetadata({
-        name: filename,
-        format: format_long_name,
-        duration: duration,
-        height: height,
-        width: width,
-      });
-    }
   };
 
   const uploadMultiVideos = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
-    const filesOpenResponse = await window.electronAPI.openMultiFilesDialog();
+    const filesOpenResponse = await window.electronAPI.uploadMultipleVideos();
     dispatch(mainPageSlice.actions.disableLoadingScreen());
+
     console.log(filesOpenResponse);
 
     if (filesOpenResponse.result === "SUCCESS") {
       dispatch(
-        multiVideoDiagnosisSlice.actions.setListInputVideo(
-          filesOpenResponse.videoObjectList.map((videoObject) => ({
-            index: videoObject.index,
-            videoName: videoObject.videoName,
-            videoInputPath: videoObject.videoInputPath,
-            videoOutputPath: videoObject.videoOutputPath,
-          }))
-        )
+        multiVideoDiagnosisSlice.actions.setListInputVideo([...filesOpenResponse.target])
       );
     } else {
       triggerUploadFailedAlert();
@@ -291,8 +254,9 @@ export default function MultiVideoDiagnosis() {
         {isVideoModalVisible && (
           <MiniVideoModal
             closeVideoModalHandler={closeVideoModal}
-            videoMetadata={currentVideoMetadata}
-            videoConvertedPath={
+            videoName={listInputVideo[currentVideoSelected].videoName}
+            videoMetadata={listInputVideo[currentVideoSelected].videoMetadata}
+            videoOutputPath={
               listInputVideo[currentVideoSelected].videoOutputPath
             }
           />

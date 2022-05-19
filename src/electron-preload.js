@@ -2,29 +2,26 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI',{
   // * App control
-  minimizeApp: () => ipcRenderer.send('app:control', "minimize"),
-  maximizeApp: () => ipcRenderer.send('app:control', "maximize"),
-  closeApp: () => ipcRenderer.send('app:control', "close"),
+  minimizeApp: () => ipcRenderer.send('minimize-app'),
+  maximizeApp: () => ipcRenderer.send('maximize-app'),
+  closeApp: () => ipcRenderer.send('close-app'),
   maximizedAppHandler: (callback) => ipcRenderer.on('maximized-app', callback),
   unmaximizedAppHandler: (callback) => ipcRenderer.on('unmaximized-app', callback),
 
-  // * Open file dialog
-  openFileDialog : () => ipcRenderer.invoke('open-file-dialog'),
+  // * Upload one video
+  uploadVideo : () => ipcRenderer.invoke('upload-video'),
 
-  // * Get video's metadata
-  getFileMetadata : (filepath) => ipcRenderer.invoke('get-video-metadata', filepath),
+  // * Upload multiple videos
+  uploadMultipleVideos: () => ipcRenderer.invoke('upload-multiple-videos'),
+
+  // * Upload NPY sample
+  uploadNpySample: () => ipcRenderer.invoke('upload-npy-sample'),
+
+  // * Upload multiple NPY samples
+  uploadMultipleNpySamples: () => ipcRenderer.invoke('upload-multiple-npy-samples'),
 
   // * Make single prediction
   makeSinglePrediction : (filepath) => ipcRenderer.invoke('make-single-prediction', filepath),
-
-  // * Open multi files dialog
-  openMultiFilesDialog: () => ipcRenderer.invoke('open-multi-files-dialog'),
-
-  // * Open npy sample dialog
-  openNpySampleDialog: () => ipcRenderer.invoke('open-npy-sample-dialog'),
-
-  // * Open multi npy samples dialog
-  openMultiNpySamplesDialog: () => ipcRenderer.invoke('open-multi-npy-samples-dialog'),
 
   // * Make multiple prediction
   makeMultiplePrediction : (sampleObjectList) => ipcRenderer.invoke('make-multiple-prediction', sampleObjectList),

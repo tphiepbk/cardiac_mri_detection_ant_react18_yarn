@@ -86,13 +86,6 @@ export default function MultiNPYDiagnosis() {
 
   const [isVideoModalVisible, setIsVideoModalVisible] = React.useState(false);
   const [currentVideoSelected, setCurrentVideoSelected] = React.useState(0);
-  const [currentVideoMetadata, setCurrentVideoMetadata] = React.useState({
-    name: "",
-    format: "",
-    duration: 0,
-    height: 0,
-    width: 0,
-  });
 
   const closeVideoModal = () => {
     setIsVideoModalVisible(false);
@@ -106,57 +99,23 @@ export default function MultiNPYDiagnosis() {
   const inspectClickHandler = (videoIndex) => {
     console.log("Selected Video Inspect", videoIndex);
     setCurrentVideoSelected(videoIndex);
-    showVideoModal(videoIndex);
-  };
-
-  const showVideoModal = async (videoIndex) => {
-    await getVideoMetadata(
-      listInputNpyObject[videoIndex].videoInputPath
-    );
     setIsVideoModalVisible(true);
-  };
-
-  const getVideoMetadata = async (videoPath) => {
-    const response = await window.electronAPI.getFileMetadata(videoPath);
-    console.log(response);
-
-    if (response.result === "SUCCESS") {
-      const { filename, format_long_name, duration, height, width } = response.target;
-
-      setCurrentVideoMetadata({
-        name: filename,
-        format: format_long_name,
-        duration: duration,
-        height: height,
-        width: width,
-      });
-    }
   };
 
   const uploadMultiNpySamples = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
     const npySamplesOpenResponse =
-      await window.electronAPI.openMultiNpySamplesDialog();
+      await window.electronAPI.uploadMultipleNpySamples();
     dispatch(mainPageSlice.actions.disableLoadingScreen());
     console.log(npySamplesOpenResponse);
 
     if (npySamplesOpenResponse.result === "SUCCESS") {
       dispatch(
-        multiNpyDiagnosisSlice.actions.setListInputNpyObject(
-          npySamplesOpenResponse.npyObjectList.map((npyObject) => ({
-            index: npyObject.index,
-            npyFileNames: npyObject.npyFileNames,
-            videoName: npyObject.videoName,
-            videoInputPath: npyObject.videoInputPath,
-            videoOutputPath: npyObject.videoOutputPath,
-            videoInputBboxPath: npyObject.videoInputBboxPath,
-            videoOutputBboxPath: npyObject.videoOutputBboxPath,
-          }))
-        )
+        multiNpyDiagnosisSlice.actions.setListInputNpyObject([...npySamplesOpenResponse.target])
       );
 
       const crawledMultiVideoListSlices =
-        npySamplesOpenResponse.npyObjectList.map((npyObject) => {
+        npySamplesOpenResponse.target.map((npyObject) => {
           const crawledListSlices = npyObject.sliceTempPaths.map(
             (slice, index) => ({
               sliceNumber: index,
@@ -313,12 +272,13 @@ export default function MultiNPYDiagnosis() {
           <MiniNpySampleModal
             closeVideoModalHandler={closeVideoModal}
             npyFileNames={listInputNpyObject[currentVideoSelected].npyFileNames}
-            videoMetadata={currentVideoMetadata}
+            sampleName={listInputNpyObject[currentSliceSelected].sampleName}
+            videoMetadata={listInputNpyObject[currentVideoSelected].videoMetadata}
             videoConvertedPath={
               listInputNpyObject[currentVideoSelected].videoOutputPath
             }
             videoBboxConvertedPath={
-              listInputNpyObject[currentVideoSelected].videoOutputBboxPath
+              listInputNpyObject[currentVideoSelected].videoBboxOutputPath
             }
           />
         )}

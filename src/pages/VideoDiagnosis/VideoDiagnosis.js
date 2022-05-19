@@ -91,34 +91,19 @@ export default function VideoDiagnosis() {
     }
   };
 
-  const getVideoMetadata = async (videoPath) => {
-    const response = await window.electronAPI.getFileMetadata(videoPath);
-    console.log(response);
-
-    if (response.result === "SUCCESS") {
-      const { filename, format_long_name, duration, height, width } =
-        response.target;
-
-      dispatch(
-        videoDiagnosisSlice.actions.setVideoMetadata({
-          name: filename,
-          format: format_long_name,
-          duration: duration,
-          height: height,
-          width: width,
-        })
-      );
-    }
-  };
-
   const uploadVideo = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
-    const response = await window.electronAPI.openFileDialog();
+    const response = await window.electronAPI.uploadVideo();
     dispatch(mainPageSlice.actions.disableLoadingScreen());
     console.log(response);
 
     if (response.result === "SUCCESS") {
-      const { videoInputPath, videoOutputPath } = response;
+      const {
+        videoName,
+        videoInputPath,
+        videoOutputPath,
+        videoMetadata: { format_long_name, duration, height, width },
+      } = response.target;
 
       dispatch(
         videoDiagnosisSlice.actions.setVideoPath({
@@ -127,7 +112,15 @@ export default function VideoDiagnosis() {
         })
       );
 
-      getVideoMetadata(videoInputPath);
+      dispatch(
+        videoDiagnosisSlice.actions.setVideoMetadata({
+          name: videoName,
+          format: format_long_name,
+          duration: duration,
+          height: height,
+          width: width,
+        })
+      );
     } else {
       triggerUploadFailedAlert();
     }

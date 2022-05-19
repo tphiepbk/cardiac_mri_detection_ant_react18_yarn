@@ -103,42 +103,24 @@ export default function VideoDiagnosis() {
     console.log("Changed to tab ", key);
   };
 
-  const getVideoMetadata = async (videoPath) => {
-    const response = await window.electronAPI.getFileMetadata(videoPath);
-    console.log(response);
-
-    if (response.result === "SUCCESS") {
-      const { filename, format_long_name, duration, height, width } =
-        response.target;
-
-      dispatch(
-        npyDiagnosisSlice.actions.setVideoMetadata({
-          name: filename,
-          format: format_long_name,
-          duration: duration,
-          height: height,
-          width: width,
-        })
-      );
-    }
-  };
-
   const uploadNpySample = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
-    const response = await window.electronAPI.openNpySampleDialog();
+    const response = await window.electronAPI.uploadNpySample();
     console.log(response);
     dispatch(mainPageSlice.actions.disableLoadingScreen());
 
     if (response.result === "SUCCESS") {
       const {
         samplePath,
+        sampleName,
         npyFileNames,
         sliceTempPaths,
         videoInputPath,
         videoOutputPath,
-        videoInputBboxPath,
-        videoOutputBboxPath,
-      } = response;
+        videoBboxInputPath,
+        videoBboxOutputPath,
+        videoMetadata: {format_long_name, duration, height, width},
+      } = response.target;
 
       dispatch(npyDiagnosisSlice.actions.setSamplePath(samplePath));
 
@@ -150,8 +132,18 @@ export default function VideoDiagnosis() {
       );
       dispatch(
         npyDiagnosisSlice.actions.setVideoBboxPath({
-          avi: videoInputBboxPath,
-          mp4: videoOutputBboxPath,
+          avi: videoBboxInputPath,
+          mp4: videoBboxOutputPath,
+        })
+      );
+
+      dispatch(
+        npyDiagnosisSlice.actions.setVideoMetadata({
+          name: sampleName,
+          format: format_long_name,
+          duration: duration,
+          height: height,
+          width: width,
         })
       );
 
@@ -163,7 +155,6 @@ export default function VideoDiagnosis() {
 
       dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
-      getVideoMetadata(videoInputPath);
       dispatch(npyDiagnosisSlice.actions.setNpyFileNames(npyFileNames));
     } else {
       triggerUploadFailedAlert();
