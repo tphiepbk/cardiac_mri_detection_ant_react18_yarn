@@ -75,6 +75,14 @@ function createWindow() {
   mainWindow.on("closed", function () {
     mainWindow = null;
   });
+
+  mainWindow.on("maximize", () => {
+    mainWindow.webContents.send('maximized-app')
+  })
+
+  mainWindow.on("unmaximize", () => {
+    mainWindow.webContents.send('unmaximized-app')
+  })
 }
 
 app.whenReady().then(() => {

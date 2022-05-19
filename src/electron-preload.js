@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('electronAPI',{
   minimizeApp: () => ipcRenderer.send('app:control', "minimize"),
   maximizeApp: () => ipcRenderer.send('app:control', "maximize"),
   closeApp: () => ipcRenderer.send('app:control', "close"),
+  maximizedAppHandler: (callback) => ipcRenderer.on('maximized-app', callback),
+  unmaximizedAppHandler: (callback) => ipcRenderer.on('unmaximized-app', callback),
 
   // * Open file dialog
   openFileDialog : () => ipcRenderer.invoke('open-file-dialog'),
