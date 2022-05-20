@@ -88,9 +88,12 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
         __dirname + "/../extra/npy_avi_converter.py"
       );
 
+      const pythonPath = path.resolve(__dirname + "/../resources/Python/python.exe")
+
       const options = {
         mode: "text",
         pythonOptions: ["-u"],
+        pythonPath: pythonPath,
         args: [
           ultralyticsYoloV5Path,
           detectorPath,
