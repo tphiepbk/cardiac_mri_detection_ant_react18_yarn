@@ -1,108 +1,188 @@
 import React from "react";
-import "./Dashboard.css"
+import "./Dashboard.css";
 
-import { Table, Tag } from 'antd';
+import { Table, Tag } from "antd";
 
-import PatientCard from '../../components/PatientCard/PatientCard'
+import SampleCard from "../../components/SampleCard/SampleCard";
 import { nanoid } from "nanoid";
+import dashboardSlice from "./dashboardSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  currentDataPageSelector,
+  allSamplesSelector,
+} from "./dashboardSelector";
 
 export default function Dashboard() {
+  const dispatch = useDispatch();
+
+  const currentDataPage = useSelector(currentDataPageSelector);
+
+  React.useEffect(() => {
+    const getAllSamples = async () => {
+      const response = await window.electronAPI.getAllSampleRecords();
+      const allSamples = response.result;
+      const allProcessedSamples = allSamples.map((element) => {
+        const date = new Date(element._doc.diagnosisResult.dateModified);
+        const dd = String(date.getDate()).padStart(2, "0");
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const yyyy = date.getFullYear();
+        const processedDate = dd + "/" + mm + "/" + yyyy;
+        return {
+          key: nanoid(),
+          id: nanoid(),
+          sampleName: element._doc.sampleName,
+          fullName: element._doc.fullName,
+          gender: element._doc.gender,
+          age: element._doc.age,
+          address: element._doc.address,
+          diagnosisResult_value: element._doc.diagnosisResult.value,
+          diagnosisResult_author: element._doc.diagnosisResult.author,
+          diagnosisResult_dateModified: processedDate,
+        };
+      });
+      dispatch(dashboardSlice.actions.setAllSamples(allProcessedSamples));
+    };
+
+    getAllSamples();
+  }, [currentDataPage, dispatch]);
+
+  const allSamples = useSelector(allSamplesSelector);
+
+  console.log(allSamples);
+
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      width: 150,
+      align: "center",
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Sample name",
+      dataIndex: "sampleName",
+      key: "sampleName",
+      align: "center",
     },
     {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
+      title: "Full name",
+      dataIndex: "fullName",
+      key: "fullName",
+      width: 150,
+      align: "center",
     },
     {
-      title: 'Gender',
-      dataIndex: 'gender',
-      key: 'gender',
+      title: "Age",
+      dataIndex: "age",
+      key: "age",
+      width: 60,
+      align: "center",
     },
     {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+      width: 80,
+      align: "center",
     },
     {
-      title: 'Result',
-      key: 'result',
-      dataIndex: 'result',
-      render: result => (
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      width: 300,
+      align: "center",
+    },
+    {
+      title: "Result",
+      key: "diagnosisResult_value",
+      dataIndex: "diagnosisResult_value",
+      width: 100,
+      align: "center",
+      render: (result) => (
         <>
-          <Tag color={result === 'normal' ? 'success' : 'error'}>
+          <Tag color={result === "normal" ? "success" : "error"}>
             {result.toUpperCase()}
           </Tag>
         </>
       ),
     },
     {
-      title: 'Status',
-      key: 'status',
-      dataIndex: 'status',
-      render: status => (
-        <>
-          <Tag color={status === 'confirmed' ? 'geekblue' : 'volcano'}>
-            {status.toUpperCase()}
-          </Tag>
-        </>
-      ),
+      title: "Author",
+      dataIndex: "diagnosisResult_author",
+      key: "author",
+      width: 150,
+      align: "center",
     },
     {
-      title: 'Confirmed By',
-      dataIndex: 'confirmed_by',
-      key: 'confirmed_by',
-    },
-    {
-      title: 'Date Modified',
-      dataIndex: 'date_modified',
-      key: 'date_modified',
+      title: "Date modified",
+      dataIndex: "diagnosisResult_dateModified",
+      key: "diagnosisResult_dateModified",
+      width: 150,
+      align: "center",
     },
   ];
 
+  /*
   const dataSample = {
-    key: '',
+    key: "",
     id: 0,
-    name: 'John Brown',
+    sampleName: "test1",
+    fullName: "John Brown",
     age: 32,
-    gender: 'Male',
-    address: 'New York No. 1 Lake Park',
-    result: 'normal',
-    status: 'confirmed',
-    confirmed_by: 'tphiepbk',
-    date_modified: '30/03/2022'
-  }
+    gender: "Male",
+    address: "New York No. 1 Lake Park",
+    diagnosisResult_value: "normal",
+    diagnosisResult_author: "tphiepbk",
+    diagnosisResult_dateModified: "30/03/2022",
+  };
 
   const data = [];
 
   let today = new Date();
-  const dd = String(today.getDate()).padStart(2, '0');
-  const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const dd = String(today.getDate()).padStart(2, "0");
+  const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
   const yyyy = today.getFullYear();
-  today = dd + '/' + mm + '/' + yyyy;
+  today = dd + "/" + mm + "/" + yyyy;
 
-  for (let i = 0 ;  i <= 100 ; i++) {
+  for (let i = 0; i < 20; i++) {
     data.push({
       ...dataSample,
       key: `${i}`,
       id: nanoid(),
-      date_modified: today
-    })
+      diagnosisResult_dateModified: today,
+    });
   }
+  */
+
+  const paginationChangeHandler = (e) => {
+    dispatch(dashboardSlice.actions.setCurrentDataPage(e.current));
+  };
+
+  const rowSelectHandler = (record) => {
+    console.log(record);
+    dispatch(dashboardSlice.actions.setCurrentSelectedSample(record));
+  };
 
   return (
     <div className="dashboard">
-      <PatientCard />
-      <Table columns={columns} dataSource={data} pagination={{ pageSize: 10 }} scroll={{ y: "47vh" }} className="dashboard__patient-table"/>
+      <SampleCard />
+      <div className="dashboard__sample-table-container">
+        <Table
+          onRow={(record, _rowIndex) => {
+            return {
+              onClick: (event) => {
+                rowSelectHandler(record);
+              },
+            };
+          }}
+          className="dashboard__sample-table"
+          columns={columns}
+          dataSource={allSamples}
+          pagination={{ pageSize: 10 }}
+          scroll={{ y: "50vh" }}
+          onChange={(e) => paginationChangeHandler(e)}
+        />
+      </div>
     </div>
-  )  
+  );
 }

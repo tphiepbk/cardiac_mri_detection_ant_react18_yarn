@@ -8,7 +8,7 @@ export default function SliceCard(props) {
       <Card size="small" title={`Slice ${sliceNumber}`} style={{textAlign: 'center'}}>
         <Image
           className="slice-card__image"
-          width={250}
+          width={200}
           src={sliceImageUrl}
           preview={false}
         />

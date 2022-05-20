@@ -10,9 +10,10 @@ import {
   listSlicesSelector,
   npyFileNamesSelector,
   videoBboxPathSelector,
+  samplePathSelector,
 } from "./npyDiagnosisSelector";
 
-import { Button, Descriptions, Empty, Skeleton, Tabs, List } from "antd";
+import { Button, Descriptions, Empty, Skeleton, Tabs, List, Input } from "antd";
 
 import {
   UploadOutlined,
@@ -25,21 +26,32 @@ import {
 
 import SliceCard from "../../components/SliceCard/SliceCard";
 import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
-import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
+import SaveSampleRecordModal from "../../components/SaveSampleRecordModal/SaveSampleRecordModal";
 
 import "./NPYDiagnosis.css";
-import alertsSlice from "../../components/Alerts/alertsSlice";
+import {
+  triggerTaskSucceededAlert,
+  triggerTaskFailedAlert,
+  triggerNoVideoAlert,
+  triggerSaveSampleRecordFailedAlert,
+  triggerSaveSampleRecordSucceededAlert,
+  triggerTaskRunningAlert,
+  triggerUploadFailedAlert,
+} from "../../components/Alerts/alertsTrigger";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
-import appSlice from "../../appSlice";
-import { appProcessRunningSelector } from "../../appSelector";
+import mainPageSlice from "../MainPage/mainPageSlice";
+import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
 
 const NO_DIAGNOSIS_RESULT = 0;
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
+const AVERAGE_DIAGNOSE_TIME = 250;
+
 export default function VideoDiagnosis() {
   const dispatch = useDispatch();
 
+  const samplePath = useSelector(samplePathSelector);
   const npyFileNames = useSelector(npyFileNamesSelector);
   const videoPath = useSelector(videoPathSelector);
   const videoBboxPath = useSelector(videoBboxPathSelector);
@@ -51,60 +63,9 @@ export default function VideoDiagnosis() {
   const processRunning = useSelector(appProcessRunningSelector);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
-  const [isSavePatientRecordModalVisible, setIsSavePatientRecordModalVisible] =
+  const [isSaveSampleRecordModalVisible, setIsSaveSampleRecordModalVisible] =
     React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
-
-  const alertTimeout = 2000;
-
-  const triggerTaskSucceededAlert = () => {
-    dispatch(alertsSlice.actions.openTaskSucceededAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskSucceededAlert());
-    }, alertTimeout);
-  };
-
-  const triggerTaskFailedAlert = () => {
-    dispatch(alertsSlice.actions.openTaskFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskFailedAlert());
-    }, alertTimeout);
-  };
-
-  const triggerTaskRunningAlert = () => {
-    dispatch(alertsSlice.actions.openTaskRunningAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskRunningAlert());
-    }, alertTimeout);
-  };
-
-  const triggerNoVideoAlert = () => {
-    dispatch(alertsSlice.actions.openNoVideoAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeNoVideoAlert());
-    }, alertTimeout);
-  };
-
-  const triggerUploadFailedAlert = () => {
-    dispatch(alertsSlice.actions.openUploadFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeUploadFailedAlert());
-    }, alertTimeout);
-  };
-
-  const triggerSavePatientRecordSucceededAlert = () => {
-    dispatch(alertsSlice.actions.openSavePatientRecordSucceededAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSavePatientRecordSucceededAlert());
-    }, alertTimeout);
-  };
-
-  const triggerSavePatientRecordFailedAlert = () => {
-    dispatch(alertsSlice.actions.openSavePatientRecordFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
-    }, alertTimeout);
-  };
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -120,23 +81,21 @@ export default function VideoDiagnosis() {
     setIsModalVisible(false);
   };
 
-  const showSavePatientRecordModal = () => {
-    setIsSavePatientRecordModalVisible(true);
+  const showSaveSampleRecordModal = () => {
+    setIsSaveSampleRecordModalVisible(true);
   };
 
-  const closeSavePatientRecordModalHandler = () => {
-    setIsSavePatientRecordModalVisible(false);
+  const closeSaveSampleRecordModalHandler = () => {
+    setIsSaveSampleRecordModalVisible(false);
   };
 
-  const savePatientRecord = async (patientRecord) => {
+  const saveSampleRecord = async (sampleRecord) => {
     console.log("Saving record...");
-    const response = await window.electronAPI.savePatientDiagnosisResult(
-      patientRecord
-    );
+    const response = await window.electronAPI.saveSampleRecord(sampleRecord);
     if (response.result === "SUCCESS") {
-      triggerSavePatientRecordSucceededAlert();
+      triggerSaveSampleRecordSucceededAlert();
     } else {
-      triggerSavePatientRecordFailedAlert();
+      triggerSaveSampleRecordFailedAlert();
     }
   };
 
@@ -144,41 +103,26 @@ export default function VideoDiagnosis() {
     console.log("Changed to tab ", key);
   };
 
-  const getVideoMetadata = async (videoName, videoPath) => {
-    const response = await window.electronAPI.getFileMetadata(videoPath);
-    console.log(response);
-
-    if (response.result === "SUCCESS") {
-      const { format_long_name, duration } = response.target.format;
-      const { height, width } = response.target.streams[0];
-
-      dispatch(
-        npyDiagnosisSlice.actions.setVideoMetadata({
-          name: videoName,
-          format: format_long_name,
-          duration: duration,
-          height: height,
-          width: width,
-        })
-      );
-    }
-  };
-
   const uploadNpySample = async () => {
-    dispatch(appSlice.actions.enableLoadingScreen());
-    const response = await window.electronAPI.openNpySampleDialog();
+    dispatch(mainPageSlice.actions.enableLoadingScreen());
+    const response = await window.electronAPI.uploadNpySample();
     console.log(response);
-    dispatch(appSlice.actions.disableLoadingScreen());
+    dispatch(mainPageSlice.actions.disableLoadingScreen());
 
     if (response.result === "SUCCESS") {
       const {
+        samplePath,
+        sampleName,
         npyFileNames,
-        videoName,
+        sliceTempPaths,
         videoInputPath,
         videoOutputPath,
-        videoInputBboxPath,
-        videoOutputBboxPath,
-      } = response;
+        videoBboxInputPath,
+        videoBboxOutputPath,
+        videoMetadata: {format_long_name, duration, height, width},
+      } = response.target;
+
+      dispatch(npyDiagnosisSlice.actions.setSamplePath(samplePath));
 
       dispatch(
         npyDiagnosisSlice.actions.setVideoPath({
@@ -188,55 +132,45 @@ export default function VideoDiagnosis() {
       );
       dispatch(
         npyDiagnosisSlice.actions.setVideoBboxPath({
-          avi: videoInputBboxPath,
-          mp4: videoOutputBboxPath,
+          avi: videoBboxInputPath,
+          mp4: videoBboxOutputPath,
         })
       );
 
-      getVideoMetadata(videoName, videoInputPath);
+      dispatch(
+        npyDiagnosisSlice.actions.setVideoMetadata({
+          name: sampleName,
+          format: format_long_name,
+          duration: duration,
+          height: height,
+          width: width,
+        })
+      );
+
+      const crawledListSlices = sliceTempPaths.map((slice, index) => ({
+        sliceNumber: index,
+        sliceImageUrl: slice[0],
+        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+      }));
+
+      dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
+
       dispatch(npyDiagnosisSlice.actions.setNpyFileNames(npyFileNames));
     } else {
       triggerUploadFailedAlert();
     }
 
-    dispatch(appSlice.actions.enableAppInteractive());
+    dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(npyDiagnosisSlice.actions.setNpyFileNames([]));
-    dispatch(npyDiagnosisSlice.actions.setNpyFilePaths([]));
-
-    dispatch(
-      npyDiagnosisSlice.actions.setVideoPath({
-        avi: "",
-        mp4: "",
-      })
-    );
-
-    dispatch(
-      npyDiagnosisSlice.actions.setVideoBboxPath({
-        avi: "",
-        mp4: "",
-      })
-    );
-
-    dispatch(
-      npyDiagnosisSlice.actions.setVideoMetadata({
-        name: "",
-        format: "",
-        duration: "",
-        height: "",
-        width: "",
-      })
-    );
+    dispatch(npyDiagnosisSlice.actions.clearContent());
 
     if (!processRunning) {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
 
-    dispatch(npyDiagnosisSlice.actions.setDiagnosisResult(NO_DIAGNOSIS_RESULT));
-
-    dispatch(appSlice.actions.disableAppInteractive());
+    dispatch(mainPageSlice.actions.disableAppInteractive());
 
     uploadNpySample();
   };
@@ -248,11 +182,11 @@ export default function VideoDiagnosis() {
 
     dispatch(npyDiagnosisSlice.actions.disableButton());
 
-    dispatch(appSlice.actions.setProcessRunning(true));
+    dispatch(mainPageSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
-    }, 250);
+    }, AVERAGE_DIAGNOSE_TIME);
 
     const predictionResponse = await window.electronAPI.makeSinglePrediction(
       videoPath.avi
@@ -262,6 +196,7 @@ export default function VideoDiagnosis() {
     clearInterval(progressBarRunning);
     dispatch(progressBarSlice.actions.completeProgressBar());
 
+    /*
     const crawledListSlices = [];
     for (let i = 0; i <= 10; i++) {
       crawledListSlices.push({
@@ -272,8 +207,9 @@ export default function VideoDiagnosis() {
       });
     }
     dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
+    */
 
-    dispatch(appSlice.actions.setProcessRunning(false));
+    dispatch(mainPageSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();
@@ -339,6 +275,12 @@ export default function VideoDiagnosis() {
           )}
         </div>
 
+        <Input
+          className="npy-diagnosis__upload-container__npy-path-box"
+          placeholder={samplePath === "" ? "N/A" : samplePath}
+          disabled
+        />
+
         <div className="npy-diagnosis__upload-container__list-npy-video-wrapper">
           <div className="npy_diagnosis_upload-container__npy-list--overflow">
             <List
@@ -374,10 +316,13 @@ export default function VideoDiagnosis() {
                 />
               )}
             </Tabs.TabPane>
-            {videoBboxPath.mp4 === "" ? (
-              <Tabs.TabPane tab="Cropped" key="2" disabled />
-            ) : (
-              <Tabs.TabPane tab="Cropped" key="2">
+            <Tabs.TabPane tab="Cropped" key="2">
+              {videoBboxPath.mp4 === "" ? (
+                <Empty
+                  className="npy-diagnosis__upload-container__no-video"
+                  description="No video uploaded"
+                />
+              ) : (
                 <ReactPlayer
                   className="npy-diagnosis__upload-container__video"
                   url={videoBboxPath.mp4}
@@ -385,8 +330,8 @@ export default function VideoDiagnosis() {
                   controls={true}
                   loop={true}
                 />
-              </Tabs.TabPane>
-            )}
+              )}
+            </Tabs.TabPane>
           </Tabs>
         </div>
 
@@ -501,20 +446,20 @@ export default function VideoDiagnosis() {
                 style={{ marginTop: "5px" }}
                 icon={<UserAddOutlined />}
                 size={10}
-                onClick={showSavePatientRecordModal}
+                onClick={showSaveSampleRecordModal}
               >
                 Proceed
               </Button>
             )}
 
-            {isSavePatientRecordModalVisible && (
-              <SavePatientRecordModal
+            {isSaveSampleRecordModalVisible && (
+              <SaveSampleRecordModal
                 diagnosisResult={diagnosisResult}
-                closeSavePatientRecordModalHandler={
-                  closeSavePatientRecordModalHandler
+                closeSaveSampleRecordModalHandler={
+                  closeSaveSampleRecordModalHandler
                 }
                 sampleName={videoMetadata.name}
-                savePatientRecord={savePatientRecord}
+                saveSampleRecord={saveSampleRecord}
                 today={today}
               />
             )}

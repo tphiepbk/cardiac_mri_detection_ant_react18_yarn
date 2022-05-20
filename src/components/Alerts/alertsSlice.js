@@ -6,8 +6,8 @@ const initialState = {
   noVideo: false,
   uploadFailed: false,
   taskRunning: false,
-  savePatientRecordSucceeded: false,
-  savePatientRecordFailed: false,
+  saveSampleRecordSucceeded: false,
+  saveSampleRecordFailed: false,
 };
 
 const alertsSlice = createSlice({
@@ -29,11 +29,11 @@ const alertsSlice = createSlice({
     openTaskRunningAlert: (state, _action) => {
       state.taskRunning = true;
     },
-    openSavePatientRecordSucceededAlert: (state, _action) => {
-      state.savePatientRecordSucceeded = true;
+    openSaveSampleRecordSucceededAlert: (state, _action) => {
+      state.saveSampleRecordSucceeded = true;
     },
-    openSavePatientRecordFailedAlert: (state, _action) => {
-      state.savePatientRecordFailed = true;
+    openSaveSampleRecordFailedAlert: (state, _action) => {
+      state.saveSampleRecordFailed = true;
     },
     closeTaskSucceededAlert: (state, _action) => {
       state.taskSucceeded = false;
@@ -50,11 +50,11 @@ const alertsSlice = createSlice({
     closeTaskRunningAlert: (state, _action) => {
       state.taskRunning = false;
     },
-    closeSavePatientRecordSucceededAlert: (state, _action) => {
-      state.savePatientRecordSucceeded = false;
+    closeSaveSampleRecordSucceededAlert: (state, _action) => {
+      state.saveSampleRecordSucceeded = false;
     },
-    closeSavePatientRecordFailedAlert: (state, _action) => {
-      state.savePatientRecordFailed = false;
+    closeSaveSampleRecordFailedAlert: (state, _action) => {
+      state.saveSampleRecordFailed = false;
     },
   },
 });

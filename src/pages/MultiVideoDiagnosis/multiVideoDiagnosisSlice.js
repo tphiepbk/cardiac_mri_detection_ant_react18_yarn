@@ -21,10 +21,15 @@ const multiVideoDiagnosisSlice = createSlice({
       state.multiVideoListSlices = action.payload;
     },
     enableButton: (state, _action) => {
-      state.disabledButton = false
+      state.disabledButton = false;
     },
     disableButton: (state, _action) => {
-      state.disabledButton = true
+      state.disabledButton = true;
+    },
+    clearContent: (state, _action) => {
+      state.listInputVideo = [];
+      state.listPredictionResult = [];
+      state.multiVideoListSlices = [];
     },
   },
 });

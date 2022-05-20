@@ -5,6 +5,26 @@
   height: 100%;
 }
 
-.dashboard__patient-table {
-  margin-top: auto;
+.dashboard__sample-table-container {
+  display: flex;
+  margin-top: 2vh;
+  height: 100%;
+}
+
+.dashboard__sample-table {
+  height: 100%;
+}
+
+.ant-spin-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ant-table-fixed-header, .ant-table-container {
+  height: 100%;
+}
+
+.ant-pagination {
+  margin-bottom: 0 !important;
 }

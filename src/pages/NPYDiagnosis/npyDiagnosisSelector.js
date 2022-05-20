@@ -5,9 +5,9 @@ export const npyFileNamesSelector = createSelector(
   (npyFileNames) => npyFileNames
 );
 
-export const npyFilePathsSelector = createSelector(
-  (state) => state.npyDiagnosis.npyFilePaths,
-  (npyFilePaths) => npyFilePaths
+export const samplePathSelector = createSelector(
+  (state) => state.npyDiagnosis.samplePath,
+  (samplePath) => samplePath
 );
 
 export const videoPathSelector = createSelector(

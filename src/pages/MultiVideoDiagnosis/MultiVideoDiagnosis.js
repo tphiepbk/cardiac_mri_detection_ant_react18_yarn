@@ -16,17 +16,26 @@ import SliceCardModal from "../../components/SliceCardModal/SliceCardModal";
 import MiniVideoModal from "../../components/MiniVideoModal/MiniVideoModal";
 import { useDispatch, useSelector } from "react-redux";
 import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
-import alertsSlice from "../../components/Alerts/alertsSlice";
-import appSlice from "../../appSlice";
+import mainPageSlice from "../MainPage/mainPageSlice";
 import multiVideoDiagnosisSlice from "./multiVideoDiagnosisSlice";
-import SavePatientRecordModal from "../../components/SavePatientRecordModal/SavePatientRecordModal";
-import { appProcessRunningSelector } from "../../appSelector";
+import SaveSampleRecordModal from "../../components/SaveSampleRecordModal/SaveSampleRecordModal";
+import { appProcessRunningSelector } from "../MainPage/mainPageSelector";
 import {
   disabledButtonSelector,
   listInputVideoSelector,
   listPredictionResultSelector,
   multiVideoListSlicesSelector,
 } from "./multiVideoDiagnosisSelector";
+
+import {
+  triggerTaskSucceededAlert,
+  triggerTaskFailedAlert,
+  triggerNoVideoAlert,
+  triggerSaveSampleRecordSucceededAlert,
+  triggerSaveSampleRecordFailedAlert,
+  triggerTaskRunningAlert,
+  triggerUploadFailedAlert,
+} from "../../components/Alerts/alertsTrigger";
 
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
@@ -43,77 +52,24 @@ export default function MultiVideoDiagnosis() {
   const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
-  const [isSavePatientRecordModalVisible, setIsSavePatientRecordModalVisible] =
+  const [isSaveSampleRecordModalVisible, setIsSaveSampleRecordModalVisible] =
     React.useState(false);
 
-  const alertTimeout = 2000;
-
-  const triggerTaskSucceededAlert = () => {
-    dispatch(alertsSlice.actions.openTaskSucceededAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskSucceededAlert());
-    }, alertTimeout);
+  const showSaveSampleRecordModal = () => {
+    setIsSaveSampleRecordModalVisible(true);
   };
 
-  const triggerTaskFailedAlert = () => {
-    dispatch(alertsSlice.actions.openTaskFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskFailedAlert());
-    }, alertTimeout);
+  const closeSaveSampleRecordModalHandler = () => {
+    setIsSaveSampleRecordModalVisible(false);
   };
 
-  const triggerTaskRunningAlert = () => {
-    dispatch(alertsSlice.actions.openTaskRunningAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeTaskRunningAlert());
-    }, alertTimeout);
-  };
-
-  const triggerNoVideoAlert = () => {
-    dispatch(alertsSlice.actions.openNoVideoAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeNoVideoAlert());
-    }, alertTimeout);
-  };
-
-  const triggerUploadFailedAlert = () => {
-    dispatch(alertsSlice.actions.openUploadFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeUploadFailedAlert());
-    }, alertTimeout);
-  };
-
-  const triggerSavePatientRecordSucceededAlert = () => {
-    dispatch(alertsSlice.actions.openSavePatientRecordSucceededAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSavePatientRecordSucceededAlert());
-    }, alertTimeout);
-  };
-
-  const triggerSavePatientRecordFailedAlert = () => {
-    dispatch(alertsSlice.actions.openSavePatientRecordFailedAlert());
-    setTimeout(() => {
-      dispatch(alertsSlice.actions.closeSavePatientRecordFailedAlert());
-    }, alertTimeout);
-  };
-
-  const showSavePatientRecordModal = () => {
-    setIsSavePatientRecordModalVisible(true);
-  };
-
-  const closeSavePatientRecordModalHandler = () => {
-    setIsSavePatientRecordModalVisible(false);
-  };
-
-  const savePatientRecord = async (patientRecord) => {
+  const saveSampleRecord = async (sampleRecord) => {
     console.log("Saving record...");
-    const response = await window.electronAPI.savePatientDiagnosisResult(
-      patientRecord
-    );
+    const response = await window.electronAPI.saveSampleRecord(sampleRecord);
     if (response.result === "SUCCESS") {
-      triggerSavePatientRecordSucceededAlert();
+      triggerSaveSampleRecordSucceededAlert();
     } else {
-      triggerSavePatientRecordFailedAlert();
+      triggerSaveSampleRecordFailedAlert();
     }
   };
 
@@ -133,13 +89,6 @@ export default function MultiVideoDiagnosis() {
 
   const [isVideoModalVisible, setIsVideoModalVisible] = React.useState(false);
   const [currentVideoSelected, setCurrentVideoSelected] = React.useState(0);
-  const [currentVideoMetadata, setCurrentVideoMetadata] = React.useState({
-    name: "",
-    format: "",
-    duration: 0,
-    height: 0,
-    width: 0,
-  });
 
   const closeVideoModal = () => {
     setIsVideoModalVisible(false);
@@ -153,66 +102,34 @@ export default function MultiVideoDiagnosis() {
   const inspectClickHandler = (videoIndex) => {
     console.log("Selected Video Inspect", videoIndex);
     setCurrentVideoSelected(videoIndex);
-    showVideoModal(videoIndex);
-  };
-
-  const showVideoModal = async (videoIndex) => {
-    await getVideoMetadata(
-      listInputVideo[videoIndex].name,
-      listInputVideo[videoIndex].path
-    );
     setIsVideoModalVisible(true);
   };
 
-  const getVideoMetadata = async (videoName, videoPath, callback) => {
-    const response = await window.electronAPI.getFileMetadata(videoPath);
-    console.log(response);
-
-    if (response.result === "SUCCESS") {
-      const { format_long_name, duration } = response.target.format;
-      const { height, width } = response.target.streams[0];
-
-      setCurrentVideoMetadata({
-        name: videoName,
-        format: format_long_name,
-        duration: duration,
-        height: height,
-        width: width,
-      });
-    }
-  };
-
   const uploadMultiVideos = async () => {
-    const filesOpenResponse = await window.electronAPI.openMultiFilesDialog();
+    dispatch(mainPageSlice.actions.enableLoadingScreen());
+    const filesOpenResponse = await window.electronAPI.uploadMultipleVideos();
+    dispatch(mainPageSlice.actions.disableLoadingScreen());
+
     console.log(filesOpenResponse);
 
     if (filesOpenResponse.result === "SUCCESS") {
       dispatch(
-        multiVideoDiagnosisSlice.actions.setListInputVideo(
-          filesOpenResponse.videoObjectList.map((videoObject) => ({
-            index: videoObject.index,
-            name: videoObject.name,
-            path: videoObject.path,
-            convertedPath: videoObject.convertedPath,
-          }))
-        )
+        multiVideoDiagnosisSlice.actions.setListInputVideo([...filesOpenResponse.target])
       );
     } else {
       triggerUploadFailedAlert();
     }
-    dispatch(appSlice.actions.enableAppInteractive());
+    dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
   const uploadButtonClickHandler = () => {
-    dispatch(multiVideoDiagnosisSlice.actions.setListInputVideo([]));
-
-    dispatch(multiVideoDiagnosisSlice.actions.setListPredictionResult([]));
+    dispatch(multiVideoDiagnosisSlice.actions.clearContent());
 
     if (!processRunning) {
       dispatch(progressBarSlice.actions.clearProgressBar());
     }
 
-    dispatch(appSlice.actions.disableAppInteractive());
+    dispatch(mainPageSlice.actions.disableAppInteractive());
 
     uploadMultiVideos();
     setCurrentVideoSelected(0);
@@ -225,7 +142,7 @@ export default function MultiVideoDiagnosis() {
 
     dispatch(multiVideoDiagnosisSlice.actions.disableButton());
 
-    dispatch(appSlice.actions.setProcessRunning(true));
+    dispatch(mainPageSlice.actions.setProcessRunning(true));
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
@@ -257,7 +174,7 @@ export default function MultiVideoDiagnosis() {
       )
     );
 
-    dispatch(appSlice.actions.setProcessRunning(false));
+    dispatch(mainPageSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();
@@ -326,7 +243,7 @@ export default function MultiVideoDiagnosis() {
               <VideoItem
                 key={index}
                 selected={index === currentVideoSelected ? true : false}
-                videoName={video.name}
+                videoName={video.videoName}
                 inspectClickHandler={() => inspectClickHandler(video.index)}
                 clickHandler={() => selectVideo(video.index)}
               />
@@ -337,9 +254,10 @@ export default function MultiVideoDiagnosis() {
         {isVideoModalVisible && (
           <MiniVideoModal
             closeVideoModalHandler={closeVideoModal}
-            videoMetadata={currentVideoMetadata}
-            videoConvertedPath={
-              listInputVideo[currentVideoSelected].convertedPath
+            videoName={listInputVideo[currentVideoSelected].videoName}
+            videoMetadata={listInputVideo[currentVideoSelected].videoMetadata}
+            videoOutputPath={
+              listInputVideo[currentVideoSelected].videoOutputPath
             }
           />
         )}
@@ -433,25 +351,25 @@ export default function MultiVideoDiagnosis() {
                 style={{ marginTop: "5px" }}
                 icon={<UserAddOutlined />}
                 size={10}
-                onClick={showSavePatientRecordModal}
+                onClick={showSaveSampleRecordModal}
               >
                 Proceed
               </Button>
             )}
 
-            {isSavePatientRecordModalVisible && (
-              <SavePatientRecordModal
+            {isSaveSampleRecordModalVisible && (
+              <SaveSampleRecordModal
                 diagnosisResult={
                   listPredictionResult[currentVideoSelected].predictedValue <
                   0.5
                     ? NORMAL_DIAGNOSIS_RESULT
                     : ABNORMAL_DIAGNOSIS_RESULT
                 }
-                sampleName={listInputVideo[currentVideoSelected].name}
-                closeSavePatientRecordModalHandler={
-                  closeSavePatientRecordModalHandler
+                sampleName={listInputVideo[currentVideoSelected].videoName}
+                closeSaveSampleRecordModalHandler={
+                  closeSaveSampleRecordModalHandler
                 }
-                savePatientRecord={savePatientRecord}
+                saveSampleRecord={saveSampleRecord}
                 today={today}
               />
             )}

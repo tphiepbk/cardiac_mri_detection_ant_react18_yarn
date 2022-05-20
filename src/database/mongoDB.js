@@ -1,9 +1,17 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+
+const CONNECTION_STRING =
+  "mongodb+srv://tphiepbk:hiepit-2992@cluster0.bjhqp.mongodb.net/test?retryWrites=true&w=majority";
 
 const startConnection = async () => {
-  const result = await mongoose.connect(
-    "mongodb+srv://tphiepbk:hiepit-2992@cluster0.bjhqp.mongodb.net/test?retryWrites=true&w=majority"
-  );
+  const connectionPromise = new Promise((resolve, _reject) => {
+    mongoose.connect(CONNECTION_STRING, (error) => {
+      if (error) resolve("FAILED");
+      else resolve("SUCCESS");
+    });
+  });
+  const result = await connectionPromise;
   return result;
 };
 
@@ -12,7 +20,7 @@ const closeConnection = async () => {
   return result;
 };
 
-const patientSchema = new mongoose.Schema(
+const sampleSchema = new mongoose.Schema(
   {
     sampleName: String,
     fullName: String,
@@ -23,62 +31,158 @@ const patientSchema = new mongoose.Schema(
     diagnosisResult: {
       value: String,
       confirmed: Boolean,
-      confirmedBy: String,
+      author: String,
       dateModified: Date,
     },
   },
-  { collection: "patients" }
+  { collection: "samples" }
 );
 
-const patientModel = mongoose.model("Patient", patientSchema);
+const sampleModel = mongoose.model("Sample", sampleSchema);
 
-const savePatientRecord = async (patientObject) => {
-  console.log('============================= Saving patient record ================================')
+const getAllSampleRecords = async () => {
+  console.log(
+    "============================= Fetching data ================================"
+  );
 
-  await startConnection();
+  let returnValue;
 
-  const patientInstance = new patientModel({
-    sampleName: patientObject.sampleName,
-    fullName: patientObject.fullName,
-    age: patientObject.age,
-    gender: patientObject.gender,
-    address: patientObject.address,
-    avatar: patientObject.avatar,
-    diagnosisResult: {
-      value: patientObject.diagnosisResult.value,
-      confirmed: patientObject.diagnosisResult.confirmed,
-      confirmedBy: patientObject.diagnosisResult.confirmedBy,
-      dateModified: patientObject.diagnosisResult.dateModified,
-    },
-  });
+  const connectionResult = await startConnection();
+  if (connectionResult === "FAILED") {
+    returnValue = "FAILED";
+  } else {
+    const getAllSamplePromise = new Promise((resolve, reject) => {
+      sampleModel.find({}, (err, docs) => {
+        if (err) {
+          console.log(err);
+          resolve("FAILED");
+        } else {
+          resolve(docs);
+        }
+      });
+    });
 
-  //const returnValue = await patientInstance.save();
+    returnValue = await getAllSamplePromise;
 
-  const savePatientPromise = new Promise((resolve, reject) => {
-    patientInstance.save((err, data) => {
-      if (err) {
-        console.log(err)
-        resolve("FAILED")
-      } else {
-        resolve("SUCCESS");
-      }
-    })
-  })
+    await closeConnection();
+  }
 
-  const returnValue = await savePatientPromise;
-
-  await closeConnection();
-
-  console.log('============================= Finished saving patient record ================================')
+  console.log(
+    "============================= Finished fetching data ================================"
+  );
 
   return returnValue;
 };
 
-const fun = () => {
-  console.log("Database connected");
+const saveSampleRecord = async (sampleObject) => {
+  console.log(
+    "============================= Saving sample record ================================"
+  );
+
+  let returnValue;
+
+  const connectionResult = await startConnection();
+  if (connectionResult === "FAILED") {
+    returnValue = "FAILED";
+  } else {
+    const sampleInstance = new sampleModel({
+      sampleName: sampleObject.sampleName,
+      fullName: sampleObject.fullName,
+      age: sampleObject.age,
+      gender: sampleObject.gender,
+      address: sampleObject.address,
+      diagnosisResult: {
+        value: sampleObject.diagnosisResult.value,
+        author: sampleObject.diagnosisResult.author,
+        dateModified: sampleObject.diagnosisResult.dateModified,
+      },
+    });
+
+    const saveSamplePromise = new Promise((resolve, reject) => {
+      sampleInstance.save((err, data) => {
+        if (err) {
+          console.log(err);
+          resolve("FAILED");
+        } else {
+          resolve("SUCCESS");
+        }
+      });
+    });
+
+    returnValue = await saveSamplePromise;
+
+    await closeConnection();
+  }
+
+  console.log(
+    "============================= Finished saving sample record ================================"
+  );
+
+  return returnValue;
+};
+
+const userSchema = new mongoose.Schema(
+  {
+    username: String,
+    password: String,
+    fullName: String,
+  },
+  { collection: "users" }
+);
+
+const userModel = mongoose.model("User", userSchema);
+
+const checkCredentials = async (username, password) => {
+  console.log(
+    "============================= Searching username ================================"
+  );
+
+  const salt = bcrypt.genSaltSync(10);
+  const hashed = bcrypt.hashSync(password, salt);
+
+  console.log(hashed);
+
+  let returnValue;
+
+  const connectionResult = await startConnection();
+
+  if (connectionResult === "FAILED") {
+    returnValue = "FAILED";
+  } else {
+    const findUserPromise = new Promise((resolve, _reject) => {
+      userModel.find({ username: username }, (err, docs) => {
+        if (err) {
+          console.log(err);
+          resolve("FAILED");
+        } else {
+          if (docs.length !== 0) {
+            const hashedPasswordFromDB = docs[0].password;
+            if (bcrypt.compareSync(password, hashedPasswordFromDB)) {
+              resolve(docs);
+            } else {
+              resolve([]);
+            }
+          } else {
+            resolve(docs);
+          }
+        }
+      });
+    });
+
+    returnValue = await findUserPromise;
+
+    await closeConnection();
+  }
+
+  console.log(
+    "============================= Finished Searching username ================================"
+  );
+
+  return returnValue;
 };
 
 module.exports = {
-  fun,
-  savePatientRecord,
+  getAllSampleRecords,
+  saveSampleRecord,
+  checkCredentials,
 };

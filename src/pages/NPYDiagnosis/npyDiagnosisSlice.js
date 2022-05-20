@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const NO_DIAGNOSIS_RESULT = 0;
 
 const initialState = {
-  npyFilePaths: [],
+  samplePath: "",
   npyFileNames: [],
   videoPath: {
     mp4: "",
@@ -29,8 +29,8 @@ const npyDiagnosisSlice = createSlice({
   name: "npyDiagnosis",
   initialState,
   reducers: {
-    setNpyFilePaths: (state, action) => {
-      state.npyFilePaths = action.payload;
+    setSamplePath: (state, action) => {
+      state.samplePath = action.payload;
     },
     setNpyFileNames: (state, action) => {
       state.npyFileNames = action.payload;
@@ -62,6 +62,21 @@ const npyDiagnosisSlice = createSlice({
     setListSlices: (state, action) => {
       state.listSlices = action.payload;
     },
+    clearContent: (state, _action) => {
+      state.samplePath = "";
+      state.npyFileNames = [];
+      state.videoPath.avi = "";
+      state.videoPath.mp4 = "";
+      state.videoBboxPath.avi = "";
+      state.videoBboxPath.mp4 = "";
+      state.videoMetadata.name = "";
+      state.videoMetadata.format = "";
+      state.videoMetadata.duration = 0;
+      state.videoMetadata.height = 0;
+      state.videoMetadata.width = 0;
+      state.diagnosisResult = NO_DIAGNOSIS_RESULT;
+      state.listSlices = [];
+    }
   },
 });
 

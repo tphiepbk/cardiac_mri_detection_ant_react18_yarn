@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 60vw;
+  width: 60%;
   height: 100%;
 }
 
@@ -18,6 +18,10 @@
   background: green !important;
   border-color: green !important;
   border-radius: 5px !important;
+}
+
+.video-diagnosis__upload-container__video-path-box {
+  border-radius: 10px;
 }
 
 .video-diagnosis__upload-container__tabs-container {
@@ -31,8 +35,8 @@
   padding: 5px;
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   border-radius: 10px;
-  height: 43vh !important;
-  width: 30vw !important;
+  height: 50vh !important;
+  width: 35vw !important;
   margin-right: auto;
   margin-left: auto;
   background-color: #f9f9f9;
@@ -41,8 +45,8 @@
 .video-diagnosis__upload-container__no-video {
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   border-radius: 10px;
-  height: 43vh !important;
-  width: 30vw !important;
+  height: 50vh !important;
+  width: 35vw !important;
   margin-right: auto;
   margin-left: auto;
   display: flex;
@@ -56,7 +60,6 @@
 }
 
 .video-diagnosis__upload-container__diagnose-button {
-  margin-top: 10px;
   align-self: flex-end;
 }
 
@@ -69,7 +72,8 @@
 .video-diagnosis__diagnosis-result {
   display: flex;
   flex-direction: column;
-  width: 45vw;
+  justify-content: space-between;
+  width: 40%;
   height: 100%;
 }
 
@@ -89,9 +93,8 @@
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   padding: 15px 20px;
   border-radius: 10px;
+  height: 68vh;
   overflow: auto;
-  height: 63vh;
-  margin-top: auto;
   display: grid;
   grid-template-columns: 49% 49%;
   gap: 10px;
@@ -101,9 +104,7 @@
   box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.08) 0px 0px 0px 1px;
   padding: 15px 20px;
   border-radius: 10px;
-  overflow: auto;
-  height: 63vh;
-  margin-top: auto;
+  height: 68vh;
   display: flex;
   justify-content: center;
   align-items: center;

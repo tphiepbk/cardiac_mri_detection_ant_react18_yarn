@@ -1,5 +1,5 @@
 .title-bar {
-  height: 30px;
+  height: 35px;
   background-color: #18193f;
   color: white;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
@@ -21,31 +21,28 @@
 }
 
 .title-bar__controls {
+  height: 100%;
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 15px;
 }
 
-.title-bar__controls__minimize {
+.title-bar__controls__minimize, .title-bar__controls__maximize, .title-bar__controls__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 100%;
   width: 35px;
   text-align: center;
   -webkit-app-region: no-drag;
 }
 
-.title-bar__controls__close {
-  height: 100%;
-  width: 35px;
-  text-align: center;
-  -webkit-app-region: no-drag;
-}
-
-.title-bar__controls__minimize:hover {
+.title-bar__controls__minimize:hover, .title-bar__controls__maximize:hover {
   background-color: #5e61ca;
   color: white;
 }
 
 .title-bar__controls__close:hover {
-  height: 100%;
   background-color: red;
   color: white;
 }
