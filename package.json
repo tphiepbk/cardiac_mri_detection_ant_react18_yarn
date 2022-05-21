@@ -36,7 +36,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron:build": "yarn build && electron-builder -c.extraMetadata.main=src/electron-main.js",
-    "electron:start": "wait-on tcp:3000 && electron-forge start",
+    "electron:start": "wait-on tcp:3000 && electron .",
     "dev": "concurrently -k \"cross-env yarn start\" \"yarn electron:start\"",
     "package": "react-scripts build && electron-forge package",
     "make": "react-scripts build && electron-forge make"

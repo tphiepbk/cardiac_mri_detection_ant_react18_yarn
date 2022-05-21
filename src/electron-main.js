@@ -27,6 +27,9 @@ const { npyProcessor } = require("./modules/npyProcessor");
 const {
   multipleNpySamplesProcessor,
 } = require("./modules/multipleNpySamplesProcessor");
+const {
+  predictAbnormalPositionForSlice,
+} = require("./modules/predictAbnormalPositionForSlice");
 
 let userDataPath_temp = path.resolve(
   homedir + "/cardiac_mri_abnormalities_detection/"
@@ -169,7 +172,7 @@ ipcMain.handle("upload-video", async (_event, _arg) => {
         return {
           description: "UPLOAD VIDEO",
           result: "SUCCESS",
-          target: {...videoProcessorResult},
+          target: { ...videoProcessorResult },
         };
       }
     }
@@ -269,7 +272,7 @@ ipcMain.handle("upload-npy-sample", async (_event, _arg) => {
         return {
           description: "UPLOAD NPY SAMPLE",
           result: "SUCCESS",
-          target: {...npyProcessorResult},
+          target: { ...npyProcessorResult },
         };
       }
     }
@@ -321,8 +324,8 @@ ipcMain.handle("upload-multiple-npy-samples", async (_event, _arg) => {
         return {
           description: "UPLOAD MULTIPLE NPY SAMPLES",
           result: "SUCCESS",
-          target: [...npyObjects]
-        }
+          target: [...npyObjects],
+        };
       }
     }
   }
@@ -551,6 +554,33 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   console.log(returnValue);
 
   return returnValue;
+});
+
+ipcMain.handle("predict-abnormal-position-for-slice", async (_event, data) => {
+  const { sliceCroppedNpyPath, edFrameIndex, esFrameIndex } = data;
+
+  console.log(edFrameIndex, esFrameIndex)
+
+  const rawPredictionResults = await predictAbnormalPositionForSlice(sliceCroppedNpyPath, edFrameIndex, esFrameIndex);
+
+  if (rawPredictionResults === "FAILED") {
+    return {
+      description: "PREDICT ABNORMAL POSITION FOR SLICE",
+      result: "FAILED"
+    }
+  } else {
+    const predictionResults = JSON.parse(
+      rawPredictionResults.replaceAll("'", '"')
+    );
+
+    console.log(predictionResults);
+
+    return {
+      description: "PREDICT ABNORMAL POSITION FOR SLICE",
+      result: "SUCCESS",
+      target: [...predictionResults],
+    }
+  }
 });
 
 ipcMain.on("clear-temp-folder", (event, data) => {

@@ -1,3 +1,5 @@
+from genericpath import exists
+from importlib.resources import path
 import numpy as np
 import glob
 import cv2
@@ -16,6 +18,7 @@ TEMP_FOLDER_PATH = os.path.abspath(sys.argv[3])
 NPY_FOLDER_PATHS = list(map(lambda folder_path: os.path.abspath(folder_path), sys.argv[4:]))
 
 # * =============================================== BOUNDING BOX TOOLS ===============================================
+
 def load_detection_model(path):
     detector = torch.hub.load(ULTRALYTICS_YOLOV5_PATH, 'custom', path=path, source='local')
     detector.max_det = 1
@@ -127,6 +130,11 @@ for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
     if not os.path.exists(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE):
         os.mkdir(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE)
 
+    TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE_CROPPED_NPY = os.path.abspath(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE + '/cropped_npy/')
+
+    if not os.path.exists(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE_CROPPED_NPY):
+        os.mkdir(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE_CROPPED_NPY)
+
     TEMP_FILE_NAME = os.path.abspath(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE + '/' + '{}_temp.png'.format(VIDEO_NAME))
 
     NPY_LIST_FILEDIR = glob.glob(os.path.abspath(NPY_FOLDER_PATH + '/*.npy'))
@@ -147,6 +155,8 @@ for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
 
         videoArr = np.load(filedir)
 
+        np.save(os.path.abspath('{}/{}_cropped.npy'.format(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE_CROPPED_NPY, filename)), videoArr[bbox[1]:bbox[3], bbox[0]:bbox[2], :])
+
         expandDim_videoArr = np.expand_dims(videoArr, axis=0)
         videoArr = np.transpose(expandDim_videoArr, [0, 3, 1, 2])
 
@@ -156,11 +166,17 @@ for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
 
         current_slice_temp_path = os.path.abspath(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE + '/' + 'slice_{}/'.format(filename))
 
+        current_slice_temp_path_cropped = os.path.abspath(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE + '/' + 'cropped_slice_{}/'.format(filename))
+
         if not os.path.exists(current_slice_temp_path):
             os.mkdir(current_slice_temp_path)
 
+        if not os.path.exists(current_slice_temp_path_cropped):
+            os.mkdir(current_slice_temp_path_cropped)
+
         for i in range(len(videoArr)):
             cv2.imwrite(os.path.abspath('{}/{}.png'.format(current_slice_temp_path, i)), videoArr[i])
+            cv2.imwrite(os.path.abspath('{}/{}.png'.format(current_slice_temp_path_cropped, i)), videoArr[i][bbox[1]:bbox[3], bbox[0]:bbox[2]])
 
     NUMBER_OF_FRAMES = len(npy_slices[0])
 

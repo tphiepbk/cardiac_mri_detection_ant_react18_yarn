@@ -46,7 +46,7 @@ export default function MultiNPYDiagnosis() {
   const disabledButton = useSelector(disabledButtonSelector);
   const multiVideoListSlices = useSelector(multiVideoListSlicesSelector);
 
-  const [isSliceModalVisible, setIsSliceModalVisible] = React.useState(false);
+  const [sliceCardModalVisible, setSliceCardModalVisible] = React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
   const [isSaveSampleRecordModalVisible, setIsSaveSampleRecordModalVisible] =
@@ -70,18 +70,14 @@ export default function MultiNPYDiagnosis() {
     }
   };
 
-  const showSliceModal = () => {
-    setIsSliceModalVisible(true);
-  };
+  const toggleSliceCardModal = () => {
+    setSliceCardModalVisible(prevState => !prevState)
+  }
 
   const selectSlice = (sliceNumber) => {
     console.log(`Selected slice ${sliceNumber}`);
     setCurrentSliceSelected(sliceNumber);
-    showSliceModal();
-  };
-
-  const closeSliceModal = () => {
-    setIsSliceModalVisible(false);
+    toggleSliceCardModal();
   };
 
   const [isVideoModalVisible, setIsVideoModalVisible] = React.useState(false);
@@ -120,7 +116,9 @@ export default function MultiNPYDiagnosis() {
             (slice, index) => ({
               sliceNumber: index,
               sliceImageUrl: slice[0],
+              sliceFrames: slice,
               sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+              sliceCroppedNpyPath: npyObject.croppedNpyFilePaths[index],
             })
           );
           return crawledListSlices;
@@ -414,10 +412,11 @@ export default function MultiNPYDiagnosis() {
               />
             ))}
 
-            {isSliceModalVisible && (
+            {sliceCardModalVisible && (
               <SliceCardModal
-                closeModalHandler={closeSliceModal}
+                closeModalHandler={toggleSliceCardModal}
                 sliceNumber={currentSliceSelected}
+                sliceFrames={multiVideoListSlices[currentVideoSelected][currentSliceSelected].sliceFrames}
                 sliceImageUrl={
                   multiVideoListSlices[currentVideoSelected][
                     currentSliceSelected
@@ -428,6 +427,7 @@ export default function MultiNPYDiagnosis() {
                     currentSliceSelected
                   ].sliceVideoPath
                 }
+                sliceCroppedNpyPath={multiVideoListSlices[currentVideoSelected][currentSliceSelected].sliceCroppedNpyPath}
               />
             )}
           </div>

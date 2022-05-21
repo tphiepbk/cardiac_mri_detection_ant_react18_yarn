@@ -84,11 +84,13 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
       });
       */
 
-      const npyAviConverterScriptPath = path.resolve(
-        __dirname + "/../extra/npy_avi_converter.py"
+      const npyProcessorPath = path.resolve(
+        __dirname + "/../extra/npy_processor.py"
       );
 
-      const pythonPath = path.resolve(__dirname + "/../resources/Python/python.exe")
+      const pythonPath = path.resolve(
+        __dirname + "/../resources/Python/python.exe"
+      );
 
       const options = {
         mode: "text",
@@ -102,8 +104,8 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
         ],
       };
 
-      const npyAviConverterPromise = new Promise((resolve, _reject) => {
-        PythonShell.run(npyAviConverterScriptPath, options, (err, _results) => {
+      const npyProcessingPromise = new Promise((resolve, _reject) => {
+        PythonShell.run(npyProcessorPath, options, (err, _results) => {
           if (err) {
             console.log(err);
             resolve("FAILED");
@@ -113,9 +115,9 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
         });
       });
 
-      const npyAviConverterResult = await npyAviConverterPromise;
+      const npyProcessorResult = await npyProcessingPromise;
 
-      if (npyAviConverterResult === "FAILED") {
+      if (npyProcessorResult === "FAILED") {
         return "FAILED";
       } else {
         const videoInputPath = path.resolve(
@@ -181,10 +183,28 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
             returnedSlicesTempPaths.unshift(temp);
           }
 
+          const currentSampleTempPathCroppedNpy = path.resolve(
+            `${userDataPath_temp}/${sampleName}/cropped_npy/`
+          );
+
+          let croppedNpyFilePaths = fs.readdirSync(
+            currentSampleTempPathCroppedNpy
+          );
+
+          croppedNpyFilePaths.sort(
+            (a, b) =>
+              parseInt(a.substring(0, a.length - 8)) -
+              parseInt(b.substring(0, b.length - 8))
+          );
+
+          croppedNpyFilePaths = croppedNpyFilePaths.map(filename => path.resolve(`${currentSampleTempPathCroppedNpy}/${filename}`))
+          croppedNpyFilePaths.reverse();
+
           return {
-            samplePath: samplePath,
-            sampleName: sampleName,
+            samplePath,
+            sampleName,
             npyFileNames: filesInFolder,
+            croppedNpyFilePaths,
             sliceTempPaths: returnedSlicesTempPaths,
             ...videoProcessorResult,
             videoBboxName: videoBboxProcessorResult.videoName,

@@ -1,7 +1,7 @@
 import React from "react";
 import "./Login.css";
 
-import { Input, Space, Form, Button, Checkbox } from "antd";
+import { Input, Form, Button, Checkbox } from "antd";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,

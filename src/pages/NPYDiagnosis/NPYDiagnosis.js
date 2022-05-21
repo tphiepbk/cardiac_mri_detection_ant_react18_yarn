@@ -62,23 +62,19 @@ export default function VideoDiagnosis() {
 
   const processRunning = useSelector(appProcessRunningSelector);
 
-  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [sliceCardModalVisible, setSliceCardModalVisible] = React.useState(false);
   const [isSaveSampleRecordModalVisible, setIsSaveSampleRecordModalVisible] =
     React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
+  const toggleSliceCardModal = () => {
+    setSliceCardModalVisible(prevState => !prevState)
+  }
 
   const selectSlice = (sliceNumber) => {
     console.log(`Selected slice ${sliceNumber}`);
     setCurrentSliceSelected(sliceNumber);
-    showModal();
-  };
-
-  const closeModal = () => {
-    setIsModalVisible(false);
+    toggleSliceCardModal();
   };
 
   const showSaveSampleRecordModal = () => {
@@ -114,6 +110,7 @@ export default function VideoDiagnosis() {
         samplePath,
         sampleName,
         npyFileNames,
+        croppedNpyFilePaths,
         sliceTempPaths,
         videoInputPath,
         videoOutputPath,
@@ -150,8 +147,12 @@ export default function VideoDiagnosis() {
       const crawledListSlices = sliceTempPaths.map((slice, index) => ({
         sliceNumber: index,
         sliceImageUrl: slice[0],
+        sliceFrames: slice,
         sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+        sliceCroppedNpyPath: croppedNpyFilePaths[index],
       }));
+
+      console.log(crawledListSlices)
 
       dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
@@ -483,12 +484,13 @@ export default function VideoDiagnosis() {
               />
             ))}
 
-            {isModalVisible && (
+            {sliceCardModalVisible && (
               <SliceCardModal
-                closeModalHandler={closeModal}
+                closeModalHandler={toggleSliceCardModal}
                 sliceNumber={currentSliceSelected}
-                sliceImageUrl={listSlices[currentSliceSelected].sliceImageUrl}
+                sliceFrames={listSlices[currentSliceSelected].sliceFrames}
                 sliceVideoPath={listSlices[currentSliceSelected].sliceVideoPath}
+                sliceCroppedNpyPath={listSlices[currentSliceSelected].sliceCroppedNpyPath}
               />
             )}
           </div>

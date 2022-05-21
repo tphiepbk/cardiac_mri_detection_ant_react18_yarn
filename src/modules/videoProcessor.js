@@ -1,6 +1,6 @@
 const ffmpeg = require("fluent-ffmpeg");
 
-const fs = require("fs")
+const fs = require("fs");
 
 const path = require("path");
 
@@ -38,15 +38,20 @@ const getVideoMetadata = async (videoInputPath) => {
 };
 
 const convertVideo = async (userDataPath_temp, videoInputPath, videoName) => {
-  const videoTempFolderPath = path.resolve(`${userDataPath_temp}/${videoName}/`)
+  const regex = /_bbox$/gi;
+  const folderName = videoName.replaceAll(regex, "");
+
+  const videoTempFolderPath = path.resolve(
+    `${userDataPath_temp}/${folderName}/`
+  );
 
   if (!fs.existsSync(videoTempFolderPath)) {
-    fs.mkdirSync(videoTempFolderPath)
+    fs.mkdirSync(videoTempFolderPath);
   }
 
   const inputDir = videoInputPath;
   const outputDir = path.resolve(
-    `${userDataPath_temp}/${videoName}/${videoName}_converted.mp4`
+    `${userDataPath_temp}/${folderName}/${videoName}_converted.mp4`
   );
 
   const ffmpegPromise = new Promise((resolve, _reject) => {
@@ -82,13 +87,15 @@ const videoProcessor = async (userDataPath_temp, videoInputPath) => {
   const videoMetadata = await getVideoMetadata(videoInputPath);
 
   if (videoMetadata === "FAILED" || videoConvertedPath === "FAILED") {
-    return "FAILED"
+    return "FAILED";
   } else {
     return {
       videoName,
       videoInputPath,
       videoOutputPath:
-        process.platform === "linux" ? "file:///" + videoConvertedPath : videoConvertedPath,
+        process.platform === "linux"
+          ? "file:///" + videoConvertedPath
+          : videoConvertedPath,
       videoMetadata,
     };
   }
@@ -96,4 +103,4 @@ const videoProcessor = async (userDataPath_temp, videoInputPath) => {
 
 module.exports = {
   videoProcessor,
-}
+};

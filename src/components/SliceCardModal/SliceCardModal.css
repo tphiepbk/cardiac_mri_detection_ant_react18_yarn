@@ -1,11 +1,76 @@
 .slice-card-modal {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  width: auto;
+}
+
+.slice-card-modal-container {
+  display: flex;
+  justify-content: space-between;
+  column-gap: 20px;
+  align-items: center;
 }
 
 .slice-card-modal__video {
+  margin-bottom: 30px;
+}
+
+.slice-card-modal__second-model {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slice-card-modal__input-image-container {
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.slice-card-modal__input-image-container__input-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  row-gap: 10px;
+  margin-bottom: 20px;
+}
+
+.slice-card-modal__input-image-container__input-image > h3 {
+  margin: 0;
+  font-weight: 900;
+}
+
+.slice-card-modal__output-image-container {
   height: 100%;
+  display: flex;
+  column-gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slice-card-modal__output-image-container--empty {
+  height: 20vh;
+  display: flex;
+  column-gap: 10px;
+  justify-content: center; 
+  align-items: center;
+  border-radius: 10px;
+  border: 1px solid #BEBEBE;
+  width: 40vw;
+}
+
+.slice-card-modal__output-image-container__output-image {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slice-card-modal__output-image-container__output-image > h3 {
+  margin: 0;
+  font-weight: 900;
 }
