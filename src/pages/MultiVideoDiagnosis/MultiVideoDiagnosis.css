@@ -86,7 +86,8 @@
   border-radius: 10px;
   overflow: auto;
   height: 68vh;
-  margin-top: auto;
+  margin-top: 15px;
+  flex-grow: 2;
   display: grid;
   grid-template-columns: 49% 49%;
   gap: 10px;
@@ -98,7 +99,8 @@
   border-radius: 10px;
   overflow: auto;
   height: 68vh;
-  margin-top: auto;
+  margin-top: 15px;
+  flex-grow: 2;
   display: flex;
   justify-content: center;
   align-items: center;
