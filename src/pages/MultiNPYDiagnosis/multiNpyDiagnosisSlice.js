@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   listInputNpyObject: [],
   listPredictionResult: [],
-  multiVideoListSlices: [],
+  multiListSlices: [],
   disabledButton: false,
 };
 
@@ -17,8 +17,8 @@ const multiNpyDiagnosisSlice = createSlice({
     setListPredictionResult: (state, action) => {
       state.listPredictionResult = action.payload;
     },
-    setMultiVideoListSlices: (state, action) => {
-      state.multiVideoListSlices = action.payload;
+    setMultiListSlices: (state, action) => {
+      state.multiListSlices = action.payload;
     },
     enableButton: (state, _action) => {
       state.disabledButton = false;
@@ -29,7 +29,7 @@ const multiNpyDiagnosisSlice = createSlice({
     clearContent: (state, _action) => {
       state.listInputNpyObject = [];
       state.listPredictionResult = [];
-      state.multiVideoListSlices = [];
+      state.multiListSlices = [];
     },
   },
 });

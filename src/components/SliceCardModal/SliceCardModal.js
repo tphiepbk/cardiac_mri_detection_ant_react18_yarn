@@ -1,6 +1,14 @@
 import React from "react";
 import ReactPlayer from "react-player";
-import { Modal, Image, InputNumber, Divider, Button, Empty } from "antd";
+import {
+  Modal,
+  Image,
+  InputNumber,
+  Divider,
+  Button,
+  Empty,
+  Switch,
+} from "antd";
 import "./SliceCardModal.css";
 
 export default function SliceCardModal(props) {
@@ -8,25 +16,31 @@ export default function SliceCardModal(props) {
     closeModalHandler,
     sliceNumber,
     sliceFrames,
+    sliceCroppedFrames,
     sliceVideoPath,
     sliceCroppedNpyPath,
   } = props;
 
   const [edFrameIndex, setEdFrameIndex] = React.useState(0);
-  const [esFrameIndex, setEsFrameIndex] = React.useState(0);
+  const [esFrameIndex, setEsFrameIndex] = React.useState(1);
+
+  const [croppedFramesMode, setCroppedFramesMode] = React.useState(false);
 
   const [predictionResults, setPredictionResults] = React.useState([]);
 
-  console.log(predictionResults)
+  console.log(predictionResults);
 
   const edFrameIndexChangeHandler = (value) => {
-    setPredictionResults([])
+    setPredictionResults([]);
     setEdFrameIndex(value);
   };
 
   const esFrameIndexChangeHandler = (value) => {
-    setPredictionResults([])
+    setPredictionResults([]);
     setEsFrameIndex(value);
+  };
+  const toggleCroppedFramesMode = () => {
+    setCroppedFramesMode((prevState) => !prevState);
   };
 
   const predictButtonClickHandler = async () => {
@@ -44,7 +58,7 @@ export default function SliceCardModal(props) {
       if (predictAbnormalPositionForSliceResult.result === "SUCCESS") {
         setPredictionResults([...predictAbnormalPositionForSliceResult.target]);
       } else {
-        console.log("FAILED")
+        console.log("FAILED");
       }
     }
   };
@@ -60,7 +74,8 @@ export default function SliceCardModal(props) {
       width={"auto"}
     >
       <div className="slice-card-modal-container">
-        <div className="slice-card-modal__first-model">
+        <fieldset className="slice-card-modal__first-model">
+          <legend>First model</legend>
           <ReactPlayer
             className="slice-card-modal__video"
             width={600}
@@ -70,23 +85,30 @@ export default function SliceCardModal(props) {
             controls={false}
             loop={true}
           />
-        </div>
+        </fieldset>
 
+        {/**
         <Divider
           type="vertical"
           style={{
-            height: "45vh",
+            height: "10vh",
             border: "2px solid",
             borderRadius: "10px",
             color: "#BEBEBE",
           }}
         />
+        */}
 
-        <div className="slice-card-modal__second-model">
+        <fieldset className="slice-card-modal__second-model">
+          <legend>Monogenic Signal Model</legend>
           <div className="slice-card-modal__input-image-container">
             <div className="slice-card-modal__input-image-container__input-image">
-              <h3>First frame</h3>
-              <Image width={150} src={sliceFrames[edFrameIndex]} />
+              <h3>End-Diastolic frame</h3>
+              {croppedFramesMode ? (
+                <Image width={100} src={sliceCroppedFrames[edFrameIndex]} />
+              ) : (
+                <Image width={150} src={sliceFrames[edFrameIndex]} />
+              )}
               <InputNumber
                 min={0}
                 max={sliceFrames.length - 1}
@@ -94,25 +116,50 @@ export default function SliceCardModal(props) {
                 onChange={edFrameIndexChangeHandler}
               />
             </div>
+
+            <Switch
+              checkedChildren="cropped"
+              unCheckedChildren="normal"
+              onChange={toggleCroppedFramesMode}
+            />
+
             <div className="slice-card-modal__input-image-container__input-image">
-              <h3>Second frame</h3>
-              <Image width={150} src={sliceFrames[esFrameIndex]} />
+              <h3>End-Systolic frame</h3>
+              {croppedFramesMode ? (
+                <Image width={100} src={sliceCroppedFrames[esFrameIndex]} />
+              ) : (
+                <Image width={150} src={sliceFrames[esFrameIndex]} />
+              )}
               <InputNumber
                 min={0}
                 max={sliceFrames.length - 1}
-                defaultValue={0}
+                defaultValue={1}
                 onChange={esFrameIndexChangeHandler}
               />
             </div>
           </div>
 
-          <Button
-            type="primary"
-            style={{ borderRadius: "5px" }}
-            onClick={predictButtonClickHandler}
-          >
-            Predict
-          </Button>
+          {edFrameIndex >= esFrameIndex ? (
+            <div className="slice-card-modal__predict-button-container">
+              <h3 className="error-text">
+                End-Systolic frame index must be greater than End-Diastolic
+                frame index
+              </h3>
+              <Button type="primary" style={{ borderRadius: "5px" }} disabled>
+                Predict
+              </Button>
+            </div>
+          ) : (
+            <div className="slice-card-modal__predict-button-container">
+              <Button
+                type="primary"
+                style={{ borderRadius: "5px" }}
+                onClick={predictButtonClickHandler}
+              >
+                Predict
+              </Button>
+            </div>
+          )}
 
           <Divider>Result</Divider>
 
@@ -123,29 +170,20 @@ export default function SliceCardModal(props) {
           ) : (
             <div className="slice-card-modal__output-image-container">
               <div className="slice-card-modal__output-image-container__output-image">
-                <Image
-                  width={250}
-                  src={predictionResults[0]}
-                />
-                <h3>First frame</h3>
+                <Image width={250} src={predictionResults[0]} />
+                <h3>End-Diastolic frame</h3>
               </div>
               <div className="slice-card-modal__output-image-container__output-image">
-                <Image
-                  width={250}
-                  src={predictionResults[2]}
-                />
-                <h3>Result frame</h3>
+                <Image width={250} src={predictionResults[2]} />
+                <h3>Final result</h3>
               </div>
               <div className="slice-card-modal__output-image-container__output-image">
-                <Image
-                  width={250}
-                  src={predictionResults[1]}
-                />
-                <h3>Second frame</h3>
+                <Image width={250} src={predictionResults[1]} />
+                <h3>End-Systolic frame</h3>
               </div>
             </div>
           )}
-        </div>
+        </fieldset>
       </div>
     </Modal>
   );

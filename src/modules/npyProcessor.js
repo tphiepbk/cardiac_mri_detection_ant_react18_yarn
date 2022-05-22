@@ -146,10 +146,10 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
             `${userDataPath_temp}/${sampleName}/`
           );
 
-          let sliceTempPaths = fs.readdirSync(currentSampleTempPath);
+          const allFilesInCurrentSampleTempPath = fs.readdirSync(currentSampleTempPath);
 
-          sliceTempPaths = sliceTempPaths.filter(
-            (element) => element.substring(0, 5) === "slice"
+          const sliceTempPaths = allFilesInCurrentSampleTempPath.filter(
+            (filename) => filename.substring(0, 5) === "slice"
           );
           sliceTempPaths.sort(
             (a, b) =>
@@ -157,11 +157,20 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
               parseInt(b.substring(6, b.length))
           );
 
+          const croppedSliceTempPaths = allFilesInCurrentSampleTempPath.filter(
+            (filename) => filename.length >= 13 && filename.substring(0, 13) === "cropped_slice"
+          );
+          croppedSliceTempPaths.sort(
+            (a, b) =>
+              parseInt(a.substring(14, a.length)) -
+              parseInt(b.substring(14, b.length))
+          );
+
           const numberOfFrames = fs.readdirSync(
             `${currentSampleTempPath}/${sliceTempPaths[0]}/`
           ).length;
 
-          const returnedSlicesTempPaths = [];
+          const returnedSliceTempPaths = [];
 
           for (
             let sliceNumber = 0;
@@ -180,7 +189,29 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
                 )
               );
             }
-            returnedSlicesTempPaths.unshift(temp);
+            returnedSliceTempPaths.unshift(temp);
+          }
+
+          const returnedCroppedSliceTempPaths = [];
+
+          for (
+            let sliceNumber = 0;
+            sliceNumber < croppedSliceTempPaths.length;
+            sliceNumber++
+          ) {
+            const temp = [];
+            for (
+              let frameNumber = 0;
+              frameNumber < numberOfFrames;
+              frameNumber++
+            ) {
+              temp.push(
+                path.resolve(
+                  `${currentSampleTempPath}/cropped_slice_${sliceNumber}/${frameNumber}.png`
+                )
+              );
+            }
+            returnedCroppedSliceTempPaths.unshift(temp);
           }
 
           const currentSampleTempPathCroppedNpy = path.resolve(
@@ -205,7 +236,8 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
             sampleName,
             npyFileNames: filesInFolder,
             croppedNpyFilePaths,
-            sliceTempPaths: returnedSlicesTempPaths,
+            sliceTempPaths: returnedSliceTempPaths,
+            croppedSliceTempPaths: returnedCroppedSliceTempPaths,
             ...videoProcessorResult,
             videoBboxName: videoBboxProcessorResult.videoName,
             videoBboxInputPath: videoBboxProcessorResult.videoInputPath,

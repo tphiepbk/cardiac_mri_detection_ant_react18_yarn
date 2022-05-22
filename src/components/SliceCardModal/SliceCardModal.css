@@ -8,11 +8,29 @@
   display: flex;
   justify-content: space-between;
   column-gap: 20px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .slice-card-modal__video {
   margin-bottom: 30px;
+}
+
+.slice-card-modal__first-model {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid #BEBEBE;
+  border-radius: 10px;
+  padding: 10px;
+}
+.slice-card-modal__first-model__header {
+  position: absolute;
+  margin-top: -40vh;
+  margin-left: 10px;
+  color: white;
+  background: cadetblue;
+  border-radius: 10px;
+  padding: 2px 10px;
 }
 
 .slice-card-modal__second-model {
@@ -20,13 +38,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  border: 2px solid #BEBEBE;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+legend {
+  margin-left: 10px;
+  font-size: medium;
+  background-color: cadetblue;
+  color: #FDFEFF;
+  padding: 3px 10px;
+  border: 2px solid white;
+  border-radius: 5px;
+  width: fit-content;
 }
 
 .slice-card-modal__input-image-container {
-  width: 100%;
+  width: 60%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: stretch;
 }
 
 .slice-card-modal__input-image-container__input-image {
@@ -57,8 +89,6 @@
   column-gap: 10px;
   justify-content: center; 
   align-items: center;
-  border-radius: 10px;
-  border: 1px solid #BEBEBE;
   width: 40vw;
 }
 
@@ -73,4 +103,17 @@
 .slice-card-modal__output-image-container__output-image > h3 {
   margin: 0;
   font-weight: 900;
+}
+
+.slice-card-modal__predict-button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-text {
+  margin: 0;
+  font-weight: 900;
+  color: red;
 }

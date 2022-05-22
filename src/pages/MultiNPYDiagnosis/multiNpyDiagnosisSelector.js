@@ -10,9 +10,9 @@ export const listPredictionResultSelector = createSelector(
   (listPredictionResult) => listPredictionResult
 );
 
-export const multiVideoListSlicesSelector = createSelector(
-  (state) => state.multiNpyDiagnosis.multiVideoListSlices,
-  (multiVideoListSlices) => multiVideoListSlices
+export const multiListSlicesSelector = createSelector(
+  (state) => state.multiNpyDiagnosis.multiListSlices,
+  (multiListSlices) => multiListSlices
 );
 
 export const disabledButtonSelector = createSelector(

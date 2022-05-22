@@ -112,6 +112,7 @@ export default function VideoDiagnosis() {
         npyFileNames,
         croppedNpyFilePaths,
         sliceTempPaths,
+        croppedSliceTempPaths,
         videoInputPath,
         videoOutputPath,
         videoBboxInputPath,
@@ -144,15 +145,22 @@ export default function VideoDiagnosis() {
         })
       );
 
-      const crawledListSlices = sliceTempPaths.map((slice, index) => ({
-        sliceNumber: index,
-        sliceImageUrl: slice[0],
-        sliceFrames: slice,
-        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-        sliceCroppedNpyPath: croppedNpyFilePaths[index],
-      }));
+      const numberOfSlices = sliceTempPaths.length;
 
-      console.log(crawledListSlices)
+      const crawledListSlices = []
+
+      for (let sliceNumber = 0 ; sliceNumber < numberOfSlices ; sliceNumber++) {
+        crawledListSlices.push({
+          sliceNumber,
+          sliceImageUrl: sliceTempPaths[sliceNumber][0],
+          sliceFrames: sliceTempPaths[sliceNumber],
+          sliceCroppedFrames: croppedSliceTempPaths[sliceNumber],
+          sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+          sliceCroppedNpyPath: croppedNpyFilePaths[sliceNumber],
+        })
+      }
+
+      console.log('crawledListSlices = ', crawledListSlices)
 
       dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
@@ -467,7 +475,7 @@ export default function VideoDiagnosis() {
           </div>
         </div>
 
-        {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
+        {/* diagnosisResult === NO_DIAGNOSIS_RESULT */ listSlices.length === 0 ? (
           <div className="npy-diagnosis__diagnosis-result__slices-panel--empty">
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </div>
@@ -489,6 +497,7 @@ export default function VideoDiagnosis() {
                 closeModalHandler={toggleSliceCardModal}
                 sliceNumber={currentSliceSelected}
                 sliceFrames={listSlices[currentSliceSelected].sliceFrames}
+                sliceCroppedFrames={listSlices[currentSliceSelected].sliceCroppedFrames}
                 sliceVideoPath={listSlices[currentSliceSelected].sliceVideoPath}
                 sliceCroppedNpyPath={listSlices[currentSliceSelected].sliceCroppedNpyPath}
               />
