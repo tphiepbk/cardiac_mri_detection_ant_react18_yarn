@@ -4,6 +4,7 @@ const NO_DIAGNOSIS_RESULT = 0;
 
 const initialState = {
   samplePath: "",
+  concatenatedSamplePath: "",
   npyFileNames: [],
   videoPath: {
     mp4: "",
@@ -29,6 +30,9 @@ const npyDiagnosisSlice = createSlice({
   name: "npyDiagnosis",
   initialState,
   reducers: {
+    setConcatenatedSamplePath: (state, action) => {
+      state.concatenatedSamplePath = action.payload;
+    },
     setSamplePath: (state, action) => {
       state.samplePath = action.payload;
     },

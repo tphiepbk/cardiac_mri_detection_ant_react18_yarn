@@ -2,7 +2,7 @@ const path = require("path");
 
 const { PythonShell } = require("python-shell");
 
-const predictAbnormalPositionForSlice = async (
+const abnormalPositionForSlicePrediction = async (
   npySlicePath,
   edFrameIndex,
   esFrameIndex
@@ -42,5 +42,5 @@ const predictAbnormalPositionForSlice = async (
 };
 
 module.exports = {
-  predictAbnormalPositionForSlice,
+  abnormalPositionForSlicePrediction,
 };

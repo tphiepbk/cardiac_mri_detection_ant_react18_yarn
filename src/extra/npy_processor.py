@@ -151,11 +151,15 @@ for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
 
     npy_slices = []
 
+    concatenated_npy_sample = []
+
     for filedir, filename in zip(NPY_LIST_FILEDIR, NPY_LIST_FILENAME):
 
         videoArr = np.load(filedir)
 
         np.save(os.path.abspath('{}/{}_cropped.npy'.format(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE_CROPPED_NPY, filename)), videoArr[bbox[1]:bbox[3], bbox[0]:bbox[2], :])
+
+        concatenated_npy_sample += [videoArr[bbox[1]:bbox[3], bbox[0]:bbox[2], :]]
 
         expandDim_videoArr = np.expand_dims(videoArr, axis=0)
         videoArr = np.transpose(expandDim_videoArr, [0, 3, 1, 2])
@@ -177,6 +181,9 @@ for NPY_FOLDER_PATH in NPY_FOLDER_PATHS:
         for i in range(len(videoArr)):
             cv2.imwrite(os.path.abspath('{}/{}.png'.format(current_slice_temp_path, i)), videoArr[i])
             cv2.imwrite(os.path.abspath('{}/{}.png'.format(current_slice_temp_path_cropped, i)), videoArr[i][bbox[1]:bbox[3], bbox[0]:bbox[2]])
+
+    concatenated_npy_sample = np.moveaxis(np.array(concatenated_npy_sample), 3, 1)
+    np.save(os.path.abspath('{}/{}.npy'.format(TEMP_FOLDER_PATH_FOR_CURRENT_SAMPLE, VIDEO_NAME)), concatenated_npy_sample)
 
     NUMBER_OF_FRAMES = len(npy_slices[0])
 

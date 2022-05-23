@@ -30,6 +30,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   makeMultiplePrediction: (sampleObjectList) =>
     ipcRenderer.invoke("make-multiple-prediction", sampleObjectList),
 
+  // * Classification for NPY sample
+  classifyNpySample: (concatenatedNpySamplePath) =>
+    ipcRenderer.invoke("classify-npy-sample", concatenatedNpySamplePath),
+
+  // * Classification for multi NPY samples
+  classifyMultiNpySamples: (concatenatedNpySamplePaths) =>
+    ipcRenderer.invoke("classify-multi-npy-samples", concatenatedNpySamplePaths),
+
   // * Predict abnormal position for slice
   predictAbnormalPositionForSlice: (data) =>
     ipcRenderer.invoke("predict-abnormal-position-for-slice", data),

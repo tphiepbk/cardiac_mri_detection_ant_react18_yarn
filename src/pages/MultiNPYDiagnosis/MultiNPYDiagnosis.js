@@ -37,6 +37,11 @@ import {
   triggerUploadFailedAlert,
 } from "../../components/Alerts/alertsTrigger";
 
+const NORMAL_DIAGNOSIS_RESULT = 1;
+const ABNORMAL_DIAGNOSIS_RESULT = 2;
+
+const AVERAGE_DIAGNOSE_TIME = 300;
+
 export default function MultiNPYDiagnosis() {
   const dispatch = useDispatch();
 
@@ -167,10 +172,10 @@ export default function MultiNPYDiagnosis() {
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
-    }, listInputNpyObject.length * 150);
+    }, listInputNpyObject.length * AVERAGE_DIAGNOSE_TIME);
 
-    const predictionResponse = await window.electronAPI.makeMultiplePrediction(
-      listInputNpyObject
+    const predictionResponse = await window.electronAPI.classifyMultiNpySamples(
+      listInputNpyObject.map((npyObject) => npyObject.concatenatedNpySamplePath)
     );
     console.log(predictionResponse);
 
@@ -204,7 +209,7 @@ export default function MultiNPYDiagnosis() {
 
       dispatch(
         multiNpyDiagnosisSlice.actions.setListPredictionResult([
-          ...predictionResponse.returnedVideoObjectList,
+          ...predictionResponse.target,
         ])
       );
     } else {
@@ -328,7 +333,7 @@ export default function MultiNPYDiagnosis() {
                   NONE
                 </Button>
               ) : parseFloat(
-                  listPredictionResult[currentVideoSelected].predictedValue
+                  listPredictionResult[currentVideoSelected]
                 ) < 0.5 ? (
                 <Button
                   icon={<CheckCircleOutlined />}
@@ -387,10 +392,10 @@ export default function MultiNPYDiagnosis() {
             {isSaveSampleRecordModalVisible && (
               <SaveSampleRecordModal
                 diagnosisResult={
-                  listPredictionResult[currentVideoSelected].predictedValue <
+                  listPredictionResult[currentVideoSelected] <
                   0.5
-                    ? 1
-                    : 2
+                    ? NORMAL_DIAGNOSIS_RESULT
+                    : ABNORMAL_DIAGNOSIS_RESULT
                 }
                 sampleName={listInputNpyObject[currentVideoSelected].videoName}
                 closeSaveSampleRecordModalHandler={

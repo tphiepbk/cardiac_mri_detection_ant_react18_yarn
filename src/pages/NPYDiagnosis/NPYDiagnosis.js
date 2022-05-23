@@ -11,6 +11,7 @@ import {
   npyFileNamesSelector,
   videoBboxPathSelector,
   samplePathSelector,
+  concatenatedSamplePathSelector,
 } from "./npyDiagnosisSelector";
 
 import { Button, Descriptions, Empty, Skeleton, Tabs, List, Input } from "antd";
@@ -46,11 +47,12 @@ const NO_DIAGNOSIS_RESULT = 0;
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
-const AVERAGE_DIAGNOSE_TIME = 250;
+const AVERAGE_DIAGNOSE_TIME = 400;
 
 export default function VideoDiagnosis() {
   const dispatch = useDispatch();
 
+  const concatenatedSamplePath = useSelector(concatenatedSamplePathSelector);
   const samplePath = useSelector(samplePathSelector);
   const npyFileNames = useSelector(npyFileNamesSelector);
   const videoPath = useSelector(videoPathSelector);
@@ -62,14 +64,15 @@ export default function VideoDiagnosis() {
 
   const processRunning = useSelector(appProcessRunningSelector);
 
-  const [sliceCardModalVisible, setSliceCardModalVisible] = React.useState(false);
+  const [sliceCardModalVisible, setSliceCardModalVisible] =
+    React.useState(false);
   const [isSaveSampleRecordModalVisible, setIsSaveSampleRecordModalVisible] =
     React.useState(false);
   const [currentSliceSelected, setCurrentSliceSelected] = React.useState(0);
 
   const toggleSliceCardModal = () => {
-    setSliceCardModalVisible(prevState => !prevState)
-  }
+    setSliceCardModalVisible((prevState) => !prevState);
+  };
 
   const selectSlice = (sliceNumber) => {
     console.log(`Selected slice ${sliceNumber}`);
@@ -107,6 +110,7 @@ export default function VideoDiagnosis() {
 
     if (response.result === "SUCCESS") {
       const {
+        concatenatedNpySamplePath,
         samplePath,
         sampleName,
         npyFileNames,
@@ -117,8 +121,14 @@ export default function VideoDiagnosis() {
         videoOutputPath,
         videoBboxInputPath,
         videoBboxOutputPath,
-        videoMetadata: {format_long_name, duration, height, width},
+        videoMetadata: { format_long_name, duration, height, width },
       } = response.target;
+
+      dispatch(
+        npyDiagnosisSlice.actions.setConcatenatedSamplePath(
+          concatenatedNpySamplePath
+        )
+      );
 
       dispatch(npyDiagnosisSlice.actions.setSamplePath(samplePath));
 
@@ -147,9 +157,9 @@ export default function VideoDiagnosis() {
 
       const numberOfSlices = sliceTempPaths.length;
 
-      const crawledListSlices = []
+      const crawledListSlices = [];
 
-      for (let sliceNumber = 0 ; sliceNumber < numberOfSlices ; sliceNumber++) {
+      for (let sliceNumber = 0; sliceNumber < numberOfSlices; sliceNumber++) {
         crawledListSlices.push({
           sliceNumber,
           sliceImageUrl: sliceTempPaths[sliceNumber][0],
@@ -157,10 +167,10 @@ export default function VideoDiagnosis() {
           sliceCroppedFrames: croppedSliceTempPaths[sliceNumber],
           sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
           sliceCroppedNpyPath: croppedNpyFilePaths[sliceNumber],
-        })
+        });
       }
 
-      console.log('crawledListSlices = ', crawledListSlices)
+      console.log("crawledListSlices = ", crawledListSlices);
 
       dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
@@ -197,8 +207,8 @@ export default function VideoDiagnosis() {
       dispatch(progressBarSlice.actions.increaseProgressBar());
     }, AVERAGE_DIAGNOSE_TIME);
 
-    const predictionResponse = await window.electronAPI.makeSinglePrediction(
-      videoPath.avi
+    const predictionResponse = await window.electronAPI.classifyNpySample(
+      concatenatedSamplePath
     );
     console.log(predictionResponse);
 
@@ -223,7 +233,7 @@ export default function VideoDiagnosis() {
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();
 
-      if (parseFloat(predictionResponse.value) >= 0.5) {
+      if (parseFloat(predictionResponse.target) >= 0.5) {
         dispatch(
           npyDiagnosisSlice.actions.setDiagnosisResult(
             ABNORMAL_DIAGNOSIS_RESULT
@@ -475,35 +485,44 @@ export default function VideoDiagnosis() {
           </div>
         </div>
 
-        {/* diagnosisResult === NO_DIAGNOSIS_RESULT */ listSlices.length === 0 ? (
-          <div className="npy-diagnosis__diagnosis-result__slices-panel--empty">
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-          </div>
-        ) : (
-          <div className="npy-diagnosis__diagnosis-result__slices-panel">
-            {listSlices.map((slice) => (
-              <SliceCard
-                key={slice.sliceNumber}
-                sliceNumber={slice.sliceNumber}
-                sliceImageUrl={slice.sliceImageUrl}
-                clickHandler={() => {
-                  selectSlice(slice.sliceNumber);
-                }}
-              />
-            ))}
+        {
+          /* diagnosisResult === NO_DIAGNOSIS_RESULT */ listSlices.length ===
+          0 ? (
+            <div className="npy-diagnosis__diagnosis-result__slices-panel--empty">
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            </div>
+          ) : (
+            <div className="npy-diagnosis__diagnosis-result__slices-panel">
+              {listSlices.map((slice) => (
+                <SliceCard
+                  key={slice.sliceNumber}
+                  sliceNumber={slice.sliceNumber}
+                  sliceImageUrl={slice.sliceImageUrl}
+                  clickHandler={() => {
+                    selectSlice(slice.sliceNumber);
+                  }}
+                />
+              ))}
 
-            {sliceCardModalVisible && (
-              <SliceCardModal
-                closeModalHandler={toggleSliceCardModal}
-                sliceNumber={currentSliceSelected}
-                sliceFrames={listSlices[currentSliceSelected].sliceFrames}
-                sliceCroppedFrames={listSlices[currentSliceSelected].sliceCroppedFrames}
-                sliceVideoPath={listSlices[currentSliceSelected].sliceVideoPath}
-                sliceCroppedNpyPath={listSlices[currentSliceSelected].sliceCroppedNpyPath}
-              />
-            )}
-          </div>
-        )}
+              {sliceCardModalVisible && (
+                <SliceCardModal
+                  closeModalHandler={toggleSliceCardModal}
+                  sliceNumber={currentSliceSelected}
+                  sliceFrames={listSlices[currentSliceSelected].sliceFrames}
+                  sliceCroppedFrames={
+                    listSlices[currentSliceSelected].sliceCroppedFrames
+                  }
+                  sliceVideoPath={
+                    listSlices[currentSliceSelected].sliceVideoPath
+                  }
+                  sliceCroppedNpyPath={
+                    listSlices[currentSliceSelected].sliceCroppedNpyPath
+                  }
+                />
+              )}
+            </div>
+          )
+        }
       </div>
     </div>
   );

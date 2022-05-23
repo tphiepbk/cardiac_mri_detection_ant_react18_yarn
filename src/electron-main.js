@@ -28,8 +28,14 @@ const {
   multipleNpySamplesProcessor,
 } = require("./modules/multipleNpySamplesProcessor");
 const {
-  predictAbnormalPositionForSlice,
-} = require("./modules/predictAbnormalPositionForSlice");
+  abnormalPositionForSlicePrediction,
+} = require("./modules/abnormalPositionForSlicePrediction");
+
+const {
+  npySampleClassification,
+} = require("./modules/npySampleClassification");
+
+const { multiNpySamplesClassification } = require("./modules/multiNpySamplesClassification")
 
 let userDataPath_temp = path.resolve(
   homedir + "/cardiac_mri_abnormalities_detection/"
@@ -557,18 +563,72 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
   return returnValue;
 });
 
+ipcMain.handle(
+  "classify-npy-sample",
+  async (_event, concatenatedNpySamplePath) => {
+    console.log("========================================== Classifying npy sample ==============================================")
+    const npySampleClassficationResult = await npySampleClassification(
+      concatenatedNpySamplePath
+    );
+
+    console.log("======================================== Finish classifying npy sample ============================================")
+
+    if (npySampleClassficationResult === "FAILED") {
+      return {
+        description: "CLASSIFY NPY SAMPLE",
+        result: "FAILED",
+      };
+    } else {
+      return {
+        description: "CLASSIFY NPY SAMPLE",
+        result: "SUCCESS",
+        target: npySampleClassficationResult
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "classify-multi-npy-samples",
+  async (_event, concatenatedNpySamplePaths) => {
+    console.log("========================================== Classifying npy samples ==============================================")
+    const multiNpySamplesClassificationResult = await multiNpySamplesClassification(
+      concatenatedNpySamplePaths
+    );
+
+    console.log("======================================== Finish classifying npy samples ============================================")
+
+    if (multiNpySamplesClassificationResult === "FAILED") {
+      return {
+        description: "CLASSIFY MULTI NPY SAMPLES",
+        result: "FAILED",
+      };
+    } else {
+      return {
+        description: "CLASSIFY MULTI NPY SAMPLES",
+        result: "SUCCESS",
+        target: multiNpySamplesClassificationResult
+      };
+    }
+  }
+);
+
 ipcMain.handle("predict-abnormal-position-for-slice", async (_event, data) => {
   const { sliceCroppedNpyPath, edFrameIndex, esFrameIndex } = data;
 
-  console.log(edFrameIndex, esFrameIndex)
+  console.log(edFrameIndex, esFrameIndex);
 
-  const rawPredictionResults = await predictAbnormalPositionForSlice(sliceCroppedNpyPath, edFrameIndex, esFrameIndex);
+  const rawPredictionResults = await abnormalPositionForSlicePrediction(
+    sliceCroppedNpyPath,
+    edFrameIndex,
+    esFrameIndex
+  );
 
   if (rawPredictionResults === "FAILED") {
     return {
       description: "PREDICT ABNORMAL POSITION FOR SLICE",
-      result: "FAILED"
-    }
+      result: "FAILED",
+    };
   } else {
     const predictionResults = JSON.parse(
       rawPredictionResults.replaceAll("'", '"')
@@ -580,7 +640,7 @@ ipcMain.handle("predict-abnormal-position-for-slice", async (_event, data) => {
       description: "PREDICT ABNORMAL POSITION FOR SLICE",
       result: "SUCCESS",
       target: [...predictionResults],
-    }
+    };
   }
 });
 

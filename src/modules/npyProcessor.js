@@ -231,9 +231,12 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
           croppedNpyFilePaths = croppedNpyFilePaths.map(filename => path.resolve(`${currentSampleTempPathCroppedNpy}/${filename}`))
           croppedNpyFilePaths.reverse();
 
+          const concatenatedNpySamplePath = path.resolve(`${userDataPath_temp}/${sampleName}/${sampleName}.npy`)
+
           return {
             samplePath,
             sampleName,
+            concatenatedNpySamplePath,
             npyFileNames: filesInFolder,
             croppedNpyFilePaths,
             sliceTempPaths: returnedSliceTempPaths,

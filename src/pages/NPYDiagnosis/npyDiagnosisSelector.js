@@ -5,6 +5,11 @@ export const npyFileNamesSelector = createSelector(
   (npyFileNames) => npyFileNames
 );
 
+export const concatenatedSamplePathSelector = createSelector(
+  (state) => state.npyDiagnosis.concatenatedSamplePath,
+  (concatenatedSamplePath) => concatenatedSamplePath
+);
+
 export const samplePathSelector = createSelector(
   (state) => state.npyDiagnosis.samplePath,
   (samplePath) => samplePath

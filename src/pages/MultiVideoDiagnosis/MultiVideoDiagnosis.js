@@ -40,6 +40,8 @@ import {
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
+const AVERAGE_DIAGNOSE_TIME = 250;
+
 export default function MultiVideoDiagnosis() {
   const dispatch = useDispatch();
 
@@ -146,7 +148,7 @@ export default function MultiVideoDiagnosis() {
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
-    }, listInputVideo.length * 150);
+    }, listInputVideo.length * AVERAGE_DIAGNOSE_TIME);
 
     const predictionResponse = await window.electronAPI.makeMultiplePrediction(
       listInputVideo
