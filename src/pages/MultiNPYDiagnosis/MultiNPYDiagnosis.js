@@ -104,22 +104,24 @@ export default function MultiNPYDiagnosis() {
     setIsVideoModalVisible(true);
   };
 
-  const uploadMultiNpySamples = async () => {
+  const uploadMultipleNpySamples = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
-    const npySamplesOpenResponse =
+    const uploadMultipleNpySamplesResponse =
       await window.electronAPI.uploadMultipleNpySamples();
     dispatch(mainPageSlice.actions.disableLoadingScreen());
 
-    console.log(npySamplesOpenResponse);
+    console.log(uploadMultipleNpySamplesResponse);
 
-    if (npySamplesOpenResponse.result === "SUCCESS") {
+    if (uploadMultipleNpySamplesResponse.result === "FAILED") {
+      triggerUploadFailedAlert();
+    } else if (uploadMultipleNpySamplesResponse.result === "SUCCESS") {
       dispatch(
         multiNpyDiagnosisSlice.actions.setListInputNpyObject([
-          ...npySamplesOpenResponse.target,
+          ...uploadMultipleNpySamplesResponse.target,
         ])
       );
 
-      const crawledMultiListSlices = npySamplesOpenResponse.target.map(
+      const crawledMultiListSlices = uploadMultipleNpySamplesResponse.target.map(
         (npyObject) => {
           const numberOfSlices = npyObject.sliceTempPaths.length;
 
@@ -151,9 +153,8 @@ export default function MultiNPYDiagnosis() {
           crawledMultiListSlices
         )
       );
-    } else {
-      triggerUploadFailedAlert();
     }
+
     dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
@@ -166,7 +167,7 @@ export default function MultiNPYDiagnosis() {
 
     dispatch(mainPageSlice.actions.disableAppInteractive());
 
-    uploadMultiNpySamples();
+    uploadMultipleNpySamples();
     setCurrentVideoSelected(0);
   };
 
@@ -200,7 +201,9 @@ export default function MultiNPYDiagnosis() {
 
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
-    if (predictionResponse.result === "SUCCESS") {
+    if (predictionResponse.result === "FAILED") {
+      triggerTaskFailedAlert();
+    } else {
       triggerTaskSucceededAlert();
 
       dispatch(
@@ -210,8 +213,6 @@ export default function MultiNPYDiagnosis() {
           ),
         )
       );
-    } else {
-      triggerTaskFailedAlert();
     }
   };
 

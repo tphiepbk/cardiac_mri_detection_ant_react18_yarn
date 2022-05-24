@@ -107,22 +107,23 @@ export default function MultiVideoDiagnosis() {
     setIsVideoModalVisible(true);
   };
 
-  const uploadMultiVideos = async () => {
+  const uploadMultipleVideos = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
-    const filesOpenResponse = await window.electronAPI.uploadMultipleVideos();
+    const uploadMultipleVideosResponse = await window.electronAPI.uploadMultipleVideos();
     dispatch(mainPageSlice.actions.disableLoadingScreen());
 
-    console.log(filesOpenResponse);
+    console.log(uploadMultipleVideosResponse);
 
-    if (filesOpenResponse.result === "SUCCESS") {
+    if (uploadMultipleVideosResponse.result === "FAILED") {
+      triggerUploadFailedAlert();
+    } else if (uploadMultipleVideosResponse.result === "SUCCESS") {
       dispatch(
         multiVideoDiagnosisSlice.actions.setListInputVideo([
-          ...filesOpenResponse.target,
+          ...uploadMultipleVideosResponse.target,
         ])
       );
-    } else {
-      triggerUploadFailedAlert();
     }
+
     dispatch(mainPageSlice.actions.enableAppInteractive());
   };
 
@@ -135,7 +136,7 @@ export default function MultiVideoDiagnosis() {
 
     dispatch(mainPageSlice.actions.disableAppInteractive());
 
-    uploadMultiVideos();
+    uploadMultipleVideos();
     setCurrentVideoSelected(0);
   };
 
@@ -180,7 +181,9 @@ export default function MultiVideoDiagnosis() {
 
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
-    if (predictionResponse.result === "SUCCESS") {
+    if (predictionResponse.result === "FAILED") {
+      triggerTaskFailedAlert();
+    } else {
       triggerTaskSucceededAlert();
 
       dispatch(
@@ -190,8 +193,6 @@ export default function MultiVideoDiagnosis() {
           ),
         )
       );
-    } else {
-      triggerTaskFailedAlert();
     }
   };
 
@@ -390,9 +391,11 @@ export default function MultiVideoDiagnosis() {
                 key={slice.sliceNumber}
                 sliceNumber={slice.sliceNumber}
                 sliceImageUrl={slice.sliceImageUrl}
+                /*
                 clickHandler={() => {
                   selectSlice(slice.sliceNumber);
                 }}
+                */
               />
             ))}
 

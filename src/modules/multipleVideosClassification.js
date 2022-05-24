@@ -18,8 +18,13 @@ const multipleVideosClassification = async (videoInputPaths) => {
     __dirname + "/../extra/multiple_videos_classification.py"
   );
 
+  const pythonPath = path.resolve(
+    __dirname + "/../resources/Python/python.exe"
+  );
+
   const options = {
     mode: "text",
+    pythonPath: pythonPath,
     pythonOptions: ["-u"],
     args: [
       unetPretrainPath,

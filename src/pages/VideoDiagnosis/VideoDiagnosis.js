@@ -95,17 +95,20 @@ export default function VideoDiagnosis() {
 
   const uploadVideo = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
-    const response = await window.electronAPI.uploadVideo();
+    const uploadVideoResponse = await window.electronAPI.uploadVideo();
     dispatch(mainPageSlice.actions.disableLoadingScreen());
-    console.log(response);
 
-    if (response.result === "SUCCESS") {
+    console.log(uploadVideoResponse);
+
+    if (uploadVideoResponse.result === "FAILED") {
+      triggerUploadFailedAlert();
+    } else if (uploadVideoResponse.result === "SUCCESS") {
       const {
         videoName,
         videoInputPath,
         videoOutputPath,
         videoMetadata: { format_long_name, duration, height, width },
-      } = response.target;
+      } = uploadVideoResponse.target;
 
       dispatch(
         videoDiagnosisSlice.actions.setVideoPath({
@@ -123,8 +126,6 @@ export default function VideoDiagnosis() {
           width: width,
         })
       );
-    } else {
-      triggerUploadFailedAlert();
     }
 
     dispatch(mainPageSlice.actions.enableAppInteractive());
@@ -178,7 +179,9 @@ export default function VideoDiagnosis() {
 
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
-    if (predictionResponse.result === "SUCCESS") {
+    if (predictionResponse.result === "FAILED") {
+      triggerTaskFailedAlert();
+    } else {
       triggerTaskSucceededAlert();
 
       if (predictionResponse.target.label === "abnormal") {
@@ -194,8 +197,6 @@ export default function VideoDiagnosis() {
           )
         );
       }
-    } else {
-      triggerTaskFailedAlert();
     }
 
     dispatch(videoDiagnosisSlice.actions.enableButton());

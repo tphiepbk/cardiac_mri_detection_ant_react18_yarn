@@ -104,11 +104,14 @@ export default function VideoDiagnosis() {
 
   const uploadNpySample = async () => {
     dispatch(mainPageSlice.actions.enableLoadingScreen());
-    const response = await window.electronAPI.uploadNpySample();
-    console.log(response);
+    const uploadNpySampleResponse = await window.electronAPI.uploadNpySample();
     dispatch(mainPageSlice.actions.disableLoadingScreen());
 
-    if (response.result === "SUCCESS") {
+    console.log(uploadNpySampleResponse);
+
+    if (uploadNpySampleResponse.result === "FAILED") {
+      triggerUploadFailedAlert();
+    } else if (uploadNpySampleResponse.result === "SUCCESS") {
       const {
         concatenatedNpySamplePath,
         samplePath,
@@ -122,7 +125,7 @@ export default function VideoDiagnosis() {
         videoBboxInputPath,
         videoBboxOutputPath,
         videoMetadata: { format_long_name, duration, height, width },
-      } = response.target;
+      } = uploadNpySampleResponse.target;
 
       dispatch(
         npyDiagnosisSlice.actions.setConcatenatedSamplePath(
@@ -175,8 +178,6 @@ export default function VideoDiagnosis() {
       dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
       dispatch(npyDiagnosisSlice.actions.setNpyFileNames(npyFileNames));
-    } else {
-      triggerUploadFailedAlert();
     }
 
     dispatch(mainPageSlice.actions.enableAppInteractive());
@@ -215,22 +216,11 @@ export default function VideoDiagnosis() {
     clearInterval(progressBarRunning);
     dispatch(progressBarSlice.actions.completeProgressBar());
 
-    /*
-    const crawledListSlices = [];
-    for (let i = 0; i <= 10; i++) {
-      crawledListSlices.push({
-        sliceNumber: i,
-        sliceImageUrl:
-          "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
-        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-      });
-    }
-    dispatch(npyDiagnosisSlice.actions.setListSlices(crawledListSlices));
-    */
-
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
-    if (predictionResponse.result === "SUCCESS") {
+    if (predictionResponse.result === "FAILED") {
+      triggerTaskFailedAlert();
+    } else {
       triggerTaskSucceededAlert();
 
       if (predictionResponse.target.label === "abnormal") {
@@ -244,8 +234,6 @@ export default function VideoDiagnosis() {
           npyDiagnosisSlice.actions.setDiagnosisResult(NORMAL_DIAGNOSIS_RESULT)
         );
       }
-    } else {
-      triggerTaskFailedAlert();
     }
 
     dispatch(npyDiagnosisSlice.actions.enableButton());

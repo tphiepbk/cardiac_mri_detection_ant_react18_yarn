@@ -380,11 +380,15 @@ ipcMain.handle("classify-video", async (_event, videoPath) => {
 
 ipcMain.handle("classify-multiple-videos", async (_event, videoInputPaths) => {
   console.log(
-    "=================== Making multiple prediction ====================="
+    "============================== Classifying multiple videos ===================================="
   );
 
   const rawMultipleVideosClassificationResult =
     await multipleVideosClassification(videoInputPaths);
+
+  console.log(
+    "============================== Finished classifying multiple videos ===================================="
+  );
 
   if (rawMultipleVideosClassificationResult === "FAILED") {
     return {

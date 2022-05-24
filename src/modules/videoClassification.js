@@ -49,12 +49,17 @@ const videoClassification = async (videoPath) => {
   });
   */
 
+  const pythonPath = path.resolve(
+    __dirname + "/../resources/Python/python.exe"
+  );
+
   const videoClassificationScript = path.resolve(
     __dirname + "/../extra/video_classification.py"
   );
 
   const options = {
     mode: "text",
+    pythonPath: pythonPath,
     pythonOptions: ["-u"],
     args: [
       unetPretrainPath,
