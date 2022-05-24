@@ -34,7 +34,6 @@ export default function SaveSampleRecordModal(props) {
       fullName: values.fullName,
       age: values.age,
       gender: values.gender,
-      address: values.address,
       diagnosisResult: {
         value: values.diagnosisResultValue,
         author: username,
@@ -117,20 +116,6 @@ export default function SaveSampleRecordModal(props) {
           ]}
         >
           <InputNumber />
-        </Form.Item>
-
-        <Form.Item
-          label="Address"
-          name="address"
-          required
-          rules={[
-            {
-              required: true,
-              message: "Please input address !",
-            },
-          ]}
-        >
-          <Input />
         </Form.Item>
 
         <Form.Item

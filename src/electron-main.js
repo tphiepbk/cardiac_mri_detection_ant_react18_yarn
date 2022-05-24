@@ -23,7 +23,7 @@ const { videoProcessor } = require("./modules/videoProcessor");
 const {
   multipleVideosProcessor,
 } = require("./modules/multipleVideosProcessor");
-const { npyProcessor } = require("./modules/npySampleProcessor");
+const { npySampleProcessor } = require("./modules/npySampleProcessor");
 const {
   multipleNpySamplesProcessor,
 } = require("./modules/multipleNpySamplesProcessor");
@@ -271,13 +271,13 @@ ipcMain.handle("upload-npy-sample", async (_event, _arg) => {
       };
     } else {
       const samplePath = path.resolve(folder.filePaths[0]);
-      const npyProcessorResult = await npyProcessor(
+      const npySampleProcessorResult = await npySampleProcessor(
         userDataPath_temp,
         samplePath
       );
 
-      console.log(npyProcessorResult);
-      if (npyProcessorResult === "FAILED") {
+      console.log(npySampleProcessorResult);
+      if (npySampleProcessorResult === "FAILED") {
         return {
           description: "UPLOAD NPY SAMPLE",
           result: "FAILED",
@@ -286,7 +286,7 @@ ipcMain.handle("upload-npy-sample", async (_event, _arg) => {
         return {
           description: "UPLOAD NPY SAMPLE",
           result: "SUCCESS",
-          target: { ...npyProcessorResult },
+          target: { ...npySampleProcessorResult },
         };
       }
     }

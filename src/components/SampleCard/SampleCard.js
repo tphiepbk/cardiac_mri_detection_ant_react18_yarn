@@ -22,10 +22,10 @@ export default function SampleCard() {
 
       <Descriptions
         bordered
-        column={4}
+        column={3}
         size={"small"}
       >
-        <Descriptions.Item label="ID">
+        <Descriptions.Item label="ID" span={3}>
           {currentSelectedSample.id}
         </Descriptions.Item>
         <Descriptions.Item label="Name">
@@ -37,26 +37,15 @@ export default function SampleCard() {
         <Descriptions.Item label="Gender">
           {currentSelectedSample.gender}
         </Descriptions.Item>
-        <Descriptions.Item label="Sample name" className="sample-name-cell" span={4}>
-          {currentSelectedSample.sampleName.length > 86 ? (
+        <Descriptions.Item label="Sample name" span={3}>
+          {currentSelectedSample.sampleName.length > 100 ? (
             <Tooltip title={currentSelectedSample.sampleName}>
               <span>
-                {currentSelectedSample.sampleName.substring(0, 86) + " ..."}
+                {currentSelectedSample.sampleName.substring(0, 100) + " ..."}
               </span>
             </Tooltip>
           ) : (
             currentSelectedSample.sampleName
-          )}
-        </Descriptions.Item>
-        <Descriptions.Item label="Address" className="address-cell" span={4}>
-          {currentSelectedSample.address.length > 86 ? (
-            <Tooltip title={currentSelectedSample.address}>
-              <span>
-                {currentSelectedSample.address.substring(0, 86) + " ..."}
-              </span>
-            </Tooltip>
-          ) : (
-            currentSelectedSample.address
           )}
         </Descriptions.Item>
       </Descriptions>

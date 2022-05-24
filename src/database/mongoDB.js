@@ -26,7 +26,6 @@ const sampleSchema = new mongoose.Schema(
     fullName: String,
     age: Number,
     gender: String,
-    address: String,
     avatar: String,
     diagnosisResult: {
       value: String,
@@ -90,7 +89,6 @@ const saveSampleRecord = async (sampleObject) => {
       fullName: sampleObject.fullName,
       age: sampleObject.age,
       gender: sampleObject.gender,
-      address: sampleObject.address,
       diagnosisResult: {
         value: sampleObject.diagnosisResult.value,
         author: sampleObject.diagnosisResult.author,

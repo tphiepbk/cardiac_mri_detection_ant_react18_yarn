@@ -34,7 +34,6 @@ export default function Dashboard() {
           fullName: element._doc.fullName,
           gender: element._doc.gender,
           age: element._doc.age,
-          address: element._doc.address,
           diagnosisResult_value: element._doc.diagnosisResult.value,
           diagnosisResult_author: element._doc.diagnosisResult.author,
           diagnosisResult_dateModified: processedDate,
@@ -55,7 +54,7 @@ export default function Dashboard() {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      width: 150,
+      width: 200,
       align: "center",
     },
     {
@@ -68,7 +67,7 @@ export default function Dashboard() {
       title: "Full name",
       dataIndex: "fullName",
       key: "fullName",
-      width: 150,
+      width: 200,
       align: "center",
     },
     {
@@ -83,13 +82,6 @@ export default function Dashboard() {
       dataIndex: "gender",
       key: "gender",
       width: 80,
-      align: "center",
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-      width: 300,
       align: "center",
     },
     {
@@ -121,38 +113,6 @@ export default function Dashboard() {
       align: "center",
     },
   ];
-
-  /*
-  const dataSample = {
-    key: "",
-    id: 0,
-    sampleName: "test1",
-    fullName: "John Brown",
-    age: 32,
-    gender: "Male",
-    address: "New York No. 1 Lake Park",
-    diagnosisResult_value: "normal",
-    diagnosisResult_author: "tphiepbk",
-    diagnosisResult_dateModified: "30/03/2022",
-  };
-
-  const data = [];
-
-  let today = new Date();
-  const dd = String(today.getDate()).padStart(2, "0");
-  const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
-  const yyyy = today.getFullYear();
-  today = dd + "/" + mm + "/" + yyyy;
-
-  for (let i = 0; i < 20; i++) {
-    data.push({
-      ...dataSample,
-      key: `${i}`,
-      id: nanoid(),
-      diagnosisResult_dateModified: today,
-    });
-  }
-  */
 
   const paginationChangeHandler = (e) => {
     dispatch(dashboardSlice.actions.setCurrentDataPage(e.current));
