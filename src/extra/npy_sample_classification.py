@@ -157,4 +157,8 @@ processed_npy_sample = preprocess_sample(npy_sample)
 
 model = build_final_model(WEIGHT_PATH)
 
-print(model.predict(processed_npy_sample[None, ...])[0][0])
+result = model.predict(processed_npy_sample[None, ...])
+
+returned_object = {"filepath": CONCATENATED_NPY_SAMPLE_PATH, "predicted_value": result[0][0], "label": "normal" if result[0][0] < 0.5 else "abnormal"}
+
+print(returned_object)

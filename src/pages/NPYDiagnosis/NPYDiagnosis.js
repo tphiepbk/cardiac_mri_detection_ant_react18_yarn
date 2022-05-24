@@ -47,7 +47,7 @@ const NO_DIAGNOSIS_RESULT = 0;
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
-const AVERAGE_DIAGNOSE_TIME = 400;
+const AVERAGE_DIAGNOSE_TIME = 450;
 
 export default function VideoDiagnosis() {
   const dispatch = useDispatch();
@@ -233,7 +233,7 @@ export default function VideoDiagnosis() {
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();
 
-      if (parseFloat(predictionResponse.target) >= 0.5) {
+      if (predictionResponse.target.label === "abnormal") {
         dispatch(
           npyDiagnosisSlice.actions.setDiagnosisResult(
             ABNORMAL_DIAGNOSIS_RESULT
@@ -486,8 +486,8 @@ export default function VideoDiagnosis() {
         </div>
 
         {
-          /* diagnosisResult === NO_DIAGNOSIS_RESULT */ listSlices.length ===
-          0 ? (
+          diagnosisResult === NO_DIAGNOSIS_RESULT /* listSlices.length ===
+          0 */ ? (
             <div className="npy-diagnosis__diagnosis-result__slices-panel--empty">
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
             </div>

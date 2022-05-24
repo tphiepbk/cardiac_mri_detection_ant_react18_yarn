@@ -32,9 +32,9 @@ const npySampleClassification = async (concatenatedNpySamplePath) => {
     });
   });
 
-  const npySampleClassficationResult = await npySampleClassificationPromise;
+  const npySampleClassificationResult = await npySampleClassificationPromise;
 
-  return npySampleClassficationResult;
+  return npySampleClassificationResult;
 };
 
 module.exports = {

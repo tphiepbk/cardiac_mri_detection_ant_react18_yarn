@@ -1,9 +1,9 @@
 const { PythonShell } = require("python-shell");
 const path = require("path");
 
-const multiNpySamplesClassification = async (concatenatedNpySamplePaths) => {
-  const multiNpySamplesClassificationScript = path.resolve(
-    __dirname + "/../extra/multi_npy_samples_classification.py"
+const multipleNpySamplesClassification = async (concatenatedNpySamplePaths) => {
+  const multipleNpySamplesClassificationScript = path.resolve(
+    __dirname + "/../extra/multiple_npy_samples_classification.py"
   );
 
   const finalModelKFoldWeight = path.resolve(
@@ -21,10 +21,10 @@ const multiNpySamplesClassification = async (concatenatedNpySamplePaths) => {
     args: [finalModelKFoldWeight, ...concatenatedNpySamplePaths],
   };
 
-  const multiNpySamplesClassificationPromise = new Promise(
+  const multipleNpySamplesClassificationPromise = new Promise(
     (resolve, _reject) => {
       PythonShell.run(
-        multiNpySamplesClassificationScript,
+        multipleNpySamplesClassificationScript,
         options,
         (err, results) => {
           if (err) {
@@ -38,12 +38,12 @@ const multiNpySamplesClassification = async (concatenatedNpySamplePaths) => {
     }
   );
 
-  const multiNpySamplesClassificationResult =
-    await multiNpySamplesClassificationPromise;
+  const multipleNpySamplesClassificationResult =
+    await multipleNpySamplesClassificationPromise;
 
-  return multiNpySamplesClassificationResult;
+  return multipleNpySamplesClassificationResult;
 };
 
 module.exports = {
-  multiNpySamplesClassification,
+  multipleNpySamplesClassification,
 };

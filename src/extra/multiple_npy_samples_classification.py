@@ -150,6 +150,8 @@ def build_final_model(weight_path=None):
 
     return final_model
 
+returned_objects = []
+
 npy_samples = [np.load(npy_sample) for npy_sample in CONCATENATED_NPY_SAMPLE_PATHS]
 
 processed_npy_samples = [preprocess_sample(npy_sample) for npy_sample in npy_samples]
@@ -160,4 +162,6 @@ model = build_final_model(WEIGHT_PATH)
 
 results = model.predict(processed_npy_samples)
 
-print([result[0] for result in results])
+returned_objects = list(map(lambda filepath, result: {"filepath": filepath, "predicted_value": result[0], "label": "normal" if result[0] < 0.5 else "abnormal"}, CONCATENATED_NPY_SAMPLE_PATHS, results))
+
+print(returned_objects)

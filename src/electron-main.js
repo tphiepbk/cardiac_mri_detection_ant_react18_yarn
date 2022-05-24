@@ -35,7 +35,9 @@ const {
   npySampleClassification,
 } = require("./modules/npySampleClassification");
 
-const { multiNpySamplesClassification } = require("./modules/multiNpySamplesClassification")
+const {
+  multipleNpySamplesClassification,
+} = require("./modules/multipleNpySamplesClassification");
 
 let userDataPath_temp = path.resolve(
   homedir + "/cardiac_mri_abnormalities_detection/"
@@ -301,15 +303,17 @@ ipcMain.handle("upload-multiple-npy-samples", async (_event, _arg) => {
     properties: properties,
   });
 
-  let returnValue = {
-    description: "OPEN MULTI NPY SAMPLES DIALOG",
-  };
-
   if (!folders) {
-    returnValue.result = "FAILED";
+    return {
+      description: "UPLOAD MULTIPLE NPY SAMPLES",
+      result: "FAILED",
+    }
   } else {
     if (folders.canceled) {
-      returnValue.result = "CANCELED";
+      return {
+        description: "UPLOAD MULTIPLE NPY SAMPLES",
+        result: "CANCELED",
+      }
     } else {
       const samplePaths = folders.filePaths.map((folderPath) =>
         path.resolve(folderPath)
@@ -566,48 +570,67 @@ ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
 ipcMain.handle(
   "classify-npy-sample",
   async (_event, concatenatedNpySamplePath) => {
-    console.log("========================================== Classifying npy sample ==============================================")
-    const npySampleClassficationResult = await npySampleClassification(
+    console.log(
+      "========================================== Classifying npy sample =============================================="
+    );
+    const rawNpySampleClassificationResult = await npySampleClassification(
       concatenatedNpySamplePath
     );
 
-    console.log("======================================== Finish classifying npy sample ============================================")
+    console.log(
+      "======================================== Finish classifying npy sample ============================================"
+    );
 
-    if (npySampleClassficationResult === "FAILED") {
+    if (rawNpySampleClassificationResult === "FAILED") {
       return {
         description: "CLASSIFY NPY SAMPLE",
         result: "FAILED",
       };
     } else {
+      const npySampleClassificationResult = JSON.parse(
+        rawNpySampleClassificationResult.replaceAll("'", '"')
+      );
+
+      console.log(npySampleClassificationResult)
+
       return {
         description: "CLASSIFY NPY SAMPLE",
         result: "SUCCESS",
-        target: npySampleClassficationResult
+        target: npySampleClassificationResult
       };
     }
   }
 );
 
 ipcMain.handle(
-  "classify-multi-npy-samples",
+  "classify-multiple-npy-samples",
   async (_event, concatenatedNpySamplePaths) => {
-    console.log("========================================== Classifying npy samples ==============================================")
-    const multiNpySamplesClassificationResult = await multiNpySamplesClassification(
-      concatenatedNpySamplePaths
+    console.log(
+      "========================================== Classifying npy samples =============================================="
+    );
+    const rawMultipleNpySamplesClassificationResult =
+      await multipleNpySamplesClassification(concatenatedNpySamplePaths);
+
+    console.log(
+      "======================================== Finish classifying npy samples ============================================"
     );
 
-    console.log("======================================== Finish classifying npy samples ============================================")
-
-    if (multiNpySamplesClassificationResult === "FAILED") {
+    if (rawMultipleNpySamplesClassificationResult === "FAILED") {
       return {
-        description: "CLASSIFY MULTI NPY SAMPLES",
+        description: "CLASSIFY MULTIPLE NPY SAMPLES",
         result: "FAILED",
       };
     } else {
+      const multipleNpySamplesClassificationResult = JSON.parse(
+        rawMultipleNpySamplesClassificationResult.replaceAll("'", '"')
+      );
+
+      console.log(multipleNpySamplesClassificationResult)
+
       return {
-        description: "CLASSIFY MULTI NPY SAMPLES",
+        description: "CLASSIFY MULTIPLE NPY SAMPLES",
         result: "SUCCESS",
-        target: multiNpySamplesClassificationResult
+        target: multipleNpySamplesClassificationResult,
       };
     }
   }

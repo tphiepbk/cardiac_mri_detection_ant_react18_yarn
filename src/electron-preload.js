@@ -35,8 +35,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("classify-npy-sample", concatenatedNpySamplePath),
 
   // * Classification for multi NPY samples
-  classifyMultiNpySamples: (concatenatedNpySamplePaths) =>
-    ipcRenderer.invoke("classify-multi-npy-samples", concatenatedNpySamplePaths),
+  classifyMultipleNpySamples: (concatenatedNpySamplePaths) =>
+    ipcRenderer.invoke("classify-multiple-npy-samples", concatenatedNpySamplePaths),
 
   // * Predict abnormal position for slice
   predictAbnormalPositionForSlice: (data) =>
