@@ -157,7 +157,7 @@ export default function VideoDiagnosis() {
       dispatch(progressBarSlice.actions.increaseProgressBar());
     }, AVERAGE_DIAGNOSE_TIME);
 
-    const predictionResponse = await window.electronAPI.makeSinglePrediction(
+    const predictionResponse = await window.electronAPI.classifyVideo(
       videoPath.avi
     );
     console.log(predictionResponse);
@@ -181,7 +181,7 @@ export default function VideoDiagnosis() {
     if (predictionResponse.result === "SUCCESS") {
       triggerTaskSucceededAlert();
 
-      if (parseFloat(predictionResponse.value) >= 0.5) {
+      if (predictionResponse.target.label === "abnormal") {
         dispatch(
           videoDiagnosisSlice.actions.setDiagnosisResult(
             ABNORMAL_DIAGNOSIS_RESULT
@@ -407,9 +407,11 @@ export default function VideoDiagnosis() {
                 key={slice.sliceNumber}
                 sliceNumber={slice.sliceNumber}
                 sliceImageUrl={slice.sliceImageUrl}
+                /*
                 clickHandler={() => {
                   selectSlice(slice.sliceNumber);
                 }}
+                */
               />
             ))}
 

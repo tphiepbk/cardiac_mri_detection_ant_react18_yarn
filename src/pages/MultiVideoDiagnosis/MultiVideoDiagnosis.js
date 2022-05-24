@@ -116,7 +116,9 @@ export default function MultiVideoDiagnosis() {
 
     if (filesOpenResponse.result === "SUCCESS") {
       dispatch(
-        multiVideoDiagnosisSlice.actions.setListInputVideo([...filesOpenResponse.target])
+        multiVideoDiagnosisSlice.actions.setListInputVideo([
+          ...filesOpenResponse.target,
+        ])
       );
     } else {
       triggerUploadFailedAlert();
@@ -150,8 +152,8 @@ export default function MultiVideoDiagnosis() {
       dispatch(progressBarSlice.actions.increaseProgressBar());
     }, listInputVideo.length * AVERAGE_DIAGNOSE_TIME);
 
-    const predictionResponse = await window.electronAPI.makeMultiplePrediction(
-      listInputVideo
+    const predictionResponse = await window.electronAPI.classifyMultipleVideos(
+      listInputVideo.map((videoObject) => videoObject.videoInputPath)
     );
     console.log(predictionResponse);
 
@@ -182,9 +184,11 @@ export default function MultiVideoDiagnosis() {
       triggerTaskSucceededAlert();
 
       dispatch(
-        multiVideoDiagnosisSlice.actions.setListPredictionResult([
-          ...predictionResponse.returnedVideoObjectList,
-        ])
+        multiVideoDiagnosisSlice.actions.setListPredictionResult(
+          predictionResponse.target.map(
+            (returnedObject) => returnedObject.label
+          ),
+        )
       );
     } else {
       triggerTaskFailedAlert();
@@ -302,9 +306,7 @@ export default function MultiVideoDiagnosis() {
                 >
                   NONE
                 </Button>
-              ) : parseFloat(
-                  listPredictionResult[currentVideoSelected].predictedValue
-                ) < 0.5 ? (
+              ) : listPredictionResult[currentVideoSelected] === "normal" ? (
                 <Button
                   icon={<CheckCircleOutlined />}
                   className="button-as-success-tag"
@@ -362,8 +364,7 @@ export default function MultiVideoDiagnosis() {
             {isSaveSampleRecordModalVisible && (
               <SaveSampleRecordModal
                 diagnosisResult={
-                  listPredictionResult[currentVideoSelected].predictedValue <
-                  0.5
+                  listPredictionResult[currentVideoSelected] === "normal"
                     ? NORMAL_DIAGNOSIS_RESULT
                     : ABNORMAL_DIAGNOSIS_RESULT
                 }

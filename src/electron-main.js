@@ -23,13 +23,15 @@ const { videoProcessor } = require("./modules/videoProcessor");
 const {
   multipleVideosProcessor,
 } = require("./modules/multipleVideosProcessor");
-const { npyProcessor } = require("./modules/npyProcessor");
+const { npyProcessor } = require("./modules/npySampleProcessor");
 const {
   multipleNpySamplesProcessor,
 } = require("./modules/multipleNpySamplesProcessor");
 const {
   abnormalPositionForSlicePrediction,
 } = require("./modules/abnormalPositionForSlicePrediction");
+
+const { videoClassification } = require("./modules/videoClassification");
 
 const {
   npySampleClassification,
@@ -38,6 +40,9 @@ const {
 const {
   multipleNpySamplesClassification,
 } = require("./modules/multipleNpySamplesClassification");
+const {
+  multipleVideosClassification,
+} = require("./modules/multipleVideosClassification");
 
 let userDataPath_temp = path.resolve(
   homedir + "/cardiac_mri_abnormalities_detection/"
@@ -307,13 +312,13 @@ ipcMain.handle("upload-multiple-npy-samples", async (_event, _arg) => {
     return {
       description: "UPLOAD MULTIPLE NPY SAMPLES",
       result: "FAILED",
-    }
+    };
   } else {
     if (folders.canceled) {
       return {
         description: "UPLOAD MULTIPLE NPY SAMPLES",
         result: "CANCELED",
-      }
+      };
     } else {
       const samplePaths = folders.filePaths.map((folderPath) =>
         path.resolve(folderPath)
@@ -342,229 +347,63 @@ ipcMain.handle("upload-multiple-npy-samples", async (_event, _arg) => {
   }
 });
 
-ipcMain.handle("make-single-prediction", async (event, filepath) => {
-  console.log("=================== Making prediction =====================");
-  console.log(`filePath : ${filepath}`);
-
-  const unetPretrainPath = path.resolve(
-    __dirname + "/resources/pretrained_models/unet3.h5"
+ipcMain.handle("classify-video", async (_event, videoPath) => {
+  console.log(
+    "=============================== Classifying video =================================="
   );
 
-  const checkColNumPretrainPath = path.resolve(
-    __dirname + "/resources/pretrained_models/check_col_num.h5"
-  );
-  const classifyPretrainPath = path.resolve(
-    __dirname + "/resources/pretrained_models/classify5.h5"
-  );
-
-  /*
-  const predictionModuleExecutable = path.resolve(
-    __dirname + "/resources/prediction_module/prediction_module.exe"
-  );
-
-  const predictionPromise = new Promise((resolve, _reject) => {
-    execFile(
-      predictionModuleExecutable,
-      [
-        unetPretrainPath,
-        checkColNumPretrainPath,
-        classifyPretrainPath,
-        filepath,
-      ],
-      (error, stdout, _stderr) => {
-        if (error) {
-          const returnValue = {
-            description: "MAKE SINGLE PREDICTION",
-            result: "FAILED",
-          };
-          resolve(returnValue);
-        } else {
-          const predictionResult = JSON.parse(stdout.replaceAll("'", '"'));
-          const returnValue = {
-            description: "MAKE SINGLE PREDICTION",
-            result: "SUCCESS",
-            value: predictionResult[0].result.toString(),
-          };
-          resolve(returnValue);
-        }
-      }
-    );
-  });
-  */
-
-  const predictionScript = path.resolve(
-    __dirname + "/extra/prediction_module.py"
-  );
-
-  const options = {
-    mode: "text",
-    pythonOptions: ["-u"],
-    args: [
-      unetPretrainPath,
-      checkColNumPretrainPath,
-      classifyPretrainPath,
-      filepath,
-    ],
-  };
-
-  const predictionPromise = new Promise((resolve, _reject) => {
-    PythonShell.run(predictionScript, options, (err, results) => {
-      if (err) {
-        console.log(err);
-        const returnValue = {
-          description: "MAKE SINGLE PREDICTION",
-          result: "FAILED",
-        };
-        resolve(returnValue);
-      } else {
-        const predictionResult = JSON.parse(
-          results.toString().replaceAll("'", '"')
-        );
-        const returnValue = {
-          description: "MAKE SINGLE PREDICTION",
-          result: "SUCCESS",
-          value: predictionResult[0].result.toString(),
-        };
-        resolve(returnValue);
-      }
-    });
-  });
-
-  const returnValue = await predictionPromise;
+  const rawVideoClassificationResult = await videoClassification(videoPath);
 
   console.log(
-    "=================== Finished making prediction ====================="
+    "=========================== Finished classifying video ================================"
   );
 
-  return returnValue;
+  if (rawVideoClassificationResult === "FAILED") {
+    return {
+      description: "CLASSIFY VIDEO",
+      result: "FAILED",
+    };
+  } else {
+    const videoClassificationResult = JSON.parse(
+      rawVideoClassificationResult.replaceAll("'", '"')
+    );
+
+    console.log(videoClassificationResult);
+
+    return {
+      description: "CLASSIFY VIDEO",
+      result: "SUCCESS",
+      target: videoClassificationResult,
+    };
+  }
 });
 
-ipcMain.handle("make-multiple-prediction", async (event, sampleObjectList) => {
+ipcMain.handle("classify-multiple-videos", async (_event, videoInputPaths) => {
   console.log(
     "=================== Making multiple prediction ====================="
   );
 
-  const unetPretrainPath = path.resolve(
-    __dirname + "/resources/pretrained_models/unet3.h5"
-  );
+  const rawMultipleVideosClassificationResult =
+    await multipleVideosClassification(videoInputPaths);
 
-  const checkColNumPretrainPath = path.resolve(
-    __dirname + "/resources/pretrained_models/check_col_num.h5"
-  );
-  const classifyPretrainPath = path.resolve(
-    __dirname + "/resources/pretrained_models/classify5.h5"
-  );
-
-  const listVideoPath = sampleObjectList.map(
-    (sampleObject) => sampleObject.videoInputPath
-  );
-
-  /*
-  const isNpySample = sampleObjectList[0].hasOwnProperty("videoPath");
-  let listVideoPath;
-  if (isNpySample) {
-    listVideoPath = sampleObjectList.map(
-      (sampleObject) => sampleObject.videoPath
-    );
+  if (rawMultipleVideosClassificationResult === "FAILED") {
+    return {
+      description: "CLASSIFY MULTIPLE VIDEOS",
+      result: "FAILED",
+    };
   } else {
-    listVideoPath = sampleObjectList.map((sampleObject) => sampleObject.path);
-  }
-  */
-
-  /*
-  const predictionModuleExecutablePath = path.resolve(
-    __dirname +
-    "/resources/prediction_module/prediction_module.exe"
-  );
-
-  const multiplePredictionPromise = new Promise((resolve, _reject) => {
-    execFile(
-      predictionModuleExecutablePath,
-      [
-        unetPretrainPath,
-        checkColNumPretrainPath,
-        classifyPretrainPath,
-        ...listVideoPath,
-      ],
-      (error, stdout, _stderr) => {
-        if (error) {
-          resolve("FAILED");
-        } else {
-          resolve(stdout.toString());
-        }
-      }
-    );
-  });
-  */
-
-  const predictionScript = path.resolve(
-    __dirname + "/extra/prediction_module.py"
-  );
-
-  const options = {
-    mode: "text",
-    pythonOptions: ["-u"],
-    args: [
-      unetPretrainPath,
-      checkColNumPretrainPath,
-      classifyPretrainPath,
-      ...listVideoPath,
-    ],
-  };
-
-  const multiplePredictionPromise = new Promise((resolve, _reject) => {
-    PythonShell.run(predictionScript, options, (err, results) => {
-      if (err) {
-        console.log(err);
-        resolve("FAILED");
-      } else {
-        resolve(results.toString());
-      }
-    });
-  });
-
-  const rawPredictionResults = await multiplePredictionPromise;
-
-  let returnValue = {
-    description: "MAKE MULTIPLE PREDICTION",
-  };
-
-  if (rawPredictionResults === "FAILED") {
-    returnValue.value = "FAILED";
-  } else {
-    const predictionResults = JSON.parse(
-      rawPredictionResults.replaceAll("'", '"')
+    const multipleVideosClassificationResult = JSON.parse(
+      rawMultipleVideosClassificationResult.replaceAll("'", '"')
     );
 
-    if (predictionResults.length !== sampleObjectList.length) {
-      returnValue.result = "FAILED";
-    } else {
-      returnValue.result = "SUCCESS";
-      const returnedSampleObjectList = [];
-      for (let i = 0; i < predictionResults.length; i++) {
-        if (
-          predictionResults[i].filePath === sampleObjectList[i].videoInputPath
-        ) {
-          returnedSampleObjectList.push({
-            index: i,
-            videoName: sampleObjectList[i].videoName,
-            videoInputPath: sampleObjectList[i].videoInputPath,
-            videoOutputPath: sampleObjectList[i].videoOutputPath,
-            predictedValue: predictionResults[i].result,
-          });
-        }
-      }
-      returnValue.returnedVideoObjectList = returnedSampleObjectList;
-    }
+    console.log(multipleVideosClassificationResult);
+
+    return {
+      description: "CLASSIFY MULTIPLE VIDEOS",
+      result: "SUCCESS",
+      target: multipleVideosClassificationResult,
+    };
   }
-
-  console.log(
-    "=============== Finished making multiple prediction ================"
-  );
-
-  console.log(returnValue);
-
-  return returnValue;
 });
 
 ipcMain.handle(
@@ -591,12 +430,12 @@ ipcMain.handle(
         rawNpySampleClassificationResult.replaceAll("'", '"')
       );
 
-      console.log(npySampleClassificationResult)
+      console.log(npySampleClassificationResult);
 
       return {
         description: "CLASSIFY NPY SAMPLE",
         result: "SUCCESS",
-        target: npySampleClassificationResult
+        target: npySampleClassificationResult,
       };
     }
   }
@@ -625,7 +464,7 @@ ipcMain.handle(
         rawMultipleNpySamplesClassificationResult.replaceAll("'", '"')
       );
 
-      console.log(multipleNpySamplesClassificationResult)
+      console.log(multipleNpySamplesClassificationResult);
 
       return {
         description: "CLASSIFY MULTIPLE NPY SAMPLES",

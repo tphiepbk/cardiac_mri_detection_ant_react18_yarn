@@ -22,13 +22,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
   uploadMultipleNpySamples: () =>
     ipcRenderer.invoke("upload-multiple-npy-samples"),
 
-  // * Make single prediction
-  makeSinglePrediction: (filepath) =>
-    ipcRenderer.invoke("make-single-prediction", filepath),
+  // * Classification for video
+  classifyVideo: (videoPath) =>
+    ipcRenderer.invoke("classify-video", videoPath),
 
-  // * Make multiple prediction
-  makeMultiplePrediction: (sampleObjectList) =>
-    ipcRenderer.invoke("make-multiple-prediction", sampleObjectList),
+  // * Classification for multiple videos
+  classifyMultipleVideos: (videoPaths) =>
+    ipcRenderer.invoke("classify-multiple-videos", videoPaths),
 
   // * Classification for NPY sample
   classifyNpySample: (concatenatedNpySamplePath) =>

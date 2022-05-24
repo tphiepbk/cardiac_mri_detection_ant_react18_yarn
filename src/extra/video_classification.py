@@ -155,60 +155,52 @@ out = Dense(1, activation='sigmoid')(x)
 final_model = Model(inputs, out, name='classify')
 
 # ***************************************************** PREDICTION *****************************************************
-list_result = []
-
-list_file_path = list(map(lambda path : os.path.abspath(path), sys.argv[4:]))
+filepath = os.path.abspath(sys.argv[4])
 
 model = keras.models.load_model(CHECK_COL_NUM_PRETRAINED_PATH)
 
 final_model.load_weights(CLASSIFY_PRETRAINED_PATH)
 
-for path in list_file_path:
+input = np.zeros((12,30,160,160,1))
 
-    input = np.zeros((12,30,160,160,1))
+cap = cv2.VideoCapture(filepath)
+ret, frame = cap.read()
+frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+frame = cv2.resize(frame,(64,48))
+frame = frame[None,...,None]
+col_check = int(model.predict(frame)[0] < 0.5)
 
-    cap = cv2.VideoCapture(path)
+frame_num = 0
+cap = cv2.VideoCapture(filepath)
+while(cap.isOpened()):
     ret, frame = cap.read()
+    if not ret:
+        break
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    frame = cv2.resize(frame,(64,48))
-    frame = frame[None,...,None]
-    col_check = int(model.predict(frame)[0] < 0.5)
 
-    frame_num = 0
-    cap = cv2.VideoCapture(path)
-    while(cap.isOpened()):
-        ret, frame = cap.read()
-        if not ret:
-            break
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    h = 160
+    w = 128 if col_check else 160
+    for i in range(3):
+        for j in range(4 + col_check):
+            slice_num = i*(4 + col_check)+j
+            if slice_num >= 12:
+                break
+            x = j*w
+            y = i*h
 
-        h = 160
-        w = 128 if col_check else 160
-        for i in range(3):
-            for j in range(4 + col_check):
-                slice_num = i*(4 + col_check)+j
-                if slice_num >= 12:
-                    break
-                x = j*w
-                y = i*h
+            croped_frame = frame[y:y+h, x:x+w]
+            if croped_frame.sum() == 0:
+                break
+            if col_check:
+                croped_frame = np.pad(croped_frame, ((0,0),(16,16)), 'constant', constant_values=0)
+            
+            input[slice_num,frame_num] = croped_frame[...,None]
+    frame_num += 1
+    if frame_num >= 30:
+        break
 
-                croped_frame = frame[y:y+h, x:x+w]
-                if croped_frame.sum() == 0:
-                    break
-                if col_check:
-                    croped_frame = np.pad(croped_frame, ((0,0),(16,16)), 'constant', constant_values=0)
-                
-                input[slice_num,frame_num] = croped_frame[...,None]
-        frame_num += 1
-        if frame_num >= 30:
-            break
+input = input[None,...]
 
-    input = input[None,...]
+res = final_model.predict(input)
 
-    """### Predict"""
-
-    res = final_model.predict(input)
-
-    list_result.append({"filePath": path, "result": res[0][0]})
-
-print(list_result)
+print({"filepath": filepath, "predicted_value": res[0][0], "label": "normal" if res[0][0] < 0.5 else "abnormal"})

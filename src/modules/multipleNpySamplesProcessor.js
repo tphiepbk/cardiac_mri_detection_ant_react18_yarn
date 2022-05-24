@@ -1,17 +1,17 @@
-const { npyProcessor } = require("./npyProcessor")
+const { npySampleProcessor } = require("./npySampleProcessor")
 
 const multipleNpySamplesProcessor = async (userDataPath_temp, samplePaths) => {
   const allPromise = []
   for (let i = 0; i < samplePaths.length; i++) {
     const currentNpySamplePath = samplePaths[i];
 
-    const npyProcessorPromise = new Promise((resolve, _reject) => {
-      npyProcessor(userDataPath_temp, currentNpySamplePath).then(returnedValue => {
+    const npySampleProcessorPromise = new Promise((resolve, _reject) => {
+      npySampleProcessor(userDataPath_temp, currentNpySamplePath).then(returnedValue => {
         resolve(returnedValue)
       })
     })
 
-    allPromise.push(npyProcessorPromise)
+    allPromise.push(npySampleProcessorPromise)
   }
 
   const values = await Promise.all(allPromise)

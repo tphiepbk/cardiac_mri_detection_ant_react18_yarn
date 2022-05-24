@@ -8,7 +8,7 @@ const { PythonShell } = require("python-shell");
 
 const { videoProcessor } = require("./videoProcessor");
 
-const npyProcessor = async (userDataPath_temp, samplePath) => {
+const npySampleProcessor = async (userDataPath_temp, samplePath) => {
   const sampleName = path.basename(samplePath);
 
   const sampleTempFolderPath = path.resolve(
@@ -84,7 +84,7 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
       });
       */
 
-      const npyProcessorPath = path.resolve(
+      const npySampleProcessorScript = path.resolve(
         __dirname + "/../extra/npy_processor.py"
       );
 
@@ -105,7 +105,7 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
       };
 
       const npyProcessingPromise = new Promise((resolve, _reject) => {
-        PythonShell.run(npyProcessorPath, options, (err, _results) => {
+        PythonShell.run(npySampleProcessorScript, options, (err, _results) => {
           if (err) {
             console.log(err);
             resolve("FAILED");
@@ -115,9 +115,9 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
         });
       });
 
-      const npyProcessorResult = await npyProcessingPromise;
+      const npySampleProcessorResult = await npyProcessingPromise;
 
-      if (npyProcessorResult === "FAILED") {
+      if (npySampleProcessorResult === "FAILED") {
         return "FAILED";
       } else {
         const videoInputPath = path.resolve(
@@ -254,5 +254,5 @@ const npyProcessor = async (userDataPath_temp, samplePath) => {
 };
 
 module.exports = {
-  npyProcessor,
+  npySampleProcessor,
 };
