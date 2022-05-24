@@ -4,7 +4,6 @@ import "./Dashboard.css";
 import { Table, Tag } from "antd";
 
 import SampleCard from "../../components/SampleCard/SampleCard";
-import { nanoid } from "nanoid";
 import dashboardSlice from "./dashboardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -28,8 +27,8 @@ export default function Dashboard() {
         const yyyy = date.getFullYear();
         const processedDate = dd + "/" + mm + "/" + yyyy;
         return {
-          key: nanoid(),
-          id: nanoid(),
+          key: element._doc.id,
+          id: element._doc.id,
           sampleName: element._doc.sampleName,
           fullName: element._doc.fullName,
           gender: element._doc.gender,

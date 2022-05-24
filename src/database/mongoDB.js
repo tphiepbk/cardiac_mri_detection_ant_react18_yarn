@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const { nanoid } = require("nanoid")
 
 const CONNECTION_STRING =
   "mongodb+srv://tphiepbk:hiepit-2992@cluster0.bjhqp.mongodb.net/test?retryWrites=true&w=majority";
@@ -22,6 +23,7 @@ const closeConnection = async () => {
 
 const sampleSchema = new mongoose.Schema(
   {
+    id: String,
     sampleName: String,
     fullName: String,
     age: Number,
@@ -85,6 +87,7 @@ const saveSampleRecord = async (sampleObject) => {
     returnValue = "FAILED";
   } else {
     const sampleInstance = new sampleModel({
+      id: nanoid(),
       sampleName: sampleObject.sampleName,
       fullName: sampleObject.fullName,
       age: sampleObject.age,
