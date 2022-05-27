@@ -137,7 +137,7 @@ export default function MultiNPYDiagnosis() {
               sliceImageUrl: npyObject.sliceTempPaths[sliceNumber][0],
               sliceFrames: npyObject.sliceTempPaths[sliceNumber],
               sliceCroppedFrames: npyObject.croppedSliceTempPaths[sliceNumber],
-              sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+              sliceVideoPath: "https://youtu.be/kvjbNnHAno8",
               sliceCroppedNpyPath: npyObject.croppedNpyFilePaths[sliceNumber],
             });
           }

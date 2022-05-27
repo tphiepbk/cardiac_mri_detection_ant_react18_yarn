@@ -99,6 +99,7 @@ export default function Login() {
           />
         </Form.Item>
 
+        {/*
         <Form.Item
           style={{
             fontWeight: "900",
@@ -111,6 +112,7 @@ export default function Login() {
         >
           <Checkbox>Remember me</Checkbox>
         </Form.Item>
+        */}
 
         <h3 style={{ color: "red", fontWeight: "bold", textAlign: "center" }}>
           {authIndicator === SOMETHING_WENT_WRONG

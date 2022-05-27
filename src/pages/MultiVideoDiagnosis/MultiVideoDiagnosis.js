@@ -170,7 +170,7 @@ export default function MultiVideoDiagnosis() {
         sliceNumber: i,
         sliceImageUrl:
           "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
-        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+        sliceVideoPath: "https://youtu.be/kvjbNnHAno8",
       });
     }
     dispatch(

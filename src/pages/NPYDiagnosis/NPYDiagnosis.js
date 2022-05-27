@@ -168,7 +168,7 @@ export default function VideoDiagnosis() {
           sliceImageUrl: sliceTempPaths[sliceNumber][0],
           sliceFrames: sliceTempPaths[sliceNumber],
           sliceCroppedFrames: croppedSliceTempPaths[sliceNumber],
-          sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
+          sliceVideoPath: "https://youtu.be/kvjbNnHAno8",
           sliceCroppedNpyPath: croppedNpyFilePaths[sliceNumber],
         });
       }

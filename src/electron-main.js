@@ -352,7 +352,7 @@ ipcMain.handle("classify-video", async (_event, videoPath) => {
     "=============================== Classifying video =================================="
   );
 
-  const rawVideoClassificationResult = await videoClassification(videoPath);
+  const rawVideoClassificationResult = await videoClassification(userDataPath_temp, videoPath);
 
   console.log(
     "=========================== Finished classifying video ================================"
@@ -370,10 +370,36 @@ ipcMain.handle("classify-video", async (_event, videoPath) => {
 
     console.log(videoClassificationResult);
 
+    const videoName = path.basename(videoPath, path.extname(videoPath))
+
+    let allSliceFolders = fs.readdirSync(`${userDataPath_temp}/${videoName}/`)
+
+    allSliceFolders = allSliceFolders.filter(element => element.includes("slice"))
+    allSliceFolders.sort(
+      (a, b) =>
+        parseInt(a.substring(6, a.length)) -
+        parseInt(b.substring(6, b.length))
+    );
+
+    const NUMBER_OF_FRAMES = 30
+
+    const returnedSliceTempPaths = []
+
+    for (let sliceFolder of allSliceFolders) {
+      const temp = []
+      for (let frame = 0 ; frame < NUMBER_OF_FRAMES ; frame++) {
+        temp.push(path.resolve(`${userDataPath_temp}/${videoName}/${sliceFolder}/${frame}.png`))
+      }
+      returnedSliceTempPaths.push(temp)
+    }
+
+    console.log(returnedSliceTempPaths)
+
     return {
       description: "CLASSIFY VIDEO",
       result: "SUCCESS",
       target: videoClassificationResult,
+      sliceTempPaths: returnedSliceTempPaths,
     };
   }
 });

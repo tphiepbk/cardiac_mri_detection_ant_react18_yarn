@@ -1,5 +1,7 @@
 import sys
 import os
+import numpy as np
+import cv2
 
 from tensorflow import keras
 from tensorflow.keras.models import *
@@ -7,13 +9,17 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras import backend as K
 
-import numpy as np
+UNET_PRETRAINED_PATH = os.path.abspath(sys.argv[1])
 
-import cv2
+CHECK_COL_NUM_PRETRAINED_PATH = os.path.abspath(sys.argv[2])
 
-UNET_PRETRAINED_PATH = sys.argv[1]
-CHECK_COL_NUM_PRETRAINED_PATH = sys.argv[2]
-CLASSIFY_PRETRAINED_PATH = sys.argv[3]
+CLASSIFY_PRETRAINED_PATH = os.path.abspath(sys.argv[3])
+
+TEMP_FOLDER_PATH = os.path.abspath(sys.argv[4])
+
+VIDEO_PATH = os.path.abspath(sys.argv[5])
+
+# ***************************************************** BUILD MODEL *****************************************************
 
 NUM_FEATURES = 512
 MAX_FRAMES = 30
@@ -155,15 +161,21 @@ out = Dense(1, activation='sigmoid')(x)
 final_model = Model(inputs, out, name='classify')
 
 # ***************************************************** PREDICTION *****************************************************
-filepath = os.path.abspath(sys.argv[4])
 
 model = keras.models.load_model(CHECK_COL_NUM_PRETRAINED_PATH)
 
 final_model.load_weights(CLASSIFY_PRETRAINED_PATH)
 
+VIDEO_NAME = os.path.splitext(os.path.basename(VIDEO_PATH))[0]
+
+TEMP_FOLDER_PATH_FOR_CURRENT_VIDEO = TEMP_FOLDER_PATH + '/' + VIDEO_NAME + '/'
+
+if not os.path.exists(TEMP_FOLDER_PATH_FOR_CURRENT_VIDEO):
+    os.mkdir(TEMP_FOLDER_PATH_FOR_CURRENT_VIDEO)
+
 input = np.zeros((12,30,160,160,1))
 
-cap = cv2.VideoCapture(filepath)
+cap = cv2.VideoCapture(VIDEO_PATH)
 ret, frame = cap.read()
 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 frame = cv2.resize(frame,(64,48))
@@ -171,7 +183,7 @@ frame = frame[None,...,None]
 col_check = int(model.predict(frame)[0] < 0.5)
 
 frame_num = 0
-cap = cv2.VideoCapture(filepath)
+cap = cv2.VideoCapture(VIDEO_PATH)
 while(cap.isOpened()):
     ret, frame = cap.read()
     if not ret:
@@ -188,19 +200,31 @@ while(cap.isOpened()):
             x = j*w
             y = i*h
 
-            croped_frame = frame[y:y+h, x:x+w]
-            if croped_frame.sum() == 0:
+            cropped_frame = frame[y:y+h, x:x+w]
+
+            if cropped_frame.sum() == 0:
                 break
+
+            frame_path = os.path.abspath("{}/slice_{}/{}.png".format(TEMP_FOLDER_PATH_FOR_CURRENT_VIDEO, slice_num, frame_num)) 
+            frame_folder = os.path.abspath("{}/slice_{}/".format(TEMP_FOLDER_PATH_FOR_CURRENT_VIDEO, slice_num)) 
+
+            if not os.path.exists(frame_folder):
+                os.mkdir(frame_folder)
+
+            cv2.imwrite(frame_path, cropped_frame)
+
             if col_check:
-                croped_frame = np.pad(croped_frame, ((0,0),(16,16)), 'constant', constant_values=0)
-            
-            input[slice_num,frame_num] = croped_frame[...,None]
+                cropped_frame = np.pad(cropped_frame, ((0,0),(16,16)), 'constant', constant_values=0)
+
+            input[slice_num,frame_num] = cropped_frame[...,None]
     frame_num += 1
     if frame_num >= 30:
         break
 
 input = input[None,...]
 
+"""### Predict"""
+
 res = final_model.predict(input)
 
-print({"filepath": filepath, "predicted_value": res[0][0], "label": "normal" if res[0][0] < 0.5 else "abnormal"})
+print({"filepath": VIDEO_PATH, "predicted_value": res[0][0], "label": "normal" if res[0][0] < 0.5 else "abnormal"})

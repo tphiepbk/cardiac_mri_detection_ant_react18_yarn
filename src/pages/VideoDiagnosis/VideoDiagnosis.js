@@ -166,23 +166,27 @@ export default function VideoDiagnosis() {
     clearInterval(progressBarRunning);
     dispatch(progressBarSlice.actions.completeProgressBar());
 
-    const crawledListSlices = [];
-    for (let i = 0; i <= 10; i++) {
-      crawledListSlices.push({
-        sliceNumber: i,
-        sliceImageUrl:
-          "https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png",
-        sliceVideoPath: "https://youtu.be/DBJmR6hx2UE",
-      });
-    }
-    dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
-
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
     if (predictionResponse.result === "FAILED") {
       triggerTaskFailedAlert();
     } else {
       triggerTaskSucceededAlert();
+
+      const crawledListSlices = [];
+
+      const numberOfSlices = predictionResponse.sliceTempPaths.length
+
+      for (let i = 0; i < numberOfSlices ; i++) {
+        crawledListSlices.push({
+          sliceNumber: i,
+          sliceFrames: predictionResponse.sliceTempPaths[i],
+          sliceImageUrl: predictionResponse.sliceTempPaths[i][0],
+          sliceVideoPath: "https://youtu.be/kvjbNnHAno8",
+        });
+      }
+
+      dispatch(videoDiagnosisSlice.actions.setListSlices(crawledListSlices));
 
       if (predictionResponse.target.label === "abnormal") {
         dispatch(
