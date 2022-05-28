@@ -17,6 +17,9 @@ const fs = require("fs");
 const ffmpeg = require("fluent-ffmpeg");
 
 const database = require("./database/mongoDB");
+
+const pouchDB = require("./database/pouchDB")
+
 const { homedir } = require("os");
 
 const { videoProcessor } = require("./modules/videoProcessor");
@@ -557,6 +560,7 @@ ipcMain.on("clear-temp-folder", (event, data) => {
 });
 
 ipcMain.handle("check-credentials", async (_event, username, password) => {
+  /*
   const result = await database.checkCredentials(username, password);
   let returnValue = {
     description: "CHECK CREDENTIALS",
@@ -571,6 +575,9 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
     returnValue.username = result[0].username;
   }
   return returnValue;
+  */
+  const result = await pouchDB.insertUser(username, password);
+  return result;
 });
 
 ipcMain.handle("get-all-sample-records", async (_event, _data) => {

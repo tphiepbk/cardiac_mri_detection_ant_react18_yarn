@@ -19,6 +19,8 @@
     "moment": "^2.29.3",
     "mongoose": "^6.3.1",
     "nanoid": "^3.3.3",
+    "pouchdb": "^7.3.0",
+    "pouchdb-server": "^4.2.0",
     "python-shell": "^3.0.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -37,7 +39,7 @@
     "eject": "react-scripts eject",
     "electron:build": "yarn build && electron-builder -c.extraMetadata.main=src/electron-main.js",
     "electron:start": "wait-on tcp:3000 && electron .",
-    "dev": "concurrently -k \"cross-env yarn start\" \"yarn electron:start\"",
+    "dev": "concurrently -k \"cross-env yarn start\" \"yarn electron:start\" \"pouchdb-server --port 5984\"",
     "package": "react-scripts build && electron-forge package",
     "make": "react-scripts build && electron-forge make"
   },

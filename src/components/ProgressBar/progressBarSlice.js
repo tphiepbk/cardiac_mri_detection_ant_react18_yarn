@@ -9,8 +9,8 @@ const progressBarSlice = createSlice({
   initialState,
   reducers: {
     increaseProgressBar: (state, _action) => {
-      if (state.percent + 1 > 100) {
-        state.percent = 100;
+      if (state.percent + 1 > 99) {
+        state.percent = 99;
       } else {
         state.percent += 1;
       }
