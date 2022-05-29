@@ -8,6 +8,7 @@ import {
   appInteractiveSelector,
   appCurrentSelectedPageSelector,
   appLoadingScreenSelector,
+  appProcessRunningSelector,
 } from "./mainPageSelector";
 
 import Dashboard from "../Dashboard/Dashboard";
@@ -35,6 +36,7 @@ import videoDiagnosisSlice from "../VideoDiagnosis/videoDiagnosisSlice";
 import npyDiagnosisSlice from "../NPYDiagnosis/npyDiagnosisSlice";
 import multiVideoDiagnosisSlice from "../MultiVideoDiagnosis/multiVideoDiagnosisSlice";
 import multiNpyDiagnosisSlice from "../MultiNPYDiagnosis/multiNpyDiagnosisSlice";
+import progressBarSlice from "../../components/ProgressBar/progressBarSlice";
 import { userFullNameSelector } from "../Login/loginSelector";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -46,9 +48,13 @@ export default function MainPage() {
   const currentSelectedPage = useSelector(appCurrentSelectedPageSelector);
   const appInteractive = useSelector(appInteractiveSelector);
   const appLoadingScreen = useSelector(appLoadingScreenSelector);
+  const appProcessRunning = useSelector(appProcessRunningSelector);
   const userFullName = useSelector(userFullNameSelector);
 
   const changePage = (pageKey) => {
+    if (!appProcessRunning) {
+      dispatch(progressBarSlice.actions.clearProgressBar())
+    }
     if (!pageKey.includes("sub")) {
       dispatch(mainPageSlice.actions.setCurrentSelectedPage(pageKey));
     }

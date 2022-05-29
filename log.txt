@@ -500,3 +500,9 @@
 [Sun, 29 May 2022 04:47:00 GMT] [info] [<0.000.0>] 127.0.0.1 - - PUT /samples/1hM6If22dXjHaaYUaD4Hw 201
 [Sun, 29 May 2022 04:47:02 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
 [Sun, 29 May 2022 04:48:36 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:53:30 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:53:30 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:53:46 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:53:46 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:53:56 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:54:20 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
