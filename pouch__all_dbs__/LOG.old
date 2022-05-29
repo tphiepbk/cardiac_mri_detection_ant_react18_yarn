@@ -1,5 +1,5 @@
-2022/05/29-07:56:08.195 be4 Recovering log #110
-2022/05/29-07:56:08.195 be4 Level-0 table #112: started
-2022/05/29-07:56:08.198 be4 Level-0 table #112: 237 bytes OK
-2022/05/29-07:56:08.204 be4 Delete type=0 #110
-2022/05/29-07:56:08.205 be4 Delete type=3 #108
+2022/05/29-11:43:43.214 2c20 Recovering log #171
+2022/05/29-11:43:43.214 2c20 Level-0 table #174: started
+2022/05/29-11:43:43.219 2c20 Level-0 table #174: 237 bytes OK
+2022/05/29-11:43:43.232 2c20 Delete type=0 #171
+2022/05/29-11:43:43.233 2c20 Delete type=3 #169

@@ -12,7 +12,7 @@ const fs = require("fs");
 
 const ffmpeg = require("fluent-ffmpeg");
 
-const database = require("./database/mongoDB");
+const mongoDB = require("./database/mongoDB");
 
 const pouchDB = require("./database/pouchDB")
 
@@ -656,7 +656,7 @@ ipcMain.on("clear-temp-folder", (event, data) => {
 });
 
 ipcMain.handle("check-credentials", async (_event, username, password) => {
-  const result = await database.checkCredentials(username, password);
+  const result = await mongoDB.checkCredentials(username, password);
   let returnValue = {
     description: "CHECK CREDENTIALS",
   };
@@ -673,16 +673,26 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
 });
 
 ipcMain.handle("get-all-sample-records", async (_event, _data) => {
-  const result = await database.getAllSampleRecords();
-  const returnValue = {
-    description: "GET ALL SAMPLE RECORDS",
-    result: result,
-  };
-  return returnValue;
+  //const result = await mongoDB.getAllSampleRecords();
+  const getAllSampleRecordsResult = await pouchDB.getAllSampleRecords()
+
+  if (getAllSampleRecordsResult === "FAILED") {
+    return {
+      description: "GET ALL SAMPLE RECORDS",
+      result: "FAILED",
+    }
+  } else {
+    return {
+      description: "GET ALL SAMPLE RECORDS",
+      result: "SUCCESS",
+      target: getAllSampleRecordsResult,
+    }
+  }
 });
 
 ipcMain.handle("save-sample-record", async (_event, sampleObject) => {
-  const result = await database.saveSampleRecord(sampleObject);
+  //const result = await mongoDB.saveSampleRecord(sampleObject);
+  const result = await pouchDB.saveSampleRecord(sampleObject);
   console.log("Save sample's record = ", result);
   const returnValue = {
     description: "SAVE SAMPLE RECORD",

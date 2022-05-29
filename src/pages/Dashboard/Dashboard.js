@@ -18,27 +18,32 @@ export default function Dashboard() {
 
   React.useEffect(() => {
     const getAllSamples = async () => {
-      const response = await window.electronAPI.getAllSampleRecords();
-      const allSamples = response.result;
-      const allProcessedSamples = allSamples.map((element) => {
-        const date = new Date(element._doc.diagnosisResult.dateModified);
-        const dd = String(date.getDate()).padStart(2, "0");
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const yyyy = date.getFullYear();
-        const processedDate = dd + "/" + mm + "/" + yyyy;
-        return {
-          key: element._doc.id,
-          id: element._doc.id,
-          sampleName: element._doc.sampleName,
-          fullName: element._doc.fullName,
-          gender: element._doc.gender,
-          age: element._doc.age,
-          diagnosisResult_value: element._doc.diagnosisResult.value,
-          diagnosisResult_author: element._doc.diagnosisResult.author,
-          diagnosisResult_dateModified: processedDate,
-        };
-      });
-      dispatch(dashboardSlice.actions.setAllSamples(allProcessedSamples));
+      const getAllSamplesResponse = await window.electronAPI.getAllSampleRecords();
+      console.log(getAllSamplesResponse)
+      if (getAllSamplesResponse.result === "FAILED") {
+        console.log("Cannot retrieve data");
+      } else {
+        const allSamples = getAllSamplesResponse.target;
+        const allProcessedSamples = allSamples.map((element) => {
+          const date = new Date(element.diagnosisResult.dateModified);
+          const dd = String(date.getDate()).padStart(2, "0");
+          const mm = String(date.getMonth() + 1).padStart(2, "0");
+          const yyyy = date.getFullYear();
+          const processedDate = dd + "/" + mm + "/" + yyyy;
+          return {
+            key: element.id,
+            id: element.id,
+            sampleName: element.sampleName,
+            fullName: element.fullName,
+            gender: element.gender,
+            age: element.age,
+            diagnosisResult_value: element.diagnosisResult.value,
+            diagnosisResult_author: element.diagnosisResult.author,
+            diagnosisResult_dateModified: processedDate,
+          };
+        });
+        dispatch(dashboardSlice.actions.setAllSamples(allProcessedSamples));
+      }
     };
 
     getAllSamples();

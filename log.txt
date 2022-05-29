@@ -295,3 +295,208 @@
 [Sun, 29 May 2022 00:56:08 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
 [Sun, 29 May 2022 01:05:45 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
 [Sun, 29 May 2022 01:05:45 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 01:21:41 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 01:21:41 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 01:22:01 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET / 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/ 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/css/styles-a9623008fc27e79da2388441deeacfab.css 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/js/bundle-34997e32896293a1fa5d71f79eb1b4f7.js 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-site.png 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fauxtonicon5.woff 304
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?_=1653787323627 200
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653787323628 200
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_replicator?_=1653787323629 200
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_users?_=1653787323630 200
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /kittens?_=1653787323631 200
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /users?_=1653787323632 200
+[Sun, 29 May 2022 01:22:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fontawesome-webfont.woff 304
+[Sun, 29 May 2022 01:22:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - DELETE /kittens 200
+[Sun, 29 May 2022 01:22:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?_=1653787323633 200
+[Sun, 29 May 2022 01:22:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_replicator?_=1653787323634 200
+[Sun, 29 May 2022 01:22:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_users?_=1653787323635 200
+[Sun, 29 May 2022 01:22:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /users?_=1653787323636 200
+[Sun, 29 May 2022 01:22:57 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_membership 200
+[Sun, 29 May 2022 01:22:57 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_node/node1@127.0.0.1/_config 200
+[Sun, 29 May 2022 01:23:00 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs 200
+[Sun, 29 May 2022 01:23:00 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_replicator/_all_docs?include_docs=true&limit=100 200
+[Sun, 29 May 2022 01:23:01 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_active_tasks 200
+[Sun, 29 May 2022 01:23:02 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?_=1653787323637 200
+[Sun, 29 May 2022 01:23:02 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_replicator?_=1653787323638 200
+[Sun, 29 May 2022 01:23:02 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_users?_=1653787323639 200
+[Sun, 29 May 2022 01:23:02 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /users?_=1653787323640 200
+[Sun, 29 May 2022 01:23:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_membership 304
+[Sun, 29 May 2022 01:23:04 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_membership 304
+[Sun, 29 May 2022 01:23:04 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/couchdb-logo.png 200
+[Sun, 29 May 2022 01:23:04 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/asf-feather-logo.png 200
+[Sun, 29 May 2022 01:23:04 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/github.png 200
+[Sun, 29 May 2022 01:23:04 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/twitter.png 200
+[Sun, 29 May 2022 01:23:04 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/googleplus.png 200
+[Sun, 29 May 2022 01:23:04 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/linkedin.png 200
+[Sun, 29 May 2022 01:23:05 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_membership 304
+[Sun, 29 May 2022 01:23:05 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_membership 304
+[Sun, 29 May 2022 01:23:07 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-minilogo.png 200
+[Sun, 29 May 2022 01:23:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?_=1653787323641 200
+[Sun, 29 May 2022 01:23:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_replicator?_=1653787323642 200
+[Sun, 29 May 2022 01:23:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_users?_=1653787323643 200
+[Sun, 29 May 2022 01:23:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /users?_=1653787323644 200
+[Sun, 29 May 2022 01:41:33 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 01:41:33 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:38:17 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:38:17 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:38:30 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET / 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/ 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/css/styles-a9623008fc27e79da2388441deeacfab.css 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/js/bundle-34997e32896293a1fa5d71f79eb1b4f7.js 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET / 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-site.png 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fauxtonicon5.woff 304
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?_=1653791913781 200
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653791913782 200
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_replicator?_=1653791913783 200
+[Sun, 29 May 2022 02:38:33 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_users?_=1653791913784 200
+[Sun, 29 May 2022 02:38:34 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fontawesome-webfont.woff 304
+[Sun, 29 May 2022 02:38:34 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /users?_=1653791913785 200
+[Sun, 29 May 2022 02:38:44 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 404
+[Sun, 29 May 2022 02:38:44 GMT] [info] [<0.000.0>] 127.0.0.1 - - PUT /samples/ 201
+[Sun, 29 May 2022 02:41:19 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:41:19 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:41:34 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:41:34 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:41:53 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 02:42:35 GMT] [info] [<0.000.0>] 127.0.0.1 - - PUT /samples/nyuqAE2SiZ9JUVbCWYdAN 201
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/ 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/css/styles-a9623008fc27e79da2388441deeacfab.css 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/js/bundle-34997e32896293a1fa5d71f79eb1b4f7.js 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET / 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-site.png 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fauxtonicon5.woff 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?_=1653792183544 200
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_all_dbs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653792183545 200
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_replicator?_=1653792183546 200
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples?_=1653792183548 200
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_users?_=1653792183547 200
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fontawesome-webfont.woff 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-favicon.png 304
+[Sun, 29 May 2022 02:43:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /users?_=1653792183549 200
+[Sun, 29 May 2022 02:43:05 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22_design%2F%22&endkey=%22_design0%22&include_docs=true&limit=501 200
+[Sun, 29 May 2022 02:43:05 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?limit=21 200
+[Sun, 29 May 2022 02:43:05 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653792183550 200
+[Sun, 29 May 2022 02:43:10 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/nyuqAE2SiZ9JUVbCWYdAN?conflicts=true 200
+[Sun, 29 May 2022 02:43:10 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_uuids?count=1 200
+[Sun, 29 May 2022 02:43:16 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22_design%2F%22&endkey=%22_design0%22&include_docs=true&limit=501 304
+[Sun, 29 May 2022 02:43:16 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?limit=21 304
+[Sun, 29 May 2022 02:43:16 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653792183551 200
+[Sun, 29 May 2022 02:47:14 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:47:14 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:47:29 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 02:47:29 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs? 200
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/ 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/css/styles-a9623008fc27e79da2388441deeacfab.css 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/js/bundle-34997e32896293a1fa5d71f79eb1b4f7.js 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET / 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fauxtonicon5.woff 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-site.png 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22_design%2F%22&endkey=%22_design0%22&include_docs=true&limit=501 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?limit=21 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fontawesome-webfont.woff 304
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653792451414 200
+[Sun, 29 May 2022 02:47:31 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-favicon.png 304
+[Sun, 29 May 2022 02:49:00 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:49:00 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/ 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/css/styles-a9623008fc27e79da2388441deeacfab.css 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/js/bundle-34997e32896293a1fa5d71f79eb1b4f7.js 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET / 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-site.png 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fauxtonicon5.woff 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22_design%2F%22&endkey=%22_design0%22&include_docs=true&limit=501 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?limit=21 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fontawesome-webfont.woff 304
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653792551473 200
+[Sun, 29 May 2022 02:49:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-favicon.png 304
+[Sun, 29 May 2022 02:49:18 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 02:49:18 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs? 200
+[Sun, 29 May 2022 02:49:44 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:49:44 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:49:57 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 02:49:57 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs? 200
+[Sun, 29 May 2022 02:50:06 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/nyuqAE2SiZ9JUVbCWYdAN?conflicts=true 304
+[Sun, 29 May 2022 02:50:06 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_uuids?count=1 200
+[Sun, 29 May 2022 02:50:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?limit=21 304
+[Sun, 29 May 2022 02:50:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22_design%2F%22&endkey=%22_design0%22&include_docs=true&limit=501 304
+[Sun, 29 May 2022 02:50:09 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653792551474 200
+[Sun, 29 May 2022 02:51:26 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:51:26 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:51:46 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:51:46 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:51:59 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 02:51:59 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 02:52:48 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:52:48 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:53:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 02:53:03 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 02:55:05 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 02:55:05 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 02:55:14 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/ 304
+[Sun, 29 May 2022 02:55:14 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/css/styles-a9623008fc27e79da2388441deeacfab.css 304
+[Sun, 29 May 2022 02:55:14 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/js/bundle-34997e32896293a1fa5d71f79eb1b4f7.js 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_session 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET / 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fauxtonicon5.woff 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-site.png 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/fonts/fontawesome-webfont.woff 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22_design%2F%22&endkey=%22_design0%22&include_docs=true&limit=501 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?limit=21 304
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?startkey=%22%22&endkey=%22%E9%A6%99%22&limit=30&_=1653792915176 200
+[Sun, 29 May 2022 02:55:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /_utils/dashboard.assets/img/pouchdb-favicon.png 304
+[Sun, 29 May 2022 02:55:22 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 02:55:22 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:25:33 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:25:33 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:25:53 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:25:53 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:30:12 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:30:12 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:30:27 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:30:27 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:32:36 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:32:36 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:32:49 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:32:49 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:35:36 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:35:37 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:35:56 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:36:56 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:36:57 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:37:11 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:37:15 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:39:45 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:39:45 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:40:01 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:40:01 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:41:06 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:41:06 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:41:20 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:41:20 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:43:43 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:43:43 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:44:30 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:44:30 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:45:51 GMT] [info] [<0.000.0>] pouchdb-server has started on http://127.0.0.1:5984/
+[Sun, 29 May 2022 04:45:51 GMT] [info] [<0.000.0>] navigate to http://127.0.0.1:5984/_utils for the Fauxton UI.
+[Sun, 29 May 2022 04:46:10 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/ 200
+[Sun, 29 May 2022 04:46:10 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:47:00 GMT] [info] [<0.000.0>] 127.0.0.1 - - PUT /samples/1hM6If22dXjHaaYUaD4Hw 201
+[Sun, 29 May 2022 04:47:02 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200
+[Sun, 29 May 2022 04:48:36 GMT] [info] [<0.000.0>] 127.0.0.1 - - GET /samples/_all_docs?include_docs=true 200

@@ -58,7 +58,15 @@ const getAllSampleRecords = async () => {
           console.log(err);
           resolve("FAILED");
         } else {
-          resolve(docs);
+          const returnValue = docs.map(element => ({
+            id: element.id,
+            sampleName: element.sampleName,
+            fullName: element.fullName,
+            age: element.age,
+            gender: element.gender,
+            diagnosisResult: {...element.diagnosisResult}
+          }))
+          resolve(returnValue)
         }
       });
     });

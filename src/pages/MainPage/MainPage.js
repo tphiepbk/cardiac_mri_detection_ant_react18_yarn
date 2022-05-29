@@ -1,6 +1,7 @@
 import React from "react";
 import "./MainPage.css";
 import hcmutLogo from "../../images/hcmut.png";
+import smallAvatar from "../../images/small_avatar.jpg";
 import { useSelector, useDispatch } from "react-redux";
 import { progressBarSelector } from "../../components/ProgressBar/progressBarSelector";
 import {
@@ -75,6 +76,7 @@ export default function MainPage() {
   }
 
   const logoutButtonClickHandler = () => {
+    dispatch(mainPageSlice.actions.setCurrentSelectedPage("1"))
     dispatch(dashboardSlice.actions.clearContent());
     dispatch(videoDiagnosisSlice.actions.clearContent());
     dispatch(multiVideoDiagnosisSlice.actions.clearContent());
@@ -141,7 +143,7 @@ export default function MainPage() {
             <Header className="header">
               <ProgressBar percent={progressBarPercent} />
               <Space size={15}>
-                <Avatar src="https://joeschmoe.io/api/v1/random" />
+                <Avatar src={smallAvatar} />
                 <h3>{userFullName}</h3>
                 <Button
                   type="primary"
