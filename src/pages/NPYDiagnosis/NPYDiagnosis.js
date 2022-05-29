@@ -12,6 +12,7 @@ import {
   videoBboxPathSelector,
   samplePathSelector,
   concatenatedSamplePathSelector,
+  croppedNpyFolderPathSelector,
 } from "./npyDiagnosisSelector";
 
 import { Button, Descriptions, Empty, Skeleton, Tabs, List, Input } from "antd";
@@ -47,11 +48,12 @@ const NO_DIAGNOSIS_RESULT = 0;
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
-const AVERAGE_DIAGNOSE_TIME = 450;
+const AVERAGE_DIAGNOSE_TIME_INTERVAL = 940;
 
 export default function VideoDiagnosis() {
   const dispatch = useDispatch();
 
+  const croppedNpyFolderPath = useSelector(croppedNpyFolderPathSelector);
   const concatenatedSamplePath = useSelector(concatenatedSamplePathSelector);
   const samplePath = useSelector(samplePathSelector);
   const npyFileNames = useSelector(npyFileNamesSelector);
@@ -117,6 +119,7 @@ export default function VideoDiagnosis() {
         samplePath,
         sampleName,
         npyFileNames,
+        croppedNpyFolderPath,
         croppedNpyFilePaths,
         sliceTempPaths,
         croppedSliceTempPaths,
@@ -126,6 +129,12 @@ export default function VideoDiagnosis() {
         videoBboxOutputPath,
         videoMetadata: { format_long_name, duration, height, width },
       } = uploadNpySampleResponse.target;
+
+      dispatch(
+        npyDiagnosisSlice.actions.setCroppedNpyFolderPath(
+          croppedNpyFolderPath
+        )
+      );
 
       dispatch(
         npyDiagnosisSlice.actions.setConcatenatedSamplePath(
@@ -168,7 +177,6 @@ export default function VideoDiagnosis() {
           sliceImageUrl: sliceTempPaths[sliceNumber][0],
           sliceFrames: sliceTempPaths[sliceNumber],
           sliceCroppedFrames: croppedSliceTempPaths[sliceNumber],
-          sliceVideoPath: "https://youtu.be/kvjbNnHAno8",
           sliceCroppedNpyPath: croppedNpyFilePaths[sliceNumber],
         });
       }
@@ -206,24 +214,43 @@ export default function VideoDiagnosis() {
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
-    }, AVERAGE_DIAGNOSE_TIME);
+    }, AVERAGE_DIAGNOSE_TIME_INTERVAL);
 
-    const predictionResponse = await window.electronAPI.classifyNpySample(
-      concatenatedSamplePath
-    );
-    console.log(predictionResponse);
+    const classificationPromise = new Promise((resolve, _reject) => {
+      window.electronAPI.classifyNpySample(
+        concatenatedSamplePath
+      ).then(result => {
+        resolve(result)
+      });
+    })
+
+    const mnadPredictionPromise = new Promise((resolve, _reject) => {
+      window.electronAPI.generateMNADPrediction(
+        croppedNpyFolderPath
+      ).then(result => {
+        resolve(result)
+      });
+    })
+
+    console.time('Classification + MNAD')
+    const totalResult = await Promise.all([classificationPromise, mnadPredictionPromise])
+    console.timeEnd('Classification + MNAD')
+
+    console.log('Total result', totalResult)
+
+    const classificationResponse = totalResult[0]
 
     clearInterval(progressBarRunning);
     dispatch(progressBarSlice.actions.completeProgressBar());
 
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
-    if (predictionResponse.result === "FAILED") {
+    if (classificationResponse.result === "FAILED") {
       triggerTaskFailedAlert();
     } else {
       triggerTaskSucceededAlert();
 
-      if (predictionResponse.target.label === "abnormal") {
+      if (classificationResponse.target.label === "abnormal") {
         dispatch(
           npyDiagnosisSlice.actions.setDiagnosisResult(
             ABNORMAL_DIAGNOSIS_RESULT
@@ -499,9 +526,6 @@ export default function VideoDiagnosis() {
                   sliceFrames={listSlices[currentSliceSelected].sliceFrames}
                   sliceCroppedFrames={
                     listSlices[currentSliceSelected].sliceCroppedFrames
-                  }
-                  sliceVideoPath={
-                    listSlices[currentSliceSelected].sliceVideoPath
                   }
                   sliceCroppedNpyPath={
                     listSlices[currentSliceSelected].sliceCroppedNpyPath

@@ -6,10 +6,6 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-const { execFile } = require("child_process");
-
-const { PythonShell } = require("python-shell");
-
 const path = require("path");
 
 const fs = require("fs");
@@ -46,6 +42,18 @@ const {
 const {
   multipleVideosClassification,
 } = require("./modules/multipleVideosClassification");
+
+const {
+  MNADPredictionGenerator,
+} = require("./modules/MNADPredictionGenerator");
+
+const {
+  multipleMNADPredictionGenerator,
+} = require("./modules/multipleMNADPredictionGenerator");
+
+const {
+  MNADVideoGenerator,
+} = require("./modules/MNADVideoGenerator");
 
 let userDataPath_temp = path.resolve(
   homedir + "/cardiac_mri_abnormalities_detection/"
@@ -508,6 +516,94 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle(
+  "generate-mnad-prediction",
+  async (_event, croppedNpyFolderPath) => {
+    console.log(
+      "========================================== Generating MNAD prediction =============================================="
+    );
+    const rawMNADPredictionResult = await MNADPredictionGenerator(
+      userDataPath_temp,
+      croppedNpyFolderPath
+    );
+
+    console.log(
+      "======================================== Finish generating MNAD prediction ============================================"
+    );
+
+    if (rawMNADPredictionResult === "FAILED") {
+      return {
+        description: "GENERATE MNAD PREDICTION",
+        result: "FAILED",
+      };
+    } else {
+      return {
+        description: "GENERATE MNAD PREDICTION",
+        result: "SUCCESS",
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "generate-multiple-mnad-prediction",
+  async (_event, croppedNpyFolderPaths) => {
+    console.log(
+      "========================================== Generating multiple MNAD prediction =============================================="
+    );
+    const rawMNADPredictionResult = await multipleMNADPredictionGenerator(
+      userDataPath_temp,
+      croppedNpyFolderPaths
+    );
+
+    console.log(
+      "======================================== Finish generating multiple MNAD prediction ============================================"
+    );
+
+    if (rawMNADPredictionResult === "FAILED") {
+      return {
+        description: "GENERATE MULTIPLE MNAD PREDICTION",
+        result: "FAILED",
+      };
+    } else {
+      return {
+        description: "GENERATE MULTIPLE MNAD PREDICTION",
+        result: "SUCCESS",
+      };
+    }
+  }
+);
+
+ipcMain.handle(
+  "generate-mnad-video",
+  async (_event, sliceCroppedNpyPath) => {
+    console.log(
+      "========================================== Generating MNAD video =============================================="
+    );
+    const rawMNADGenerateVideoResult = await MNADVideoGenerator(
+      sliceCroppedNpyPath,
+    );
+
+    console.log(
+      "======================================== Finish generating MNAD video ============================================"
+    );
+
+    if (rawMNADGenerateVideoResult === "FAILED") {
+      return {
+        description: "GENERATE MNAD VIDEO",
+        result: "FAILED",
+      };
+    } else {
+      return {
+        description: "GENERATE MNAD VIDEO",
+        result: "SUCCESS",
+        target: rawMNADGenerateVideoResult,
+      };
+    }
+  }
+);
+
+
 ipcMain.handle("predict-abnormal-position-for-slice", async (_event, data) => {
   const { sliceCroppedNpyPath, edFrameIndex, esFrameIndex } = data;
 
@@ -560,7 +656,6 @@ ipcMain.on("clear-temp-folder", (event, data) => {
 });
 
 ipcMain.handle("check-credentials", async (_event, username, password) => {
-  /*
   const result = await database.checkCredentials(username, password);
   let returnValue = {
     description: "CHECK CREDENTIALS",
@@ -575,9 +670,6 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
     returnValue.username = result[0].username;
   }
   return returnValue;
-  */
-  const result = await pouchDB.insertUser(username, password);
-  return result;
 });
 
 ipcMain.handle("get-all-sample-records", async (_event, _data) => {

@@ -12,7 +12,30 @@
 }
 
 .slice-card-modal__video {
-  margin-bottom: 30px;
+  margin-top: auto;
+  height: 41vh;
+  width: 32vw;
+  border: 1px solid #BEBEBE;
+  border-radius: 10px;
+}
+
+.slice-card-modal__video--empty {
+  margin-top: auto;
+  height: 41vh;
+  width: 32vw;
+  border: 1px solid #BEBEBE;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slice-card-modal__first-model__container {
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .slice-card-modal__first-model {

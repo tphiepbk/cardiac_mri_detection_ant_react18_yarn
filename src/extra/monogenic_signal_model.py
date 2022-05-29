@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -128,7 +129,10 @@ def get_final_amplitude(size=96, cw=[10], typ='dop', param = 0.55):
     tensor = preprocess(tensor)
 
     ed_img = tensor[:,:,ED_FRAME_INDEX]
+    ed_img = cv2.medianBlur(ed_img, 3)
+
     es_img = tensor[:,:,ES_FRAME_INDEX]
+    es_img = cv2.medianBlur(es_img, 3)
 
     amplitude1 = getAmplitude(ed_img, cw, typ, param)
     amplitude2 = getAmplitude(es_img, cw, typ, param)

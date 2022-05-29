@@ -17,7 +17,6 @@ export default function SliceCardModal(props) {
     sliceNumber,
     sliceFrames,
     sliceCroppedFrames,
-    sliceVideoPath,
     sliceCroppedNpyPath,
   } = props;
 
@@ -27,6 +26,8 @@ export default function SliceCardModal(props) {
   const [croppedFramesMode, setCroppedFramesMode] = React.useState(false);
 
   const [predictionResults, setPredictionResults] = React.useState([]);
+
+  const [generatedMNADVideoUrl, setGeneratedMNADVideoUrl] = React.useState("");
 
   console.log(predictionResults);
 
@@ -63,6 +64,19 @@ export default function SliceCardModal(props) {
     }
   };
 
+  const generateMNADVideo = async () => {
+    console.log("Generating MNAD video...");
+    const generateMNADVideoResponse = await window.electronAPI.generateMNADVideo(sliceCroppedNpyPath)
+
+    console.log(generateMNADVideoResponse)
+
+    if (generateMNADVideoResponse.result === "FAILED") {
+      setGeneratedMNADVideoUrl("")
+    } else {
+      setGeneratedMNADVideoUrl(generateMNADVideoResponse.target);
+    }
+  };
+
   return (
     <Modal
       className="slice-card-modal"
@@ -75,29 +89,32 @@ export default function SliceCardModal(props) {
     >
       <div className="slice-card-modal-container">
         <fieldset className="slice-card-modal__first-model">
-          <legend>First model</legend>
-          <ReactPlayer
-            className="slice-card-modal__video"
-            width={600}
-            height={400}
-            url={sliceVideoPath}
-            playing={true}
-            controls={false}
-            loop={true}
-          />
+          <legend>MNAD model</legend>
+          <div className="slice-card-modal__first-model__container">
+            <Button
+              type="primary"
+              style={{ borderRadius: "5px" }}
+              onClick={generateMNADVideo}
+            >
+              Generate
+            </Button>
+            {generatedMNADVideoUrl ? (
+              <ReactPlayer
+                className="slice-card-modal__video"
+                width={600}
+                height={400}
+                url={generatedMNADVideoUrl}
+                playing={true}
+                controls={false}
+                loop={true}
+              />
+            ) : (
+              <div className="slice-card-modal__video--empty">
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              </div>
+            )}
+          </div>
         </fieldset>
-
-        {/**
-        <Divider
-          type="vertical"
-          style={{
-            height: "10vh",
-            border: "2px solid",
-            borderRadius: "10px",
-            color: "#BEBEBE",
-          }}
-        />
-        */}
 
         <fieldset className="slice-card-modal__second-model">
           <legend>Monogenic Signal Model</legend>

@@ -2,8 +2,6 @@ const path = require("path");
 
 const fs = require("fs");
 
-const { execFile } = require("child_process");
-
 const { PythonShell } = require("python-shell");
 
 const { videoProcessor } = require("./videoProcessor");
@@ -59,33 +57,8 @@ const npySampleProcessor = async (userDataPath_temp, samplePath) => {
         __dirname + "/../resources/pretrained_models/best.pt"
       );
 
-      /*
-      const npyProcessingModuleExecutablePath = path.resolve(
-        __dirname + "/resources/npy_processor/npy_processor.exe"
-      );
-      const npyProcessingPromise = new Promise((resolve, _reject) => {
-        execFile(
-          npyProcessingModuleExecutablePath,
-          [
-            ultralyticsYoloV5Path,
-            detectorPath,
-            userDataPath_temp,
-            samplePath,
-          ],
-          (error, _stdout, _stderr) => {
-            if (error) {
-              console.log(error);
-              resolve("FAILED");
-            } else {
-              resolve("SUCCESS");
-            }
-          }
-        );
-      });
-      */
-
       const npySampleProcessorScript = path.resolve(
-        __dirname + "/../extra/npy_processor.py"
+        __dirname + "/../extra/npy_sample_processor.py"
       );
 
       const pythonPath = path.resolve(
@@ -214,12 +187,12 @@ const npySampleProcessor = async (userDataPath_temp, samplePath) => {
             returnedCroppedSliceTempPaths.unshift(temp);
           }
 
-          const currentSampleTempPathCroppedNpy = path.resolve(
+          const croppedNpyFolderPath = path.resolve(
             `${userDataPath_temp}/${sampleName}/cropped_npy/`
           );
 
           let croppedNpyFilePaths = fs.readdirSync(
-            currentSampleTempPathCroppedNpy
+            croppedNpyFolderPath
           );
 
           croppedNpyFilePaths.sort(
@@ -228,7 +201,7 @@ const npySampleProcessor = async (userDataPath_temp, samplePath) => {
               parseInt(b.substring(0, b.length - 8))
           );
 
-          croppedNpyFilePaths = croppedNpyFilePaths.map(filename => path.resolve(`${currentSampleTempPathCroppedNpy}/${filename}`))
+          croppedNpyFilePaths = croppedNpyFilePaths.map(filename => path.resolve(`${croppedNpyFolderPath}/${filename}`))
           croppedNpyFilePaths.reverse();
 
           const concatenatedNpySamplePath = path.resolve(`${userDataPath_temp}/${sampleName}/${sampleName}.npy`)
@@ -238,6 +211,7 @@ const npySampleProcessor = async (userDataPath_temp, samplePath) => {
             sampleName,
             concatenatedNpySamplePath,
             npyFileNames: filesInFolder,
+            croppedNpyFolderPath,
             croppedNpyFilePaths,
             sliceTempPaths: returnedSliceTempPaths,
             croppedSliceTempPaths: returnedCroppedSliceTempPaths,

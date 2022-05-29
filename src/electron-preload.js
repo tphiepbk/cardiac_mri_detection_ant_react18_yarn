@@ -34,6 +34,18 @@ contextBridge.exposeInMainWorld("electronAPI", {
   classifyNpySample: (concatenatedNpySamplePath) =>
     ipcRenderer.invoke("classify-npy-sample", concatenatedNpySamplePath),
 
+  // * Generate MNAD prediction result 
+  generateMNADPrediction: (croppedNpyFolderPath) =>
+    ipcRenderer.invoke("generate-mnad-prediction", croppedNpyFolderPath),
+
+  // * Generate multiple MNAD prediction result 
+  generateMultipleMNADPrediction: (croppedNpyFolderPaths) =>
+    ipcRenderer.invoke("generate-multiple-mnad-prediction", croppedNpyFolderPaths),
+
+  // * Generate MNAD video 
+  generateMNADVideo: (sliceCroppedNpyPath) =>
+    ipcRenderer.invoke("generate-mnad-video", sliceCroppedNpyPath),
+
   // * Classification for multi NPY samples
   classifyMultipleNpySamples: (concatenatedNpySamplePaths) =>
     ipcRenderer.invoke("classify-multiple-npy-samples", concatenatedNpySamplePaths),

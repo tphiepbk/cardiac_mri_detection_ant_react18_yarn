@@ -40,7 +40,7 @@ import {
 const NORMAL_DIAGNOSIS_RESULT = 1;
 const ABNORMAL_DIAGNOSIS_RESULT = 2;
 
-const AVERAGE_DIAGNOSE_TIME = 250;
+const AVERAGE_DIAGNOSE_TIME_INTERVAL = 550;
 
 export default function MultiNPYDiagnosis() {
   const dispatch = useDispatch();
@@ -137,7 +137,6 @@ export default function MultiNPYDiagnosis() {
               sliceImageUrl: npyObject.sliceTempPaths[sliceNumber][0],
               sliceFrames: npyObject.sliceTempPaths[sliceNumber],
               sliceCroppedFrames: npyObject.croppedSliceTempPaths[sliceNumber],
-              sliceVideoPath: "https://youtu.be/kvjbNnHAno8",
               sliceCroppedNpyPath: npyObject.croppedNpyFilePaths[sliceNumber],
             });
           }
@@ -182,16 +181,35 @@ export default function MultiNPYDiagnosis() {
 
     const progressBarRunning = setInterval(() => {
       dispatch(progressBarSlice.actions.increaseProgressBar());
-    }, listInputNpyObject.length * AVERAGE_DIAGNOSE_TIME);
+    }, listInputNpyObject.length * AVERAGE_DIAGNOSE_TIME_INTERVAL);
 
-    const predictionResponse =
-      await window.electronAPI.classifyMultipleNpySamples(
+    const multipleClassificationPromise = new Promise((resolve, _reject) => {
+      window.electronAPI.classifyMultipleNpySamples(
         listInputNpyObject.map(
           (npyObject) => npyObject.concatenatedNpySamplePath
         )
-      );
+      ).then(result => {
+        resolve(result)
+      });
+    })
 
-    console.log(predictionResponse);
+    const multipleMNADPredictionPromise = new Promise((resolve, _reject) => {
+      window.electronAPI.generateMultipleMNADPrediction(
+        listInputNpyObject.map(
+          (npyObject) => npyObject.croppedNpyFolderPath
+        )
+      ).then(result => {
+        resolve(result)
+      });
+    })
+
+    console.time('Classification + MNAD')
+    const totalResult = await Promise.all([multipleClassificationPromise, multipleMNADPredictionPromise])
+    console.timeEnd('Classification + MNAD')
+
+    console.log('Total result', totalResult)
+
+    const multipleClassificationResponse = totalResult[0]
 
     clearInterval(progressBarRunning);
 
@@ -201,14 +219,14 @@ export default function MultiNPYDiagnosis() {
 
     dispatch(mainPageSlice.actions.setProcessRunning(false));
 
-    if (predictionResponse.result === "FAILED") {
+    if (multipleClassificationResponse.result === "FAILED") {
       triggerTaskFailedAlert();
     } else {
       triggerTaskSucceededAlert();
 
       dispatch(
         multiNpyDiagnosisSlice.actions.setListPredictionResult(
-          predictionResponse.target.map(
+          multipleClassificationResponse.target.map(
             (returnedObject) => returnedObject.label
           ),
         )
@@ -439,10 +457,6 @@ export default function MultiNPYDiagnosis() {
                 sliceImageUrl={
                   multiListSlices[currentVideoSelected][currentSliceSelected]
                     .sliceImageUrl
-                }
-                sliceVideoPath={
-                  multiListSlices[currentVideoSelected][currentSliceSelected]
-                    .sliceVideoPath
                 }
                 sliceCroppedNpyPath={
                   multiListSlices[currentVideoSelected][currentSliceSelected]
