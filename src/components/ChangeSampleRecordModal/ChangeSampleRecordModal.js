@@ -1,61 +1,58 @@
 import React from "react";
-import { usernameSelector } from "../../pages/Login/loginSelector";
 import {
   Modal,
   Form,
   Input,
   Radio,
   InputNumber,
-  DatePicker,
   Button,
 } from "antd";
+import { useDispatch } from "react-redux";
+import dashboardSlice from "../../pages/Dashboard/dashboardSlice";
 
-import moment from "moment";
-import { useSelector } from "react-redux";
+export default function ChangeSampleRecordModal(props) {
+  const dispatch = useDispatch();
 
-export default function SaveSampleRecordModal(props) {
-  const username = useSelector(usernameSelector)
-  console.log(username)
+  const updateSampleRecord = async (sampleObject) => {
+    const updateSampleRecordResponse = await window.electronAPI.updateSampleRecord(sampleObject);
+    dispatch(dashboardSlice.actions.toggleLoadAllDataEffect());
+    console.log(updateSampleRecordResponse);
+  }
 
-  const {
-    saveSampleRecord,
-    closeSaveSampleRecordModalHandler,
-    sampleName,
-    diagnosisResult,
-    today,
-  } = props;
+  const {closeChangeSampleRecordModalHandler, currentSelectedSample} = props
 
+  const {id, sampleName, fullName, gender, age, diagnosisResult : {value, author}} = currentSelectedSample;
+
+  console.log('currentSelectedSample', currentSelectedSample)
   const onFinish = (values) => {
-    closeSaveSampleRecordModalHandler();
+    closeChangeSampleRecordModalHandler();
 
     const record = {
+      id: id,
       sampleName: sampleName,
       fullName: values.fullName,
       age: values.age,
       gender: values.gender,
       diagnosisResult: {
         value: values.diagnosisResultValue,
-        author: username,
-        dateOfDiagnosis: values.dateOfDiagnosis.toDate(),
+        author: author,
       },
     };
 
-    saveSampleRecord(record);
+    updateSampleRecord(record)
   };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
 
-  console.log(`Diagnosis result = ${diagnosisResult}`);
-
   return (
     <Modal
-      title="Save sample's record"
+      title="Change sample's record"
       visible={true}
-      onCancel={closeSaveSampleRecordModalHandler}
+      onCancel={closeChangeSampleRecordModalHandler}
       footer={null}
-      className="save-sample-record-modal"
+      className="change-sample-record-modal"
     >
       <Form
         labelCol={{
@@ -66,10 +63,12 @@ export default function SaveSampleRecordModal(props) {
         }}
         layout="horizontal"
         initialValues={{
-          gender: "male",
-          diagnosisResultValue: diagnosisResult === 1 ? "normal" : "abnormal",
-          dateOfDiagnosis: moment(today, "DD/MM/YYYY"),
+          diagnosisResultValue: value,
+          author: author,
           sampleName: sampleName,
+          fullName: fullName,
+          gender: gender,
+          age: age,
         }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
@@ -117,6 +116,7 @@ export default function SaveSampleRecordModal(props) {
           <InputNumber />
         </Form.Item>
 
+        {/*
         <Form.Item
           label="Date of diagnosis"
           name="dateOfDiagnosis"
@@ -130,6 +130,7 @@ export default function SaveSampleRecordModal(props) {
         >
           <DatePicker />
         </Form.Item>
+         */}
 
         <Form.Item
           label="Diagnosis Result"

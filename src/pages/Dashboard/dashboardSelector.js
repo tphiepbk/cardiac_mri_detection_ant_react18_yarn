@@ -14,3 +14,8 @@ export const currentDataPageSelector = createSelector(
   (state) => state.dashboard.currentDataPage,
   (currentDataPage) => currentDataPage
 )
+
+export const triggerLoadAllDataEffectSelector = createSelector(
+  (state) => state.dashboard.triggerLoadAllDataEffect,
+  (triggerLoadAllDataEffect) => triggerLoadAllDataEffect
+)

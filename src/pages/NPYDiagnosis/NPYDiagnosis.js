@@ -452,7 +452,7 @@ export default function VideoDiagnosis() {
           </div>
 
           <div className="npy-diagnosis__diagnosis-result__result-panel__date-modified">
-            <h2>Date Modified</h2>
+            <h2>Date of diagnosis</h2>
             {diagnosisResult === NO_DIAGNOSIS_RESULT ? (
               <Skeleton paragraph={{ rows: 0 }} />
             ) : (

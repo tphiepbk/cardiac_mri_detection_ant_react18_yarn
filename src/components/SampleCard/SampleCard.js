@@ -1,30 +1,38 @@
 import React from "react";
 import "./SampleCard.css";
-import avatarLogo from "../../images/avatar.png"
+import avatarLogo from "../../images/avatar.png";
 
 import { Image, Button, Descriptions, Tag, Tooltip } from "antd";
 
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, CloseCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 
 import { currentSelectedSampleSelector } from "../../pages/Dashboard/dashboardSelector";
 import { useSelector } from "react-redux";
+import ChangeSampleRecordModal from "../ChangeSampleRecordModal/ChangeSampleRecordModal";
 
 export default function SampleCard() {
   const currentSelectedSample = useSelector(currentSelectedSampleSelector);
 
+  const [changeSampleRecordModalVisible, setChangeSampleRecordModalVisible] =
+    React.useState(false);
+
+  const closeChangeSampleRecordModal = () => {
+    setChangeSampleRecordModalVisible(false);
+  };
+
+  const showChangeSampleRecordModal = () => {
+    setChangeSampleRecordModalVisible(true);
+  };
+
+  const changeButtonClickHandler = async () => {
+    showChangeSampleRecordModal();
+  };
+
   return (
     <div className="sample-card">
-      <Image
-        width={150}
-        preview={false}
-        src={avatarLogo}
-      />
+      <Image width={150} preview={false} src={avatarLogo} />
 
-      <Descriptions
-        bordered
-        column={3}
-        size={"small"}
-      >
+      <Descriptions bordered column={3} size={"small"}>
         <Descriptions.Item label="ID" span={3}>
           {currentSelectedSample.id}
         </Descriptions.Item>
@@ -54,7 +62,11 @@ export default function SampleCard() {
         <div className="sample-card__diagnosis-result__result">
           <h3>Result</h3>
           <div>
-            {currentSelectedSample.diagnosisResult.value === "normal" ? (
+            {currentSelectedSample.diagnosisResult.value === "N/A" ? (
+              <Tag icon={<MinusCircleOutlined/>} color="purple">
+                None
+              </Tag>
+            ) : currentSelectedSample.diagnosisResult.value === "normal" ? (
               <Tag icon={<CheckCircleOutlined />} color="success">
                 Normal
               </Tag>
@@ -64,7 +76,11 @@ export default function SampleCard() {
               </Tag>
             )}
           </div>
-          <Button type="primary" shape="round">
+          <Button
+            type="primary"
+            shape="round"
+            onClick={changeButtonClickHandler}
+          >
             Change
           </Button>
         </div>
@@ -75,10 +91,17 @@ export default function SampleCard() {
         </div>
 
         <div className="sample-card__diagnosis-result__confirmed-by">
-          <h3>Date Modified</h3>
-          <h2>{currentSelectedSample.diagnosisResult.dateModified}</h2>
+          <h3>Date of diagnosis</h3>
+          <h2>{currentSelectedSample.diagnosisResult.dateOfDiagnosis}</h2>
         </div>
       </div>
+
+      {changeSampleRecordModalVisible && (
+        <ChangeSampleRecordModal
+          closeChangeSampleRecordModalHandler={closeChangeSampleRecordModal}
+          currentSelectedSample={currentSelectedSample}
+        />
+      )}
     </div>
   );
 }

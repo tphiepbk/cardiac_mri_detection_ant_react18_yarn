@@ -1,14 +1,13 @@
-2022/05/29-09:43:03.804 6570 Recovering log #38
-2022/05/29-09:43:03.804 6570 Level-0 table #40: started
-2022/05/29-09:43:03.807 6570 Level-0 table #40: 237 bytes OK
-2022/05/29-09:43:03.815 6570 Delete type=0 #38
-2022/05/29-09:43:03.815 6570 Delete type=3 #36
-2022/05/29-09:43:03.815 501c Compacting 4@0 + 1@1 files
-2022/05/29-09:43:03.818 501c Generated table #42@0: 25 keys, 2150 bytes
-2022/05/29-09:43:03.818 501c Compacted 4@0 + 1@1 files => 2150 bytes
-2022/05/29-09:43:03.820 501c compacted to: files[ 0 1 0 0 0 0 0 ]
-2022/05/29-09:43:03.820 501c Delete type=2 #29
-2022/05/29-09:43:03.820 501c Delete type=2 #31
-2022/05/29-09:43:03.820 501c Delete type=2 #34
-2022/05/29-09:43:03.820 501c Delete type=2 #37
-2022/05/29-09:43:03.821 501c Delete type=2 #40
+2022/05/30-15:24:39.737 4c74 Recovering log #12
+2022/05/30-15:24:39.737 4c74 Level-0 table #14: started
+2022/05/30-15:24:39.741 4c74 Level-0 table #14: 237 bytes OK
+2022/05/30-15:24:39.748 4c74 Delete type=0 #12
+2022/05/30-15:24:39.749 4c74 Delete type=3 #10
+2022/05/30-15:24:39.749 3afc Compacting 4@0 + 0@1 files
+2022/05/30-15:24:39.753 3afc Generated table #16@0: 1 keys, 237 bytes
+2022/05/30-15:24:39.753 3afc Compacted 4@0 + 0@1 files => 237 bytes
+2022/05/30-15:24:39.754 3afc compacted to: files[ 0 1 0 0 0 0 0 ]
+2022/05/30-15:24:39.755 3afc Delete type=2 #5
+2022/05/30-15:24:39.755 3afc Delete type=2 #8
+2022/05/30-15:24:39.755 3afc Delete type=2 #11
+2022/05/30-15:24:39.755 3afc Delete type=2 #14

@@ -421,7 +421,7 @@ ipcMain.handle("classify-multiple-videos", async (_event, videoInputPaths) => {
   );
 
   const rawMultipleVideosClassificationResult =
-    await multipleVideosClassification(videoInputPaths);
+    await multipleVideosClassification(userDataPath_temp, videoInputPaths);
 
   console.log(
     "============================== Finished classifying multiple videos ===================================="
@@ -673,10 +673,10 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
 });
 
 ipcMain.handle("get-all-sample-records", async (_event, _data) => {
-  //const result = await mongoDB.getAllSampleRecords();
-  const getAllSampleRecordsResult = await pouchDB.getAllSampleRecords()
+  // const getAllSampleRecordsResult_mongoDB = await mongoDB.getAllSampleRecords();
+  const getAllSampleRecordsResult_pouchDB = await pouchDB.getAllSampleRecords()
 
-  if (getAllSampleRecordsResult === "FAILED") {
+  if (getAllSampleRecordsResult_pouchDB === "FAILED") {
     return {
       description: "GET ALL SAMPLE RECORDS",
       result: "FAILED",
@@ -685,18 +685,29 @@ ipcMain.handle("get-all-sample-records", async (_event, _data) => {
     return {
       description: "GET ALL SAMPLE RECORDS",
       result: "SUCCESS",
-      target: getAllSampleRecordsResult,
+      target: getAllSampleRecordsResult_pouchDB,
     }
   }
 });
 
 ipcMain.handle("save-sample-record", async (_event, sampleObject) => {
-  //const result = await mongoDB.saveSampleRecord(sampleObject);
-  const result = await pouchDB.saveSampleRecord(sampleObject);
-  console.log("Save sample's record = ", result);
+  const saveSampleRecordResult_mongoDB = await mongoDB.saveSampleRecord(sampleObject);
+  const saveSampleRecordResult_pouchDB = await pouchDB.saveSampleRecord(sampleObject);
+  console.log("Save sample's record = ", saveSampleRecordResult_pouchDB);
   const returnValue = {
     description: "SAVE SAMPLE RECORD",
-    result: result,
+    result: saveSampleRecordResult_pouchDB,
+  };
+  return returnValue;
+});
+
+ipcMain.handle("update-sample-record", async (_event, sampleObject) => {
+  // const updateSampleRecordResult_mongoDB = await mongoDB.updateSampleRecord(sampleObject);
+  const updateSampleRecordResult_pouchDB = await pouchDB.updateSampleRecord(sampleObject);
+  console.log("Update sample's record = ", updateSampleRecordResult_pouchDB);
+  const returnValue = {
+    description: "UPDATE SAMPLE RECORD",
+    result: updateSampleRecordResult_pouchDB,
   };
   return returnValue;
 });

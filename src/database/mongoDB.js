@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { nanoid } = require("nanoid")
+const { nanoid } = require("nanoid");
 
 const CONNECTION_STRING =
   "mongodb+srv://tphiepbk:hiepit-2992@cluster0.bjhqp.mongodb.net/test?retryWrites=true&w=majority";
@@ -33,7 +33,7 @@ const sampleSchema = new mongoose.Schema(
       value: String,
       confirmed: Boolean,
       author: String,
-      dateModified: Date,
+      dateOfDiagnosis: Date,
     },
   },
   { collection: "samples" }
@@ -58,15 +58,15 @@ const getAllSampleRecords = async () => {
           console.log(err);
           resolve("FAILED");
         } else {
-          const returnValue = docs.map(element => ({
+          const returnValue = docs.map((element) => ({
             id: element.id,
             sampleName: element.sampleName,
             fullName: element.fullName,
             age: element.age,
             gender: element.gender,
-            diagnosisResult: {...element.diagnosisResult}
-          }))
-          resolve(returnValue)
+            diagnosisResult: { ...element.diagnosisResult },
+          }));
+          resolve(returnValue);
         }
       });
     });
@@ -103,7 +103,7 @@ const saveSampleRecord = async (sampleObject) => {
       diagnosisResult: {
         value: sampleObject.diagnosisResult.value,
         author: sampleObject.diagnosisResult.author,
-        dateModified: sampleObject.diagnosisResult.dateModified,
+        dateOfDiagnosis: sampleObject.diagnosisResult.dateOfDiagnosis,
       },
     });
 
@@ -125,6 +125,56 @@ const saveSampleRecord = async (sampleObject) => {
 
   console.log(
     "============================= Finished saving sample record ================================"
+  );
+
+  return returnValue;
+};
+
+const updateSampleRecord = async (sampleObject) => {
+  console.log(
+    "============================= Updating sample record ================================"
+  );
+
+  let returnValue;
+
+  const connectionResult = await startConnection();
+  if (connectionResult === "FAILED") {
+    returnValue = "FAILED";
+  } else {
+    const filter = { id: sampleObject.id };
+
+    const matchDocument = await sampleModel.findOne(filter).exec();
+
+    const update = {
+      sampleName: sampleObject.sampleName,
+      fullName: sampleObject.fullName,
+      age: sampleObject.age,
+      gender: sampleObject.gender,
+      diagnosisResult: {
+        value: sampleObject.diagnosisResult.value,
+        author: sampleObject.diagnosisResult.author,
+        dateOfDiagnosis: matchDocument.diagnosisResult.dateOfDiagnosis,
+      },
+    };
+
+    const updateSamplePromise = new Promise((resolve, _reject) => {
+      sampleModel.findOneAndUpdate(filter, update, (err, _doc) => {
+        if (err) {
+          console.log(err);
+          resolve("FAILED");
+        } else {
+          resolve("SUCCESS");
+        }
+      });
+    });
+
+    returnValue = await updateSamplePromise;
+
+    await closeConnection();
+  }
+
+  console.log(
+    "============================= Finished updating sample record ================================"
   );
 
   return returnValue;
@@ -193,5 +243,6 @@ const checkCredentials = async (username, password) => {
 module.exports = {
   getAllSampleRecords,
   saveSampleRecord,
+  updateSampleRecord,
   checkCredentials,
 };

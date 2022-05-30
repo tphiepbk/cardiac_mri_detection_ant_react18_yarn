@@ -2,7 +2,7 @@ const { PythonShell } = require("python-shell");
 
 const path = require("path");
 
-const multipleVideosClassification = async (videoInputPaths) => {
+const multipleVideosClassification = async (userDataPath_temp, videoInputPaths) => {
   const unetPretrainPath = path.resolve(
     __dirname + "/../resources/pretrained_models/unet3.h5"
   );
@@ -30,6 +30,7 @@ const multipleVideosClassification = async (videoInputPaths) => {
       unetPretrainPath,
       checkColNumPretrainPath,
       classifyPretrainPath,
+      userDataPath_temp,
       ...videoInputPaths,
     ],
   };

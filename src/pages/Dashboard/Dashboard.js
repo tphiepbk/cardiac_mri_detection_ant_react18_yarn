@@ -9,12 +9,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   currentDataPageSelector,
   allSamplesSelector,
+  triggerLoadAllDataEffectSelector,
 } from "./dashboardSelector";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
 
   const currentDataPage = useSelector(currentDataPageSelector);
+  const triggerLoadAllDataEffect = useSelector(triggerLoadAllDataEffectSelector);
 
   React.useEffect(() => {
     const getAllSamples = async () => {
@@ -25,7 +27,7 @@ export default function Dashboard() {
       } else {
         const allSamples = getAllSamplesResponse.target;
         const allProcessedSamples = allSamples.map((element) => {
-          const date = new Date(element.diagnosisResult.dateModified);
+          const date = new Date(element.diagnosisResult.dateOfDiagnosis);
           const dd = String(date.getDate()).padStart(2, "0");
           const mm = String(date.getMonth() + 1).padStart(2, "0");
           const yyyy = date.getFullYear();
@@ -39,15 +41,16 @@ export default function Dashboard() {
             age: element.age,
             diagnosisResult_value: element.diagnosisResult.value,
             diagnosisResult_author: element.diagnosisResult.author,
-            diagnosisResult_dateModified: processedDate,
+            diagnosisResult_dateOfDiagnosis: processedDate,
           };
         });
         dispatch(dashboardSlice.actions.setAllSamples(allProcessedSamples));
+        dispatch(dashboardSlice.actions.resetCurrentSelectedSample())
       }
     };
 
     getAllSamples();
-  }, [currentDataPage, dispatch]);
+  }, [currentDataPage, dispatch, triggerLoadAllDataEffect]);
 
   const allSamples = useSelector(allSamplesSelector);
 
@@ -110,9 +113,9 @@ export default function Dashboard() {
       align: "center",
     },
     {
-      title: "Date modified",
-      dataIndex: "diagnosisResult_dateModified",
-      key: "diagnosisResult_dateModified",
+      title: "Date of diagnosis",
+      dataIndex: "diagnosisResult_dateOfDiagnosis",
+      key: "diagnosisResult_dateOfDiagnosis",
       width: 150,
       align: "center",
     },

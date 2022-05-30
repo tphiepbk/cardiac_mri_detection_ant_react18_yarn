@@ -58,6 +58,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   saveSampleRecord: (sampleObject) =>
     ipcRenderer.invoke("save-sample-record", sampleObject),
 
+  // * Update sample's record
+  updateSampleRecord: (sampleObject) =>
+    ipcRenderer.invoke("update-sample-record", sampleObject),
+
   // * Get all sample's record
   getAllSampleRecords: () => ipcRenderer.invoke("get-all-sample-records"),
 

@@ -372,7 +372,7 @@ export default function MultiNPYDiagnosis() {
           </div>
 
           <div className="multi-npy-diagnosis__diagnosis-result__result-panel__date-modified">
-            <h2>Date Modified</h2>
+            <h2>Date of diagnosis</h2>
             {listPredictionResult.length === 0 ? (
               <Skeleton paragraph={{ rows: 0 }} />
             ) : (

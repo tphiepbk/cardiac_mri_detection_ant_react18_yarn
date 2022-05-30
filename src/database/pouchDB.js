@@ -66,7 +66,7 @@ const saveSampleRecord = async (sampleObject) => {
     diagnosisResult: {
       value: sampleObject.diagnosisResult.value,
       author: sampleObject.diagnosisResult.author,
-      dateModified: sampleObject.diagnosisResult.dateModified,
+      dateOfDiagnosis: sampleObject.diagnosisResult.dateOfDiagnosis,
     },
   }
 
@@ -84,8 +84,41 @@ const saveSampleRecord = async (sampleObject) => {
   return returnValue
 }
 
+const updateSampleRecord = async (sampleObject) => {
+  const id = sampleObject.id;
+
+  const updateSampleRecordPromise = new Promise((resolve, _reject) => {
+    sampleDB.get(id).then((doc) => {
+      return sampleDB.put({
+        _id: id,
+        _rev: doc._rev,
+        id: doc.id,
+        sampleName: sampleObject.sampleName,
+        fullName: sampleObject.fullName,
+        age: sampleObject.age,
+        gender: sampleObject.gender,
+        diagnosisResult : {
+          value: sampleObject.diagnosisResult.value,
+          author: sampleObject.diagnosisResult.author,
+          dateOfDiagnosis: doc.diagnosisResult.dateOfDiagnosis,
+        }
+      })
+    }).then((response) => {
+      resolve("SUCCESS")
+    }).catch((err) => {
+      console.log(err);
+      resolve("FAILED");
+    })
+  })
+
+  const returnValue = await updateSampleRecordPromise;
+
+  return returnValue
+}
+
 module.exports = {
   insertUser,
   saveSampleRecord,
+  updateSampleRecord,
   getAllSampleRecords,
 };
