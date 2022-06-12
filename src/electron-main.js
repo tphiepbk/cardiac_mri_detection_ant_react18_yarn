@@ -14,7 +14,7 @@ const ffmpeg = require("fluent-ffmpeg");
 
 const mongoDB = require("./database/mongoDB");
 
-const pouchDB = require("./database/pouchDB")
+const pouchDB = require("./database/pouchDB");
 
 const { homedir } = require("os");
 
@@ -51,9 +51,7 @@ const {
   multipleMNADPredictionGenerator,
 } = require("./modules/multipleMNADPredictionGenerator");
 
-const {
-  MNADVideoGenerator,
-} = require("./modules/MNADVideoGenerator");
+const { MNADVideoGenerator } = require("./modules/MNADVideoGenerator");
 
 let userDataPath_temp = path.resolve(
   homedir + "/cardiac_mri_abnormalities_detection/"
@@ -363,7 +361,10 @@ ipcMain.handle("classify-video", async (_event, videoPath) => {
     "=============================== Classifying video =================================="
   );
 
-  const rawVideoClassificationResult = await videoClassification(userDataPath_temp, videoPath);
+  const rawVideoClassificationResult = await videoClassification(
+    userDataPath_temp,
+    videoPath
+  );
 
   console.log(
     "=========================== Finished classifying video ================================"
@@ -381,30 +382,35 @@ ipcMain.handle("classify-video", async (_event, videoPath) => {
 
     console.log(videoClassificationResult);
 
-    const videoName = path.basename(videoPath, path.extname(videoPath))
+    const videoName = path.basename(videoPath, path.extname(videoPath));
 
-    let allSliceFolders = fs.readdirSync(`${userDataPath_temp}/${videoName}/`)
+    let allSliceFolders = fs.readdirSync(`${userDataPath_temp}/${videoName}/`);
 
-    allSliceFolders = allSliceFolders.filter(element => element.includes("slice"))
+    allSliceFolders = allSliceFolders.filter((element) =>
+      element.includes("slice")
+    );
     allSliceFolders.sort(
       (a, b) =>
-        parseInt(a.substring(6, a.length)) -
-        parseInt(b.substring(6, b.length))
+        parseInt(a.substring(6, a.length)) - parseInt(b.substring(6, b.length))
     );
 
-    const NUMBER_OF_FRAMES = 30
+    const NUMBER_OF_FRAMES = 30;
 
-    const returnedSliceTempPaths = []
+    const returnedSliceTempPaths = [];
 
     for (let sliceFolder of allSliceFolders) {
-      const temp = []
-      for (let frame = 0 ; frame < NUMBER_OF_FRAMES ; frame++) {
-        temp.push(path.resolve(`${userDataPath_temp}/${videoName}/${sliceFolder}/${frame}.png`))
+      const temp = [];
+      for (let frame = 0; frame < NUMBER_OF_FRAMES; frame++) {
+        temp.push(
+          path.resolve(
+            `${userDataPath_temp}/${videoName}/${sliceFolder}/${frame}.png`
+          )
+        );
       }
-      returnedSliceTempPaths.push(temp)
+      returnedSliceTempPaths.push(temp);
     }
 
-    console.log(returnedSliceTempPaths)
+    console.log(returnedSliceTempPaths);
 
     return {
       description: "CLASSIFY VIDEO",
@@ -574,35 +580,31 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle(
-  "generate-mnad-video",
-  async (_event, sliceCroppedNpyPath) => {
-    console.log(
-      "========================================== Generating MNAD video =============================================="
-    );
-    const rawMNADGenerateVideoResult = await MNADVideoGenerator(
-      sliceCroppedNpyPath,
-    );
+ipcMain.handle("generate-mnad-video", async (_event, sliceCroppedNpyPath) => {
+  console.log(
+    "========================================== Generating MNAD video =============================================="
+  );
+  const rawMNADGenerateVideoResult = await MNADVideoGenerator(
+    sliceCroppedNpyPath
+  );
 
-    console.log(
-      "======================================== Finish generating MNAD video ============================================"
-    );
+  console.log(
+    "======================================== Finish generating MNAD video ============================================"
+  );
 
-    if (rawMNADGenerateVideoResult === "FAILED") {
-      return {
-        description: "GENERATE MNAD VIDEO",
-        result: "FAILED",
-      };
-    } else {
-      return {
-        description: "GENERATE MNAD VIDEO",
-        result: "SUCCESS",
-        target: rawMNADGenerateVideoResult,
-      };
-    }
+  if (rawMNADGenerateVideoResult === "FAILED") {
+    return {
+      description: "GENERATE MNAD VIDEO",
+      result: "FAILED",
+    };
+  } else {
+    return {
+      description: "GENERATE MNAD VIDEO",
+      result: "SUCCESS",
+      target: rawMNADGenerateVideoResult,
+    };
   }
-);
-
+});
 
 ipcMain.handle("predict-abnormal-position-for-slice", async (_event, data) => {
   const { sliceCroppedNpyPath, edFrameIndex, esFrameIndex } = data;
@@ -656,6 +658,20 @@ ipcMain.on("clear-temp-folder", (event, data) => {
 });
 
 ipcMain.handle("check-credentials", async (_event, username, password) => {
+  const result = await pouchDB.checkCredentials(username, password);
+  let returnValue = {
+    description: "CHECK CREDENTIALS",
+  };
+  if (result === "FAILED" || result === "NOT FOUND") {
+    returnValue.result = result;
+  } else {
+    returnValue.result = "SUCCESS";
+    returnValue.fullName = result[0].fullName;
+    returnValue.username = result[0].username;
+  }
+  return returnValue;
+
+  /*
   const result = await mongoDB.checkCredentials(username, password);
   let returnValue = {
     description: "CHECK CREDENTIALS",
@@ -670,29 +686,34 @@ ipcMain.handle("check-credentials", async (_event, username, password) => {
     returnValue.username = result[0].username;
   }
   return returnValue;
+  */
 });
 
 ipcMain.handle("get-all-sample-records", async (_event, _data) => {
   // const getAllSampleRecordsResult_mongoDB = await mongoDB.getAllSampleRecords();
-  const getAllSampleRecordsResult_pouchDB = await pouchDB.getAllSampleRecords()
+  const getAllSampleRecordsResult_pouchDB = await pouchDB.getAllSampleRecords();
 
   if (getAllSampleRecordsResult_pouchDB === "FAILED") {
     return {
       description: "GET ALL SAMPLE RECORDS",
       result: "FAILED",
-    }
+    };
   } else {
     return {
       description: "GET ALL SAMPLE RECORDS",
       result: "SUCCESS",
       target: getAllSampleRecordsResult_pouchDB,
-    }
+    };
   }
 });
 
 ipcMain.handle("save-sample-record", async (_event, sampleObject) => {
-  const saveSampleRecordResult_mongoDB = await mongoDB.saveSampleRecord(sampleObject);
-  const saveSampleRecordResult_pouchDB = await pouchDB.saveSampleRecord(sampleObject);
+  const saveSampleRecordResult_mongoDB = await mongoDB.saveSampleRecord(
+    sampleObject
+  );
+  const saveSampleRecordResult_pouchDB = await pouchDB.saveSampleRecord(
+    sampleObject
+  );
   console.log("Save sample's record = ", saveSampleRecordResult_pouchDB);
   const returnValue = {
     description: "SAVE SAMPLE RECORD",
@@ -703,7 +724,9 @@ ipcMain.handle("save-sample-record", async (_event, sampleObject) => {
 
 ipcMain.handle("update-sample-record", async (_event, sampleObject) => {
   // const updateSampleRecordResult_mongoDB = await mongoDB.updateSampleRecord(sampleObject);
-  const updateSampleRecordResult_pouchDB = await pouchDB.updateSampleRecord(sampleObject);
+  const updateSampleRecordResult_pouchDB = await pouchDB.updateSampleRecord(
+    sampleObject
+  );
   console.log("Update sample's record = ", updateSampleRecordResult_pouchDB);
   const returnValue = {
     description: "UPDATE SAMPLE RECORD",
